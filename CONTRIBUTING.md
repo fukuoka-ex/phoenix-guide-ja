@@ -7,6 +7,13 @@
 - リポジトリ: [https://github.com/phoenixframework/phoenix/tree/master/guides](https://github.com/phoenixframework/phoenix/tree/master/guides)
 - hexdocs: [https://hexdocs.pm/phoenix](https://hexdocs.pm/phoenix)
 
+## Issues
+
+Issueに未対応のファイルをリスト化しています。対応してくださる方は対応するissueに対してassigneeを設定後、Pull Requestの作成をお願いします。
+
+[https://github.com/fukuoka-ex/phoenix-guide-ja/issues](https://github.com/fukuoka-ex/phoenix-guide-ja/issues)
+
+
 ## Pull Request
 
 - 翻訳元サイトの変更の追従
