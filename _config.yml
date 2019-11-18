@@ -1,6 +1,7 @@
 title: Phoenix Guide
 description: ElixirのWebフレームワークPhoenixのガイド
-url: "https://github.com/koga1020/phoenix-guide-ja"
+url: "https://koga1020.github.io"
+baseurl: "/phoenix-guide-ja"
 theme: just-the-docs
 exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
 search_enabled: true
