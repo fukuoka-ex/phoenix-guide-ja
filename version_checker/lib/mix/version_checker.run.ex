@@ -28,7 +28,8 @@ defmodule Mix.Tasks.VersionChecker.Run do
           :ok
 
         false ->
-          post_issue(client, guide_file, %{
+          post_issue(client, %{
+            guide_file: guide_file,
             translate_hash: translate_hash,
             original_file_latest_hash: original_file_latest_hash
           })
@@ -80,10 +81,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
   @doc """
   issueの作成
   """
-  def post_issue(client, filepath, %{
-        translate_hash: translate_hash,
-        original_file_latest_hash: original_file_latest_hash
-      }) do
+  def post_issue(client, attrs) do
     run? = Application.get_env(:version_checker, :post_issue, false)
 
     if run? do
@@ -91,7 +89,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
 
       Tentacat.Issues.create(client, owner, repo, %{
         title: issue_title(),
-        body: issue_body()
+        body: issue_body(attrs)
       })
     else
       :ok
@@ -102,7 +100,20 @@ defmodule Mix.Tasks.VersionChecker.Run do
     "test issue"
   end
 
-  defp issue_body() do
-    "test body"
+  defp issue_body(%{
+         guide_file: guide_file,
+         translate_hash: translate_hash,
+         original_file_latest_hash: original_file_latest_hash
+       }) do
+    ~s(
+      ## 概要
+      - 翻訳元リポジトリに修正が加わっています
+      - ファイル: #{guide_file}
+
+      ## commit log
+      - 翻訳元ファイルの最新commit: https://github.com/phoenixframework/phoenix/blob/#{original_file_latest_hash}/#{guide_file}
+      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{translate_hash}/#{guide_file}
+      - history: https://github.com/phoenixframework/phoenix/commits/#{original_file_latest_hash}/#{guide_file}
+    )
   end
 end
