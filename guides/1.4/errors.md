@@ -3,6 +3,7 @@ layout: default
 group: guides
 title: Custom Errors
 nav_order: 14
+hash: 8fefa49f
 ---
 # Custom Errors
 
