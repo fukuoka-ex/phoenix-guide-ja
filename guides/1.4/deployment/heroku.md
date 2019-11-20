@@ -3,6 +3,7 @@ layout: default
 group: deployment
 title: Deploying on Heroku
 nav_order: 3
+hash: a5c207dd
 ---
 # Deploying on Heroku
 
