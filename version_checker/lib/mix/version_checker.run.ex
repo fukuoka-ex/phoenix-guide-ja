@@ -87,7 +87,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
       [owner, repo] = Path.split(Application.get_env(:version_checker, :translate_repo))
 
       Tentacat.Issues.create(client, owner, repo, %{
-        title: issue_title(),
+        title: issue_title(attrs),
         body: issue_body(attrs)
       })
     else
@@ -95,8 +95,8 @@ defmodule Mix.Tasks.VersionChecker.Run do
     end
   end
 
-  defp issue_title() do
-    "test issue"
+  defp issue_title(%{guide_file: guide_file}) do
+    "#{guide_file} の翻訳"
   end
 
   defp issue_body(%{
