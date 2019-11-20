@@ -19,8 +19,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
     |> Enum.each(fn guide_file ->
       translate_file = String.replace(guide_file, "guides/", "guides/1.4/")
 
-      # TODO: hashのconfigを生やすまでtitleで仮置き
-      translate_hash = get_translate_file_config(translate_repo_dir, translate_file)[:title]
+      translate_hash = get_translate_file_config(translate_repo_dir, translate_file)[:hash]
       original_file_latest_hash = get_latest_hash(original_repo_dir, guide_file)
 
       case String.equivalent?(translate_hash, original_file_latest_hash) do
