@@ -79,13 +79,17 @@ defmodule Mix.Tasks.VersionChecker.Run do
 
   @doc """
   issueの作成
+
+  実行可能な設定 かつ 同タイトルのissueが存在しない場合のみissueを作成する
+
   """
   def post_issue(client, attrs) do
     run? = Application.get_env(:version_checker, :post_issue, false)
 
-    if run? do
-      [owner, repo] = Path.split(Application.get_env(:version_checker, :translate_repo))
+    [owner, repo] = Path.split(Application.get_env(:version_checker, :translate_repo))
+    title = issue_title(attrs)
 
+    if run? and !issue_exists?(owner, repo, title) do
       Tentacat.Issues.create(client, owner, repo, %{
         title: issue_title(attrs),
         body: issue_body(attrs)
@@ -93,6 +97,13 @@ defmodule Mix.Tasks.VersionChecker.Run do
     else
       :ok
     end
+  end
+
+  defp issue_exists?(owner, repo, title) do
+    {200, %{"items" => items}, _} =
+      Tentacat.Search.issues(%{q: "repo:#{owner}/#{repo} #{title} in:title"})
+
+    Enum.count(items) > 0
   end
 
   defp issue_title(%{guide_file: guide_file}) do
@@ -104,15 +115,21 @@ defmodule Mix.Tasks.VersionChecker.Run do
          translate_hash: translate_hash,
          original_file_latest_hash: original_file_latest_hash
        }) do
-    ~s(
+    """
       ## 概要
       - 翻訳元リポジトリに修正が加わっています
       - ファイル: #{guide_file}
 
       ## commit log
-      - 翻訳元ファイルの最新commit: https://github.com/phoenixframework/phoenix/blob/#{original_file_latest_hash}/#{guide_file}
-      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{translate_hash}/#{guide_file}
-      - history: https://github.com/phoenixframework/phoenix/commits/#{original_file_latest_hash}/#{guide_file}
-    )
+      - 翻訳元ファイルの最新commit: https://github.com/phoenixframework/phoenix/blob/#{
+      original_file_latest_hash
+    }/#{guide_file}
+      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{translate_hash}/#{
+      guide_file
+    }
+      - history: https://github.com/phoenixframework/phoenix/commits/#{original_file_latest_hash}/#{
+      guide_file
+    }
+    """
   end
 end
