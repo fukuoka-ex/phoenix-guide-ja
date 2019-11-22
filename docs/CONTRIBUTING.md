@@ -13,6 +13,23 @@ Issueに未対応のファイルをリスト化しています。対応してく
 
 [https://github.com/fukuoka-ex/phoenix-guide-ja/issues](https://github.com/fukuoka-ex/phoenix-guide-ja/issues)
 
+## mdファイルの書き方
+翻訳元リポジトリのファイルのcommit hashをmdファイルに記載してください。
+hashについては、ファイルのHistoryのページからコピーできます。
+
+![copy_hash](./assets/copy_hash.png)
+
+```
+---
+layout: default
+group: guides
+title: Ecto
+nav_order: 11
+hash: f24c540504f07c06c9f1af951b889b5b297c54e0 ← ここを書き換える
+---
+```
+
+dailyで翻訳元リポジトリのcommit logを確認し、翻訳ファイルのhashと差分が生じている場合は自動でissueが作成されます。
 
 ## Pull Request
 
