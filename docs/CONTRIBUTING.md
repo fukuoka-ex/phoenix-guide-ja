@@ -15,9 +15,7 @@ Issueに未対応のファイルをリスト化しています。対応してく
 
 ## mdファイルの書き方
 翻訳元リポジトリのファイルのcommit hashをmdファイルに記載してください。
-hashについては、ファイルのHistoryのページからコピーできます。
 
-![copy_hash](./assets/copy_hash.png)
 
 ```
 ---
@@ -29,7 +27,13 @@ hash: f24c540504f07c06c9f1af951b889b5b297c54e0 ← ここを書き換える
 ---
 ```
 
-dailyで翻訳元リポジトリのcommit logを確認し、翻訳ファイルのhashと差分が生じている場合は自動でissueが作成されます。
+hashの値については、ファイルのHistoryのページからコピーできます。
+
+![copy_hash](./assets/copy_hash.png)
+
+
+[GitHub Actionのworkflow](https://github.com/fukuoka-ex/phoenix-guide-ja/blob/master/.github/workflows/check_hash.yml)によってdailyで翻訳元リポジトリのcommit logを確認し、翻訳ファイルのhashと差分が生じている場合は自動でissueが作成されます。
+
 
 ## Pull Request
 
