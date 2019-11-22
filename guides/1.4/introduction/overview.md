@@ -1,92 +1,90 @@
 ---
 layout: default
 group: introduction
-title: Overview
+title: 概要
 nav_order: 1
 hash: 714b21d3ab8d0329d26a48cf2cae98427df22a01
 ---
-# Overview
+# 概要
 
-Phoenix is a web development framework written in Elixir which implements the server-side Model View Controller (MVC) pattern. Many of its components and concepts will seem familiar to those of us with experience in other web frameworks like Ruby on Rails or Python's Django.
+Phoenixは、サーバー側のModel View Controller（MVC）パターンを実装するElixir製のWeb開発フレームワークです。 そのコンポーネントと概念の多くは、Ruby on RailsやPythonのDjangoのような他のWebフレームワークの経験がある私たちにとっては馴染みのあるものです。
 
-Phoenix provides the best of both worlds - high developer productivity _and_ high application performance. It also has some interesting new twists like channels for implementing realtime features and pre-compiled templates for blazing speed.
+Phoenixは、「開発者の高い生産性」と「高いアプリケーションパフォーマンス」という、両方の長所を提供します。 また、リアルタイム機能を実装するためのチャネルや、非常に高速なプリコンパイル済みテンプレートなど、いくつかの興味深い新しい工夫が施されています。
 
-If you are already familiar with Elixir, great! If not, there are a number of places to learn. The [Elixir guides](https://elixir-lang.org/getting-started/introduction.html) and the [Elixir learning resources page](https://elixir-lang.org/learning.html) are two great places to start. We also have a list of helpful resources to [learn more about Phoenix and some of the projects it depends on](learning.html).
+すでにElixirに精通している場合は、すばらしい！ そうでない場合は、学ぶべき場所がいくつかあります。 [Elixirガイド](https://elixir-lang.org/getting-started/introduction.html)と[Elixir学習リソースページ](https://elixir-lang.org/learning.html)は学び始めるのにうってつけの場所です。 また、[Phoenixと、Phoenixが依存するプロジェクトについて学ぶ](learning.html)のに役立つリソースのリストもあります。
 
-The aim of this introductory guide is to present a brief, high-level overview of Phoenix, the parts that make it up, and the layers underneath that support it.
+この入門ガイドの目的は、簡潔で高いレベルのPhoenixの概要、それらを構成する部品、およびそれをサポートする下のレイヤーを提示することです。
 
-If you would prefer to read these guides as an EPUB [click here!](Phoenix.epub)
+これらのガイドをEPUBとして読みたい場合、[こちらをクリックしてください!](https://hexdocs.pm/phoenix/Phoenix.epub)
 
 ### Phoenix
 
-Phoenix is made up of a number of distinct parts, each with its own purpose and role to play in building a web application. We will cover them all in depth throughout these guides, but here's a quick breakdown.
+Phoenixはいくつかの別個の部分で構成されており、それぞれがWebアプリケーションを構築する際に独自の目的と役割を持ちます。これらのガイド全体で詳細に説明しますが、ここでは簡単に説明します。
 
- - [Endpoint](endpoint.html)
-    - the start and end of the request lifecycle
-    - handles all aspects of requests up until the point where the router takes over
-    - provides a core set of plugs to apply to all requests
-    - dispatches requests into a designated router
- - [Router](routing.html)
-    - parses incoming requests and dispatches them to the correct controller/action, passing parameters as needed
-    - provides helpers to generate route paths or urls to resources
-    - defines named pipelines through which we may pass our requests
-    - Pipelines - allow easy application of groups of plugs to a set of routes
- - [Controllers](controllers.html)
-    - provide functions, called *actions*, to handle requests
-    - actions:
-        - prepare data and pass it into views
-        - invoke rendering via views
-        - perform redirects
- - [Views](views.html)
-    - render templates
-    - act as a presentation layer
-    - define helper functions, available in templates, to decorate data for presentation
- - [Templates](templates.html)
-    - files containing the contents that will be served in a response
-    - provide the basic structure for a response, and allow dynamic data to be substituted in
-    - are precompiled and fast
- - [Channels](channels.html)
-    - manage sockets for easy realtime communication
-    - are analogous to controllers except that they allow bi-directional communication with persistent connections
+- [Endpoint](../endpoint.html)
+   - リクエストのライフサイクルを開始および終了します
+   - ルーターが引き継ぐまでのリクエストのすべての側面を処理します
+   - すべてのリクエストに適用するPlugのコアセットを提供します
+   - 指定したルーターにリクエストを渡します
+- [Router](../routing.html)
+   - リクエストを解析して、適切なcontroller/actionへ渡します。さらに必要であればパラメータも渡します。
+   - リソースへのルーティングパスまたはURLを生成するためのヘルパーを提供します
+   - リクエストを通す名前付きPlugを定義します
+   - パイプライン: Plugをグルーピングして一連のルーティングに簡単に適用できます
+- [Controllers](controllers.html)
+   - *action* と呼ばれる関数を提供し、リクエストを処理します
+   - actions:
+      - データを作成して、ビューに渡します
+      - ビューを経由してレンダリングを呼び出します
+      - リダイレクトを実行します
+ - [Views](../views.html)
+   - テンプレートを描画します
+   - プレゼンテーション層として振る舞います
+   - データを加工するために、テンプレートで利用可能なヘルパー関数を定義します
+ - [Templates](../templates.html)
+   - レスポンスで得られるコンテンツを含むファイルです
+   - レスポンスのための基本的な構造を提供し、動的データに置換することも可能です
+   - 事前にコンパイルされ、高速です
+ - [Channels](../channels.html)
+   - 簡単なリアルタイム通信用のソケットを管理します
+   - 持続的な接続と双方向通信が可能という点を除いて、コントローラに類似しています
  - PubSub
-    - underlies the channel layer and allows clients to subscribe to *topics*
-    - abstracts the underlying pubsub adapter for third-party pubsub integration
+   - Channel層の下に存在し、クライアントが*トピック*をサブスクライブできます
+   - サードパーティ製のpubsub統合のための基盤となるpubsubアダプタを抽象化します
 
 ## Phoenix Layers
 
-We just covered the internal parts that make up Phoenix, but it's important to remember Phoenix itself is actually the top layer of a multi-layer system designed to be modular and flexible. The other layers include Cowboy, Plug, and Ecto.
+私達はPhoenixを構成する部品を取り扱いますが、Phoenix自身が実際にモジュラーと柔軟性を持つように設計されたマルチレイヤシステムの最上位層であることを忘れないことが重要です。他の層として、Cowboy、Plug、およびEctoが含まれます。
 
 ### Cowboy
 
-By default, the web server used by Phoenix (and Plug) is Cowboy. It is uncommon to interface with Cowboy directly when using Phoenix. If you do require using Cowboy directly, please refer to the [Cowboy documentation](https://ninenines.eu/docs/en/cowboy/2.6/guide/).
+デフォルトでは、Phoenix（およびPlug）で使用されるWebサーバはCowboyです。Phoenixを使用した場合、直接Cowboyと接続するのはまれです。あなたが直接Cowboyを利用する必要がある場合は、[Cowboyのドキュメント](https://ninenines.eu/docs/en/cowboy/2.6/guide/)を参照してください。
 
 ### Plug
 
-[Plug](https://hexdocs.pm/plug/) is a specification for constructing composable modules to build web applications. Plugs are reusable modules or functions built to that specification. They provide discrete behaviors - like request header parsing or logging. Because the Plug API is small and consistent, plugs can be defined and executed in a set order, like a pipeline. They can also be re-used within a project or across projects.
+[Plug](https://hexdocs.pm/plug/)は、Webアプリケーションを構築するために、パーツとして利用可能なモジュールを構築するための仕様です。Plugは、その仕様を構築するための再利用可能なモジュールや関数です。それらはリクエストヘッダの解析やロギングのように、別々の動作を提供します。Plug APIは小型かつ一貫性があるため、パイプラインのように一連の流れで定義して実行できます。さらに、プロジェクト内またはプロジェクト間で再利用できます。
 
-Plugs can be written to handle almost anything, from authentication to parameter pre-processing, and even rendering.
+認証からパラメータの前処理、さらにはレンダリングまで、ほとんどの処理でPlugを利用できます。
 
-Phoenix takes great advantage of Plug in general - the router and controllers especially so.
+Phoenixは、全体的にPlugの大きな利点を得ています。ルータとコントローラはとくにそうです。
 
-One of the most important things about Plug is that it provides adapters to HTTP servers which will ultimately deliver application content to our users. Currently Plug only provides an adapter for [Cowboy](https://github.com/ninenines/cowboy), a web server written in Erlang by Loïc Hoguin of [99s](http://ninenines.eu/).
+Plugについてのもっとも重要なことの1つは、最終的にユーザーにアプリケーションコンテンツを届けるHTTPサーバへのアダプタを提供することです。現在、Plugは[99S](http://ninenines.eu/)のLoïc HoguinによってErlangで書かれたWebサーバーである[Cowboy](https://github.com/ninenines/cowboy)のアダプターのみ提供しています。
+詳細は、[Plug・ガイド](../plug.html)を見てください。
 
-Have a look at the [Plug Guide](plug.html) for more details.
 
 ### Ecto
 
-[Ecto](https://hexdocs.pm/ecto) is a language integrated query composition tool and database wrapper for Elixir. With Ecto, we can read and write to different databases, model our domain data, write complex queries in a type-safe way, protect against attack vectors - including SQL injection, and much more.
+[Ecto](https://hexdocs.pm/ecto)は、言語に組み込まれたクエリ組み立てツールとデータベースラッパーです。Ectoを使うことで、異なるデータベースへの読み書きやドメインのデータのモデル化、型安全な方法で複雑なクエリの記述、 SQLインジェクションやそれ以上の攻撃からの保護が可能です。
 
-Ecto is built around four main abstractions:
+Ectoは、4つの主要な抽象化を中心に構築されています。
 
-* Repo - A repository represents a connection to an individual database. Every database operation is done via the repository.
+* Repo - リポジトリは個々のデータベースへの接続を表します。すべてのデータベース操作はリポジトリを介して行われます。
+* Schema - スキーマはデータの定義です。テーブル名やフィールド、さらに各フィールドの型を定義します。スキーマはアソシエーション（リソース間の関係）も定義します。
+* Query - クエリはリポジトリとスキーマを結びつけ、エレガントにリポジトリからデータを取得し、スキーマ自身にそれをキャストできます。
+* Changeset - チェンジセットは、アプリケーションが利用する前に実行する必要がある処理を宣言します。これらは、型キャスト、バリデーション、およびそれ以上を含みます。
 
-* Schema - Schemas are our data definitions. They define table names and fields as well as each field's type. Schemas also define associations - the relationships between our resources.
+新しいPhoenixアプリケーションは、デフォルトではPostgreSQLのストレージとEctoを使用します。
 
-* Query - Queries tie both schemas and repositories together, allowing us to elegantly retrieve data from the repository and cast it into the schemas themselves.
+## これらのガイドについての注意
 
-* Changeset - Changesets declare transformations we need to perform on our data before our application can use it. These include type casting, validations, and more.
-
-A new Phoenix application will use Ecto with PostgreSQL storage by default.
-
-## A Note about these guides
-If you find an issue with the guides or would like to help improve these guides please checkout the [Phoenix Guides](https://github.com/phoenixframework/phoenix/tree/master/guides/) on github. Issues and Pull Requests are happily accepted!
+ガイドに問題を見つけるか、これらのガイドの改善をして助けたい場合は、[Phoenixガイド](https://github.com/phoenixframework/phoenix/tree/master/guides/)を参照してください。IssueとPull Requestは喜んで受け入れています！
