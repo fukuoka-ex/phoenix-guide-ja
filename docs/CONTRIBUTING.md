@@ -14,8 +14,9 @@ Issueに未対応のファイルをリスト化しています。対応してく
 [https://github.com/fukuoka-ex/phoenix-guide-ja/issues](https://github.com/fukuoka-ex/phoenix-guide-ja/issues)
 
 ## mdファイルの書き方
-翻訳元リポジトリのファイルのcommit hashをmdファイルに記載してください。
 
+- `guides/1.4` ディレクトリ配下のmdファイルが翻訳の対象です
+- mdファイルには翻訳元リポジトリの**masterブランチで最新のcommit hash**を記載してください。
 
 ```
 ---
