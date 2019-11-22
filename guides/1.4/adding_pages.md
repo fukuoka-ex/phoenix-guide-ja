@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Adding Pages
 nav_order: 2
-hash: f24c5405
+hash: f24c540504f07c06c9f1af951b889b5b297c54e0
 ---
 # Adding Pages
 
