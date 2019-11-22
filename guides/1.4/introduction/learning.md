@@ -3,7 +3,7 @@ layout: default
 group: introduction
 title: Learning
 nav_order: 3
-hash: b53813bf
+hash: b53813bf3e612077c887f4241a3ff82b41ae9a3f
 ---
 # Learning
 

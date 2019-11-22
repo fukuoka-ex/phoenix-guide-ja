@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Controllers
 nav_order: 6
-hash: 7de98942
+hash: 7de9894218160469f74abc6fda1d93d2f9afe444
 ---
 
 # Controllers
