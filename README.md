@@ -4,6 +4,20 @@ Phoenix GuideはElixirのWebフレームワーク「Phoenix」の公式ドキュ
 
 サイト: [https://fukuoka-ex.github.io/phoenix-guide-ja/](https://fukuoka-ex.github.io/phoenix-guide-ja/)
 
+## ローカルでの起動
+
+1. 依存の取得
+
+```shell
+$ bundle install
+```
+
+2. 開発用サーバー起動
+
+```shell
+$ bundle exec jekyll s
+```
+
 ## Contributing
 
 このサイトはボランティアで運営されています。
