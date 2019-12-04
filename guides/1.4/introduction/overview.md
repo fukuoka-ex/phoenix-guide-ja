@@ -9,9 +9,9 @@ hash: 714b21d3ab8d0329d26a48cf2cae98427df22a01
 
 Phoenixは、サーバー側のModel View Controller（MVC）パターンを実装するElixir製のWeb開発フレームワークです。 そのコンポーネントと概念の多くは、Ruby on RailsやPythonのDjangoのような他のWebフレームワークの経験がある私たちにとっては馴染みのあるものです。
 
-Phoenixは、「開発者の高い生産性」と「高いアプリケーションパフォーマンス」という、両方の長所を提供します。 また、リアルタイム機能を実装するためのチャネルや、非常に高速なプリコンパイル済みテンプレートなど、いくつかの興味深い新しい工夫が施されています。
+Phoenixは、「開発者の高い生産性」と「高いアプリケーションパフォーマンス」を両立します。 また、リアルタイム機能を実装するためのチャネルや、非常に高速なプリコンパイル済みテンプレートなど、いくつかの興味深い新しい工夫が施されています。
 
-すでにElixirに精通している場合は、すばらしい！ そうでない場合は、学ぶべき場所がいくつかあります。 [Elixirガイド](https://elixir-lang.org/getting-started/introduction.html)と[Elixir学習リソースページ](https://elixir-lang.org/learning.html)は学び始めるのにうってつけの場所です。 また、[Phoenixと、Phoenixが依存するプロジェクトについて学ぶ](learning.html)のに役立つリソースのリストもあります。
+すでにElixirに精通している場合は、それはすばらしいことです！そうでない場合は、学ぶべき場所がいくつかあります。 [Elixirガイド](https://elixir-lang.org/getting-started/introduction.html)と[Elixir学習リソースページ](https://elixir-lang.org/learning.html)は学び始めるのにうってつけの場所です。 また、[Phoenixと、Phoenixが依存するプロジェクトについて学ぶ](learning.html)のに役立つリソースのリストもあります。
 
 この入門ガイドの目的は、簡潔で高いレベルのPhoenixの概要、それらを構成する部品、およびそれをサポートする下のレイヤーを提示することです。
 
