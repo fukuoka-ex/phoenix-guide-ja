@@ -36,6 +36,7 @@ hashの値については、ファイルのHistoryのページからコピーで
 
 ![copy_hash](./assets/copy_hash.png)
 
+note: v1.4ブランチ自体の最新commitではなく、v1.4ブランチの **翻訳するファイルに対する変更履歴の最新commit** を記載するようにお願いします。
 
 [GitHub Actionのworkflow](https://github.com/fukuoka-ex/phoenix-guide-ja/blob/master/.github/workflows/check_hash.yml)によってdailyで翻訳元リポジトリのcommit logを確認し、翻訳ファイルのhashと差分が生じている場合は自動でissueが作成されます。
 
