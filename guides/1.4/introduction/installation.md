@@ -54,7 +54,7 @@ ElixirとErlangができたら、Phoenix Mixアーカイブをインストール
 Phoenixアーカイブをインストールするコマンドは次のとおりです。
 
 ```console
-$ mix archive.install hex phx_new 1.4.0
+$ mix archive.install hex phx_new 1.4.16
 ```
 
 ### Plug、Cowboy、およびEcto
