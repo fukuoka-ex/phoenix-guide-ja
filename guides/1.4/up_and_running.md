@@ -1,12 +1,12 @@
 ---
 layout: default
 group: guides
-title: 起動と実行
+title: 起動
 nav_order: 1
 hash: 2944ed85bb1c2a839f7a0607d02d6ed7eca84df8
 ---
 
-# 起動と実行
+# 起動
 
 この最初のガイドの目的は、Phoenixアプリケーションをできるだけ早く起動して実行することです。
 
