@@ -7,9 +7,9 @@ hash: dc3fc93e975d3f1c9f19df79a5a522dce4fdc3d6
 ---
 # Adding Pages
 
-Our task for this guide is to add two new pages to our Phoenix project. One will be a purely static page, and the other will take part of the path from the URL as input and pass it through to a template for display. Along the way, we will gain familiarity with the basic components of a Phoenix project: the router, controllers, views, and templates.
+Phoenixプロジェクトに２つの新しいページを追加してみましょう。１つ目は単純な静的ページを追加します。２つ目はURLから値を取得して動的なページを追加します。途中で、Phoenixプロジェクトにおける基本的なコンポーネントに詳しくなれるでしょう。基本的なコンポーネントとは、Router、Controller、View、Templateを指します。
 
-When Phoenix generates a new application for us, it builds a top-level directory structure like this:
+Phoenixプロジェクトを新規作成すると、ディレクトリ構造は以下のようになっています。
 
 ```console
 ├── _build
@@ -25,7 +25,7 @@ When Phoenix generates a new application for us, it builds a top-level directory
 ├── test
 ```
 
-Most of our work in this guide will be in the `lib/hello_web` directory, which holds the web-related parts of our application. It looks like this when expanded:
+このガイドでは、主に `lib/hello_web` ディレクトリに変更を加えていきます。このディレクトリはアプリケーションのweb関連機能を担っています。`lib/hello_web` を展開すると以下のようになっています。
 
 ```console
 ├── channels
@@ -47,22 +47,11 @@ Most of our work in this guide will be in the `lib/hello_web` directory, which h
 ├── router.ex
 ```
 
-All of the files which are currently in the `controllers`, `templates`, and `views` directories are there to create the "Welcome to Phoenix!" page we saw in the last guide. We will see how we can re-use some of that code shortly. When running in development, code changes will be automatically recompiled on new web requests.
+`controllers`、`templates`および`views`ディレクトリには、前のガイドでみた"Welcome to Phoenix!"ページをつくるためのファイルがあります。そのコードの一部をすぐに再利用する方法を確認します。developmentモードでは、コードの変更は自動的にコンパイルされて反映されます。
 
-All of our application's static assets like js, css, and image files live in `assets`, which are built into `priv/static` by webpack or other front-end build tools. We won't be making any changes here for now, but it is good to know where to look for future reference.
+`assets`ディレクトリには、アプリケーション全体で使うjs、css、画像ファイルがあり、webpackもしくは他のフロントエンドツールでビルドされます。このガイドではこれらに変更を加えることはしませんが、あとにでてくる参照先を探すことは良いことです。
 
-```console
-├── assets
-│   ├── css
-│   │   └── app.css
-│   ├── js
-│   │   └── app.js
-│   └── static
-│   └── node_modules
-│   └── vendor
-```
-
-There are also non web-related files we should know about. Our application file (which starts our Elixir application and its supervision tree) is at `lib/hello/application.ex`. We also have our Ecto Repo in `lib/hello/repo.ex` for interacting with the database. You can learn more in the [guide for Ecto](ecto.html).
+またwebとは関係しないファイルがあることも知っておくべきです。Elixirアプリケーションとsupervision treeを開始するファイルは、`lib/hello/application.ex`にあります。またデータベースを操作するEcto Repoは、`lib/hello/repo.ex` があります。[guide for Ecto](ecto.html)でより詳しく説明します。
 
 ```console
 lib
@@ -79,25 +68,25 @@ lib
 |   └── router.ex
 ```
 
-Our `lib/hello_web` directory contains web-related files – routers, controllers, templates, channels, etc. The rest of our greater Elixir application lives inside `lib/hello`, and you structure code here like any other Elixir application.
+`lib/hello_web`にはルータ、コントローラー、テンプレート、チャネルなど、web機能に関連するファイルがあります。生成された他のファイルは`lib/hello`にあり、他のElixirアプリケーションのようにここにコードを構築します。
 
-Enough prep, let's get on with our first new Phoenix page!
+準備が整ったら、Phoenixの最初の新しいページを追加してみましょう！
 
-### A New Route
+### 新しいRoute
 
-Routes map unique HTTP verb/path pairs to controller/action pairs which will handle them. Phoenix generates a router file for us in new applications at `lib/hello_web/router.ex`. This is where we will be working for this section.
+Routeは一意なHTTP verb/pathのペアをそれらを処理するcontroller/actionのペアを紐付けます。Phoenixはこの紐付けを行うファイルとして`lib/hello_web/router.ex`を生成します。このセクションではこのファイルを変更していきます。
 
-The route for our "Welcome to Phoenix!" page from the previous Up And Running Guide looks like this.
+前回のUp And Running Guideで表示した"Welcome to Phoenix!"ページのためのルートは以下の部分が該当します。
 
 ```elixir
 get "/", PageController, :index
 ```
 
-Let's digest what this route is telling us. Visiting [http://localhost:4000/](http://localhost:4000/) issues an HTTP `GET` request to the root path. All requests like this will be handled by the `index` function in the `HelloWeb.PageController` module defined in `lib/hello_web/controllers/page_controller.ex`.
+このRouteの意味を説明します。[http://localhost:4000/](http://localhost:4000/) にアクセスをすると、ルートパスへのHTTP `GET`が発行されます。このリクエストは、`lib/hello_web/controllers/page_controller.ex`に定義された`HelloWeb.PageController`モジュールの`index`関数によって処理されます。
 
-The page we are going to build will simply say "Hello World, from Phoenix!" when we point our browser to [http://localhost:4000/hello](http://localhost:4000/hello).
+[http://localhost:4000/hello](http://localhost:4000/hello)にブラウザでアクセスしたら、"Hello World, from Phoenix!"を表示するようにして行きましょう。
 
-The first thing we need to do to create that page is define a route for it. Let's open up `lib/hello_web/router.ex` in a text editor. It should currently look like this:
+最初にやるべきことはRouteの追加です。`lib/hello_web/router.ex`をテキストエディタで開いてみましょう。以下のようになっていることでしょう。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -129,15 +118,15 @@ end
 
 ```
 
-For now, we'll ignore the pipelines and the use of `scope` here and just focus on adding a route. (We cover these topics in the [Routing Guide](routing.html), if you're curious.)
+いまは、pipelineは置いておいて、ここでは`scope`を使ってルートを追加することにしましょう。(興味があるなら、[Routing Guide](routing.html)をご参照ください。)
 
-Let's add a new route to the router that maps a `GET` request for `/hello` to the `index` action of a soon-to-be-created `HelloWeb.HelloController`:
+新しいルートを追加しましょう。`GET /hello`を後ほどすぐにつくる`HelloWeb.HelloController`モジュールの`index`関数に紐付けるように以下を追加します。:
 
 ```elixir
 get "/hello", HelloController, :index
 ```
 
-The `scope "/"` block of our `router.ex` file should now look like this:
+`router.ex`内の`scope "/"`をこのように変更します:
 
 ```elixir
 scope "/", HelloWeb do
@@ -148,11 +137,11 @@ scope "/", HelloWeb do
 end
 ```
 
-### A New Controller
+### 新しいコントローラー
 
-Controllers are Elixir modules, and actions are Elixir functions defined in them. The purpose of actions is to gather any data and perform any tasks needed for rendering. Our route specifies that we need a `HelloWeb.HelloController` module with an `index/2` action.
+コントローラーはElixirのモジュールです。アクションはElixirの関数です。アクションは、レンダリングのためにデータを集めて必要なタスクを実行します。`index/2`アクションを持つ`HelloWeb.HelloController`モジュールをRouteで指定しています。
 
-To make that happen, let's create a new `lib/hello_web/controllers/hello_controller.ex` file, and make it look like the following:
+そのため、`lib/hello_web/controllers/hello_controller.ex`を以下のように作成してみましょう。
 
 ```elixir
 defmodule HelloWeb.HelloController do
@@ -163,23 +152,24 @@ defmodule HelloWeb.HelloController do
   end
 end
 ```
-We'll save a discussion of `use HelloWeb, :controller` for the [Controllers Guide](controllers.html). For now, let's focus on the `index/2` action.
+`use HelloWeb, :controller`については、[Controllers Guide](controllers.html)に譲ることにします。いまは、`index/2`アクションに着目します。
 
-All controller actions take two arguments. The first is `conn`, a struct which holds a ton of data about the request. The second is `params`, which are the request parameters. Here, we are not using `params`, and we avoid compiler warnings by adding the leading `_`.
+すべてのコントローラーアクションは２つの引数を取ります。第一引数は`conn`で、これはリクエストについての
+リクエストに関する大量のデータを保持する構造体です。第二引数は`params`でリクエストパラメータです。ここでは未使用のため、コンパイラの警告を避けるため、`_params`としています。
 
-The core of this action is `render(conn, "index.html")`. This tells Phoenix to find a template called `index.html.eex` and render it. Phoenix will look for the template in a directory named after our controller, so `lib/hello_web/templates/hello`.
+このアクションのポイントは`render(conn, "index.html")`です。これはPhoenixに`index.html.eex`というテンプレートをみつけてレンダーするように指示しています。Phoenixはコントローラー名にちなんだtemplateディレクトリを探します。今回の場合は、`lib/hello_web/templates/hello`となります。
 
-> Note: Using an atom as the template name will also work here, `render(conn, :index)`, but the template will be chosen based off the Accept headers, e.g. `"index.html"` or `"index.json"`.
+> Note: テンプレート名としてatomを使うこともできます。ここでは`render(conn, :index)`となりますが、テンプレートはAcceptヘッダーに基づいて選択されます。つまり、`"index.html"` もしくは `"index.json"`となります。
 
-The modules responsible for rendering are views, and we'll make a new one of those next.
+レンダリングの責務をもつモジュールはViewです。つづいて新しいViewを作ってみましょう。
 
-### A New View
+### 新しいView
 
-Phoenix views have several important jobs. They render templates. They also act as a presentation layer for raw data from the controller, preparing it for use in a template. Functions which perform this transformation should go in a view.
+PhoenixのViewはいくつかの重要な処理を行います。Viewは、Templateのレンダリングを行います。ViewはControllerがTemplateで使うように準備した生データのためのプレゼンテーション層として働きます。この変換を実行する関数がViewの中にあります。
 
-As an example, say we have a data structure which represents a user with a `first_name` field and a `last_name` field, and in a template, we want to show the user's full name. We could write code in the template to merge those fields into a full name, but the better approach is to write a function in the view to do it for us, then call that function in the template. The result is a cleaner and more legible template.
+たとえば、`first_name`フィールドと`last_name`フィールドをもつuser構造体があるとして、userのフルネームをTemplateで表示したいとします。２つのフィールドを連結してフルネームを得るようにテンプレートにコードを書くこともできますが、よりよい方法はViewに関数を作って、Templateではその関数を呼び出すことです。その結果、簡潔で可読性の高いTemplateとなります。
 
-In order to render any templates for our `HelloController`, we need a `HelloView`. The names are significant here - the first part of the names of the view and controller must match. Let's create an empty one for now, and leave a more detailed description of views for later. Create `lib/hello_web/views/hello_view.ex` and make it look like this:
+`HelloController`のためにTemplateをレンダリングするためには、`HelloView`が必要となります。名前には重要な意味があります。View名とController名の最初の部分は一致している必要があります。Viewの詳細はあとで説明をします。`lib/hello_web/views/hello_view.ex`を作成し、中身を以下のようにします:
 
 ```elixir
 defmodule HelloWeb.HelloView do
@@ -187,13 +177,13 @@ defmodule HelloWeb.HelloView do
 end
 ```
 
-### A New Template
+### 新しいTemplate
 
-Phoenix templates are just that, templates into which data can be rendered. The standard templating engine Phoenix uses is `EEx`, which stands for Embedded Elixir. Phoenix enhances EEx to include automatic escaping of values. This protects you from security vulnerabilities like Cross-Site-Scripting with no extra work on your part. All of our template files will have the `.eex` file extension.
+PhoenixのTemplateはデータをレンダーします。PhoenixのデフォルトのテンプレートエンジンはElixirに標準として組み込まれている`EEx`です。Phoenixは自動的にデータをエスケープするようにEExを拡張しています。これはCross-Site-Scriptingのような脆弱性を追加作業なしに防ぎます。Templateファイルの拡張子は`.eex`です。
 
-Templates are scoped to a view, which are scoped to a controller. Phoenix creates a `lib/hello_web/templates` directory where we can put all these. It is best to namespace these for organization, so for our hello page, that means we need to create a `hello` directory under `lib/hello_web/templates` and then create an `index.html.eex` file within it.
+TemplateのスコープはViewに限定され、ViewはControllerに限定されます。Phoenixは`lib/hello_web/templates`ディレクトリを作ります。View名とController名の最初の部分は一致している必要があったように、Templateにも格納場所には意味があります。helloページのためには、`lib/hello_web/templates`の下に`hello`ディレクトリを作り、そのなかに`index.html.eex`ファイルを作ります。
 
-Let's do that now. Create `lib/hello_web/templates/hello/index.html.eex` and make it look like this:
+それでは、`lib/hello_web/templates/hello/index.html.eex`を作って、以下のようにに中身を書いてみましょう:
 
 ```html
 <div class="phx-hero">
@@ -201,29 +191,29 @@ Let's do that now. Create `lib/hello_web/templates/hello/index.html.eex` and mak
 </div>
 ```
 
-Now that we've got the route, controller, view, and template, we should be able to point our browsers at [http://localhost:4000/hello](http://localhost:4000/hello) and see our greeting from Phoenix! (In case you stopped the server along the way, the task to restart it is `mix phx.server`.)
+いま、Route、Controller、View、Templateを作りましたので、ブラウザで[http://localhost:4000/hello](http://localhost:4000/hello)にアクセスをすると、Phoenixからあいさつが表示されるでしょう。(表示されない場合には、一度サーバを止めて、再起動のために`mix phx.server`を行ってください)
 
 ![Phoenix Greets Us](assets/images/hello-from-phoenix.png)
 
-There are a couple of interesting things to notice about what we just did. We didn't need to stop and re-start the server while we made these changes. Yes, Phoenix has hot code reloading! Also, even though our `index.html.eex` file consisted of only a single `div` tag, the page we get is a full HTML document. Our index template is rendered into the application layout - `lib/hello_web/templates/layout/app.html.eex`. If you open it, you'll see a line that looks like this:
+ここまでおこなったことに興味深いことがいくつかあったことにお気づきのことでしょう。これらの変更を行う間、サーバーを止めたり再起動する必要はなかった。その通りです！ Phoenixはホットコードリローディングをしてくれます。また`index.html.eex`が`div`タグだけで構成されるようにすると、ページは全部のHTMLを得ます。indexテンプレートは、アプリケーションレイアウトでレンダリングされています。アプリケーションレイアウトは`lib/hello_web/templates/layout/app.html.eex`にあります。これを開くと、以下のような行が含まれています:
 
 ```html
 <%= render @view_module, @view_template, assigns %>
 ```
 
-which is what renders our template into the layout before the HTML is sent off to the browser.
+このコードは、HTMLをブラウザへ返す前にレイアウトの中にテンプレートをレンダーしています。
 
-A note on hot code reloading, some editors with their automatic linters may prevent hot code reloading from working. If it's not working for you, please see the dicussion in [this issue](https://github.com/phoenixframework/phoenix/issues/1165).
+ホットコードリローディングについての補足をしておきます。自動リンターを備えたいくつかのエディタはホットコードリローディングが動作するのを妨げる場合があります。もしホットコードリローディングが動作しない場合には、[このissue](https://github.com/phoenixframework/phoenix/issues/1165)の議論をご参照ください。
 
-## Another New Page
+## ２つめの新しいページ
 
-Let's add just a little complexity to our application. We're going to add a new page that will recognize a piece of the URL, label it as a "messenger" and pass it through the controller into the template so our messenger can say hello.
+アプリケーションに少し複雑な変更を加えてみましょう。URLの一部を認識する新しいページを使いしてみましょう。"messenger"というラベルを付け、Controllerを介してTemplateに渡し、messengerがあいさつするようにします。
 
-As we did last time, the first thing we'll do is create a new route.
+前回同様、まずは新しいルートを作りましょう。
 
-### A New Route
+### 新しいRoute
 
-For this exercise, we're going to re-use the `HelloController` we just created and just add a new `show` action. We'll add a line just below our last route, like this:
+`HelloController`を使い、新しいアクション`show`を追加します。`lib/hello_web/router.ex`を以下のように変更をします。
 
 ```elixir
 scope "/", HelloWeb do
@@ -234,13 +224,13 @@ scope "/", HelloWeb do
   get "/hello/:messenger", HelloController, :show
 end
 ```
-Notice that we put the atom `:messenger` in the path. Phoenix will take whatever value that appears in that position in the URL and pass a `Map` with the key `messenger` pointing to that value to the controller.
+パスには`:messenger`というatomを指定していることに注目してください。PhoenixはURLのこの位置に存在するどんな値でも`messenger` keyと値のセットをもった`Map`をControllerへ渡します。
 
-For example, if we point the browser at: [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank), the value of ":messenger" will be "Frank".
+たとえば、ブラウザで[http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank)にアクセスすると、`%{"messenger" => "Frank"}`がControllerに渡されます。
 
-### A New Action
+### 新しいアクション
 
-Requests to our new route will be handled by the `HelloWeb.HelloController` `show` action. We already have the controller at `lib/hello_web/controllers/hello_controller.ex`, so all we need to do is edit that file and add a `show` action to it. This time, we'll need to keep one of the items in the map of params that gets passed into the action, so that we can pass it (the messenger) to the template. To do that, we add this show function to the controller:
+さきほど追加したルートへのリクエストは`HelloWeb.HelloController`の`show`アクションで処理されます。すでに`lib/hello_web/controllers/hello_controller.ex`はあるので、そのなかに`show`アクションを追加しましょう。今回は、アクションに渡されるparamsのMap内のアイテムの１つを保持して、Templateへmessengerとして渡す必要があります。このため、Controllerにshow関数を追加しましょう:
 
 ```elixir
 def show(conn, %{"messenger" => messenger}) do
@@ -248,11 +238,11 @@ def show(conn, %{"messenger" => messenger}) do
 end
 ```
 
-There are a couple of things to notice here. We pattern match against the params passed into the show function so that the `messenger` variable will be bound to the value we put in the `:messenger` position in the URL. For example, if our URL is [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank), the messenger variable would be bound to `Frank`.
+ここでいくつかのことに気づかれるでしょう。URLの`:messenger`の位置にある値を`messenger`変数として束縛するように、show関数へ渡されたparamsにパターンマッチを使います。たとえば、URLが[http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank)だとすると、messenger変数は`Frank`に束縛されます。
 
-Within the body of the `show` action, we also pass a third argument into the render function, a key/value pair where `:messenger` is the key, and the `messenger` variable is passed as the value.
+`show` action内のrender関数では第三引数を渡しています。keyが`:messenger`で値は`messenger`変数です。
 
-> Note: If the body of the action needs access to the full map of parameters bound to the params variable in addition to the bound messenger variable, we could define `show/2` like this:
+> Note: アクション内でMapパラメータ全体へのアクセスが必要なのであれば、messenger変数へ束縛することに加えて、params変数にも束縛するように、`show/2`のように以下のように定義します。
 
 ```elixir
 def show(conn, %{"messenger" => messenger} = params) do
@@ -260,15 +250,16 @@ def show(conn, %{"messenger" => messenger} = params) do
 end
 ```
 
-It's good to remember that the keys to the `params` map will always be strings, and that the equals sign does not represent assignment, but is instead a [pattern match](https://elixir-lang.org/getting-started/pattern-matching.html) assertion.
+`params` mapのキーはいつも文字列であり、= は割り当てを表すのではなく、[pattern match](https://elixir-lang.org/getting-started/pattern-matching.html)表明であることを覚えておくのは良いことです。
 
-### A New Template
+### 新しいTemplate
 
-For the last piece of this puzzle, we'll need a new template. Since it is for the `show` action of the `HelloController`, it will go into the `lib/hello_web/templates/hello` directory and be called `show.html.eex`. It will look surprisingly like our `index.html.eex` template, except that we will need to display the name of our messenger.
+このパズルの最後のピースは、新しいTemplateです。`HelloController.show`に対応するように`lib/hello_web/templates/hello`ディレクトリ内に`show.html.eex`を配置しましょう。messengerの名前を表示する必要があることを除いて、それは驚くべきことに `index.html.eex`テンプレートに似ています。
 
-To do that, we'll use the special EEx tags for executing Elixir expressions - `<%=  %>`. Notice that the initial tag has an equals sign like this: `<%=` . That means that any Elixir code that goes between those tags will be executed, and the resulting value will replace the tag. If the equals sign were missing, the code would still be executed, but the value would not appear on the page.
+名前を表示するため、特別なEEx tagsを使います。それはつまり`<%=  %>`です。最初のタグには次のような等号があることに注意してください: `<％=`。つまり、これらのタグの間にあるElixirコードが実行され、結果の値がタグに置き換わります。等号が無い場合には、コードは実行されますが、値はページに表示されません。
 
-And this is what the template should look like:
+
+`lib/hello_web/templates/hello/show.html.eex`は以下のようになります:
 
 ```html
 <div class="phx-hero">
@@ -276,10 +267,10 @@ And this is what the template should look like:
 </div>
 ```
 
-Our messenger appears as `@messenger`. In this case, this is not a module attribute. It is a special bit of metaprogrammed syntax which stands in for `assigns.messenger`. The result is much nicer on the eyes and much easier to work with in a template.
+messengerは`@messenger`に格納されています。ここでは、モジュールの属性ではありません。これは、`assigns.messenger`を表すメタプログラムされた特別な構文です。その結果、見た目がよくなり、Templateの作成がはるかに簡単になりました。
 
-We're done. If you point your browser here: [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank), you should see a page that looks like this:
+完了です。ブラウザで[http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank)にアクセスしてみると、このように表示されることでしょう:
 
 ![Frank Greets Us from Phoenix](assets/images/hello-world-from-frank.png)
 
-Play around a bit. Whatever you put after `/hello/` will appear on the page as your messenger.
+少し遊んでみましょう。/hello/に続く文字は、messengerとしてページに表示されることでしょう。
