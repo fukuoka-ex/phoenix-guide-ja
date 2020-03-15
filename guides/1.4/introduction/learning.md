@@ -3,7 +3,7 @@ layout: default
 group: introduction
 title: Learning
 nav_order: 3
-hash: b53813bf3e612077c887f4241a3ff82b41ae9a3f
+hash: 3161ec8b32414565d97ac864b67311d405e58a98
 ---
 # Learning
 
@@ -12,8 +12,7 @@ Here's a list of other resources for learning about Phoenix and some of the proj
 ## Phoenix
 
 #### Books
-- [Programming Phoenix](https://pragprog.com/book/phoenix14/programming-phoenix-1-4) (print and ebook)
-- [Phoenix in Action](https://www.manning.com/books/phoenix-in-action)
+- [Programming Phoenix](https://pragprog.com/book/phoenix/programming-phoenix) (print and ebook)
 
 #### Online Resources
 - [The Phoenix Project](https://github.com/phoenixframework/phoenix)
@@ -46,8 +45,8 @@ The project which contains many HTML helper functions used in Phoenix.
 ## Cowboy
 The webserver Phoenix is based on.
 - [Source Code and Readme](https://github.com/ninenines/cowboy)
-- [User Guides](http://ninenines.eu/docs/en/cowboy/2.6/guide/)
-- [Manual/Function Reference](http://ninenines.eu/docs/en/cowboy/2.6/manual/)
+- [User Guides](http://ninenines.eu/docs/en/cowboy/1.0/guide/)
+- [Manual/Function Reference](http://ninenines.eu/docs/en/cowboy/1.0/manual/)
 
 ## EEx
 The default templating system for Phoenix.
