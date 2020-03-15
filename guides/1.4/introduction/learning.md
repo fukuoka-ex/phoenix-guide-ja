@@ -1,7 +1,7 @@
 ---
 layout: default
 group: introduction
-title: Learning
+title: 学習リソース
 nav_order: 3
 hash: 3161ec8b32414565d97ac864b67311d405e58a98
 ---
