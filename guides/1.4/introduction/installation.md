@@ -3,33 +3,34 @@ layout: default
 group: introduction
 title: Installation
 nav_order: 2
-hash: 294d15235b4e2c707eac11f3e121ca3f843e4251
+hash: 3161ec8b32414565d97ac864b67311d405e58a98
 ---
-# Installation
 
-In the [Overview Guide](overview.html) we got a look at the Phoenix ecosystem and how the pieces interrelate. Now it's time to install any software we might need before we jump into the [Up and Running Guide](up_and_running.html).
+# インストール
 
-Please take a look at this list and make sure to install anything necessary for your system. Having dependencies installed in advance can prevent frustrating problems later on.
+[概要](overview.html)で、Phoenixエコシステムと各要素の相互関係を確認しました。 [起動ガイド](../up_and_running.html)へ進む前に、必要なソフトウェアをインストールします。
 
-### Elixir 1.5 or later
+このリストを見て、システムに必要なものをすべてインストールしてください。事前に依存関係をインストールしておくと、あとでイライラする問題を防ぐことができます。
 
-Phoenix is written in Elixir, and our application code will also be written in Elixir. We won't get far in a Phoenix app without it! The Elixir site maintains a great [Installation Page](https://elixir-lang.org/install.html) to help.
+### Elixir 1.5以降
 
-If we have just installed Elixir for the first time, we will need to install the Hex package manager as well. Hex is necessary to get a Phoenix app running (by installing dependencies) and to install any extra dependencies we might need along the way.
+PhoenixはElixirで書かれており、アプリケーションコードもElixirで書かれます。ElixirなしではPhoenixもうまくいかないでしょう！ Elixirサイトには、役立つ[インストールページ](https://elixir-lang.org/install.html)が用意されています。
 
-Here's the command to install Hex (If you have Hex already installed, it will upgrade Hex to the latest version):
+Elixirをはじめてインストールしたばかりの場合は、Hexパッケージマネージャーもインストールする必要があります。 Hexは、Phoenixアプリを（依存関係をインストールして）実行し、途中で必要になる可能性のある追加の依存関係をインストールするために必要です。
+
+Hexをインストールするコマンドは次のとおりです（Hexがすでにインストールされている場合、Hexは最新バージョンにアップグレードされます）。
 
 ```console
 $ mix local.hex
 ```
 
-### Erlang 18 or later
+### Erlang 18以降
 
-Elixir code compiles to Erlang byte code to run on the Erlang virtual machine. Without Erlang, Elixir code has no virtual machine to run on, so we need to install Erlang as well.
+ElixirコードはErlangバイトコードにコンパイルされ、Erlang仮想マシンで実行されます。 Erlangがない場合、Elixirコードには実行する仮想マシンがないため、Erlangもインストールする必要があります。
 
-When we install Elixir using instructions from the Elixir [Installation Page](https://elixir-lang.org/install.html),  we will usually get Erlang too. If Erlang was not installed along with Elixir, please see the [Erlang Instructions](https://elixir-lang.org/install.html#installing-erlang) section of the Elixir Installation Page for instructions.
+Elixirの[インストールページ](https://elixir-lang.org/install.html)にしたがってElixirをインストールすると、通常はErlangも取得されます。 Elixirと共にErlangがインストールされていない場合は、Elixirインストールページの[Erlang Instructions](https://elixir-lang.org/install.html#installing-erlang)セクションで手順を参照してください。
 
-People using Debian-based systems may need to explicitly install Erlang to get all the needed packages.
+Debianベースのシステムを使用している人は、必要なすべてのパッケージを入手するために、明示的にErlangをインストールする必要があります。
 
 ```console
 $ wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
@@ -39,7 +40,8 @@ $ sudo apt-get install esl-erlang
 
 ### Phoenix
 
-To check that we are on Elixir 1.5 and Erlang 18 or later, run:
+Elixir 1.5およびErlang 18以降を使用していることを確認するには、次を実行します。
+
 ```console
 elixir -v
 Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
@@ -47,63 +49,62 @@ Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [
 Elixir 1.5.3
 ```
 
-Once we have Elixir and Erlang, we are ready to install the Phoenix Mix archive. A Mix archive is a Zip file which contains an application as well as its compiled BEAM files. It is tied to a specific version of the application. The archive is what we will use to generate a new, base Phoenix application which we can build from.
+ElixirとErlangができたら、Phoenix Mixアーカイブをインストールする準備ができました。 Mixアーカイブは、アプリケーションとそのコンパイル済みBEAMファイルを含むZipファイルです。アプリケーションの特定のバージョンに関連付けられています。アーカイブは、ビルド可能な新しいベースPhoenixアプリケーションを生成するために使用するものです。
 
-Here's the command to install the Phoenix archive:
+Phoenixアーカイブをインストールするコマンドは次のとおりです。
 
 ```console
-$ mix archive.install hex phx_new 1.4.0
+$ mix archive.install hex phx_new 1.4.16
 ```
 
-### Plug, Cowboy, and Ecto
+### Plug、Cowboy、およびEcto
 
-These are either Elixir or Erlang projects which are part of Phoenix applications by default. We won't need to do anything special to install them. If we let Mix install our dependencies as we create our new application, these will be taken care of for us. If we don't, Phoenix will tell us how to do so after the app creation is done.
+これらは、デフォルトでPhoenixアプリケーションの一部であるElixirまたはErlangプロジェクトです。それらをインストールするために特別なことをする必要はありません。新しいアプリケーションを作成するときにMixに依存関係をインストールさせると、これらは自動的にインストールされます。そうでない場合、Phoenixはアプリの作成が完了した後、その方法を教えてくれます。
 
-### node.js (>= 5.0.0)
+### node.js（>= 5.0.0）
 
-Node is an optional dependency. Phoenix will use [webpack](https://webpack.js.org/) to compile static assets (JavaScript, CSS, etc), by default. Webpack uses the node package manager (npm) to install its dependencies, and npm requires node.js.
+Nodeは任意の依存関係です。 Phoenixはデフォルトで[webpack](https://webpack.js.org/)を使用して静的アセット（JavaScript、CSSなど）をコンパイルします。 webpackは、ノードパッケージマネージャー（npm）を使用して依存関係をインストールします。npmにはnode.jsが必要です。
 
-If we don't have any static assets, or we want to use another build tool, we can pass the `--no-webpack` flag when creating a new application and node won't be required at all.
+静的アセットがない場合、または別のビルドツールを使用する場合、新しいアプリケーションを作成するときに `--no-webpack`フラグを渡すことができ、ノードは不要です。
 
-We can get node.js from the [download page](https://nodejs.org/en/download/). When selecting a package to download, it's important to note that Phoenix requires version 5.0.0 or greater.
+node.jsは[ダウンロードページ](https://nodejs.org/en/download/)から取得できます。ダウンロードするパッケージを選択する場合、Phoenixにはバージョン5.0.0以降が必要であることに注意してください。
 
-Mac OS X users can also install node.js via [homebrew](https://brew.sh/).
+Mac OS Xユーザーは、[homebrew](https://brew.sh/)を介してnode.jsをインストールすることもできます。
 
-Note: io.js, which is an npm compatible platform originally based on Node.js, is not known to work with Phoenix.
+注：Node.jsを元にしたnpm互換プラットフォームであるio.jsは、Phoenixで動作するかは不明です。
 
-Debian/Ubuntu users might see an error that looks like this:
+Debian/Ubuntuユーザーには、次のようなエラーが表示される場合があります。
 ```console
 sh: 1: node: not found
 npm WARN This failure might be due to the use of legacy binary "node"
 ```
-This is due to Debian having conflicting binaries for node: [discussion on stackoverflow](http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu)
+これは、Debianがノードの競合するバイナリを持っているためです：[stackoverflowについての議論](http://stackoverflow.com/questions/21168141/can-not-install-packages-using-node-package-manager-in-ubuntu)
 
-There are two options to fix this problem, either:
-- install nodejs-legacy:
+この問題を解決するには、次の2つのオプションがあります。
+- nodejs-legacyをインストールする
 ```console
 $ apt-get install nodejs-legacy
 ```
-or
-- create a symlink
+または
+- シンボリックリンクを作成する
 ```console
 $ ln -s /usr/bin/nodejs /usr/bin/node
 ```
 
 ### PostgreSQL
 
-PostgreSQL is a relational database server. Phoenix configures applications to use it by default, but we can switch to MySQL by passing the `--database mysql` flag when creating a new application.
+PostgreSQLはリレーショナルデータベースサーバーです。 Phoenixはデフォルトでそれを使用するようにアプリケーションを設定しますが、新しいアプリケーションを作成するときに `--database mysql`フラグを渡すことでMySQLに切り替えることができます。
 
-When we work with Ecto schemas in these guides, we will use PostgreSQL and the Postgrex adapter for it. In order to follow along with the examples, we should install PostgreSQL and start the server. The PostgreSQL wiki has [installation guides](https://wiki.postgresql.org/wiki/Detailed_installation_guides) for a number of different systems.
+これらのガイドでEctoスキーマを使用する場合、PostgreSQLおよびPostgrexアダプターを使用します。例に沿って進むには、PostgreSQLをインストールしてサーバーを起動する必要があります。 PostgreSQL wikiには、さまざまなシステム用の[インストールガイド](https://wiki.postgresql.org/wiki/Detailed_installation_guides)があります。
 
-Postgrex is a direct Phoenix dependency, and it will be automatically installed along with the rest of our dependencies as we start building our app.
+Postgrexは、Phoenixの直接的な依存関係であり、アプリのビルドを開始すると、残りの依存関係とともに自動的にインストールされます。
 
-### inotify-tools (for linux users)
+### inotify-tools（Linuxユーザー向け）
 
-This is a Linux-only filesystem watcher that Phoenix uses for live code reloading. (Mac OS X or Windows users can safely ignore it.)
+これは、Phoenixがライブコードリロードに使用するLinux専用のファイルシステムウォッチャーです。（Mac OS XまたはWindowsユーザーは安全に無視できます。）
 
-Linux users need to install this dependency. Please consult the [inotify-tools wiki](https://github.com/rvoicilas/inotify-tools/wiki) for distribution-specific installation instructions.
+Linuxユーザーは、この依存関係をインストールする必要があります。ディストリビューション固有のインストール手順については、[inotify-tools wiki](https://github.com/rvoicilas/inotify-tools/wiki)を参照してください。
 
-### Our First Phoenix Application
+### 最初のPhoenixアプリケーション
 
-Now that we have everything installed, let's create our first Phoenix application and get [up and running](up_and_running.html).
-
+すべてのインストールが完了したので、最初のPhoenixアプリケーションを作成して[起動ガイド](../up_and_running.html)に進みましょう。
