@@ -3,7 +3,7 @@ layout: default
 group: introduction
 title: 学習リソース
 nav_order: 3
-hash: 3161ec8b32414565d97ac864b67311d405e58a98
+hash: eb3eb71b49de36f778141bdf6b6081a3fcac4d72
 ---
 # 学習リソース
 
@@ -44,12 +44,12 @@ Phoenixで利用する多くのHTMLヘルパー関数群を含むプロジェク
 - [Documentation](https://hexdocs.pm/ex_unit/ExUnit.html)
 
 ## Cowboy
-小さくて、速くてモダンなHTTPサーバー
+PhoenixのベースとなるWebサーバー
 - [Source Code and Readme](https://github.com/ninenines/cowboy)
 - [User Guides](http://ninenines.eu/docs/en/cowboy/1.0/guide/)
 - [Manual/Function Reference](http://ninenines.eu/docs/en/cowboy/1.0/manual/)
 
 ## EEx
 Phoenixがデフォルトで使うテンプレートシステム
-- [Source Code and Readme](https://github.com/crowdhailer/eex_html)
+- [Source Code and Readme](https://github.com/elixir-lang/elixir)
 - [Documentation](https://hexdocs.pm/eex/EEx.html)
