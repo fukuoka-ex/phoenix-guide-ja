@@ -3,7 +3,7 @@ layout: default
 group: introduction
 title: Installation
 nav_order: 2
-hash: 294d15235b4e2c707eac11f3e121ca3f843e4251
+hash: 3161ec8b32414565d97ac864b67311d405e58a98
 ---
 
 # インストール
@@ -41,9 +41,10 @@ $ sudo apt-get install esl-erlang
 ### Phoenix
 
 Elixir 1.5およびErlang 18以降を使用していることを確認するには、次を実行します。
+
 ```console
-$ elixir -v
-Erlang / OTP 19 [erts-8.3] [ソース] [64ビット] [smp：8：8] [async-threads：10] [hipe] [kernel-poll：false] [dtrace]
+elixir -v
+Erlang/OTP 19 [erts-8.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
 
 Elixir 1.5.3
 ```
@@ -60,7 +61,7 @@ $ mix archive.install hex phx_new 1.4.0
 
 これらは、デフォルトでPhoenixアプリケーションの一部であるElixirまたはErlangプロジェクトです。それらをインストールするために特別なことをする必要はありません。新しいアプリケーションを作成するときにMixに依存関係をインストールさせると、これらは自動的にインストールされます。そうでない場合、Phoenixはアプリの作成が完了した後、その方法を教えてくれます。
 
-### node.js（> = 5.0.0）
+### node.js（>= 5.0.0）
 
 Nodeは任意の依存関係です。 Phoenixはデフォルトで[webpack](https://webpack.js.org/)を使用して静的アセット（JavaScript、CSSなど）をコンパイルします。 webpackは、ノードパッケージマネージャー（npm）を使用して依存関係をインストールします。npmにはnode.jsが必要です。
 
