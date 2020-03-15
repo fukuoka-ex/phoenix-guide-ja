@@ -9,7 +9,9 @@
 
 ## Issues
 
-Issueに未対応のファイルをリスト化しています。対応してくださる方は対応するissueに対してassigneeを設定後、Pull Requestの作成をお願いします。
+Issueに未対応のファイルをリスト化しています。対応してくださる方はissueに対して「対応します」等コメントをお願いします。
+
+note: リポジトリへのWRITE権限がないとAssigneeに設定できないため、コメントによる運用をしています
 
 [https://github.com/fukuoka-ex/phoenix-guide-ja/issues](https://github.com/fukuoka-ex/phoenix-guide-ja/issues)
 
