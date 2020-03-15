@@ -46,8 +46,8 @@ Phoenixで利用する多くのHTMLヘルパー関数群を含むプロジェク
 ## Cowboy
 PhoenixのベースとなるWebサーバー
 - [Source Code and Readme](https://github.com/ninenines/cowboy)
-- [User Guides](http://ninenines.eu/docs/en/cowboy/1.0/guide/)
-- [Manual/Function Reference](http://ninenines.eu/docs/en/cowboy/1.0/manual/)
+- [User Guides](http://ninenines.eu/docs/en/cowboy/2.7/guide/)
+- [Manual/Function Reference](http://ninenines.eu/docs/en/cowboy/2.7/manual/)
 
 ## EEx
 Phoenixがデフォルトで使うテンプレートシステム
