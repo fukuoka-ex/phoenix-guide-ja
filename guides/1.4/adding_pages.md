@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Adding Pages
 nav_order: 2
-hash: f24c540504f07c06c9f1af951b889b5b297c54e0
+hash: dc3fc93e975d3f1c9f19df79a5a522dce4fdc3d6
 ---
 # Adding Pages
 
@@ -79,7 +79,7 @@ lib
 |   └── router.ex
 ```
 
-Our `lib/hello_web` directory contains web-related files – routers, controllers, templates, channels, etc. The rest of our greater Elixir application lives inside `lib/hello`, and you structure code here like any other Elixir application.
+Our `lib/hello_web` directory contains web-related files – routers, controllers, templates, channels, etc. The rest of our greater Elixir application lives inside `lib/hello`, and you structure code here like any other Elixir application.
 
 Enough prep, let's get on with our first new Phoenix page!
 
@@ -213,7 +213,7 @@ There are a couple of interesting things to notice about what we just did. We di
 
 which is what renders our template into the layout before the HTML is sent off to the browser.
 
-> A note on hot code reloading: Some editors with their automatic linters may prevent hot code reloading from working. If it's not working for you, please see the discussion in [this issue](https://github.com/phoenixframework/phoenix/issues/1165).
+A note on hot code reloading, some editors with their automatic linters may prevent hot code reloading from working. If it's not working for you, please see the dicussion in [this issue](https://github.com/phoenixframework/phoenix/issues/1165).
 
 ## Another New Page
 
