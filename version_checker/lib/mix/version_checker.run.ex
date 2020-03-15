@@ -41,7 +41,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
   """
   def get_latest_hash(repo_dir, filepath) do
     args =
-      ~s(--git-dir #{repo_dir}/.git log -n 1 --pretty=format:"%h" -- #{filepath})
+      ~s(--git-dir #{repo_dir}/.git log --first-parent remotes/origin/v1.4 -n 1 --pretty=format:"%h" -- #{filepath})
       |> String.split(" ")
 
     {commit_short_hash, 0} = System.cmd("git", args)
