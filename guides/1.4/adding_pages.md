@@ -191,7 +191,7 @@ TemplateのスコープはViewに限定され、ViewはControllerに限定され
 </div>
 ```
 
-いま、Route、Controller、View、Templateを作りましたので、ブラウザで[http://localhost:4000/hello](http://localhost:4000/hello)にアクセスをすると、Phoenixからあいさつが表示されるでしょう。(表示されない場合には、一度サーバを止めて、再起動のために`mix phx.server`を行ってください)
+いま、Route、Controller、View、Templateを作成したので、ブラウザで[http://localhost:4000/hello](http://localhost:4000/hello)にアクセスをすると、Phoenixからあいさつが表示されるでしょう。(表示されない場合には、一度サーバを止めて、再起動のために`mix phx.server`を行ってください)
 
 ![Phoenix Greets Us](assets/images/hello-from-phoenix.png)
 
