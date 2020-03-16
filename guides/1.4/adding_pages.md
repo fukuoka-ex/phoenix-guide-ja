@@ -273,4 +273,4 @@ messengerは`@messenger`に格納されています。ここでは、モジュ�
 
 ![Frank Greets Us from Phoenix](assets/images/hello-world-from-frank.png)
 
-少し遊んでみましょう。/hello/に続く文字は、messengerとしてページに表示されることでしょう。
+少し遊んでみましょう。/hello/の後ろにどんな文字を入力しても、messengerとしてページに表示されることでしょう。
