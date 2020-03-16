@@ -82,7 +82,7 @@ Routeは、一意なHTTPメソッド/pathのペアを、それらを処理する
 get "/", PageController, :index
 ```
 
-このRouteの意味を説明します。[http://localhost:4000/](http://localhost:4000/) にアクセスをすると、ルートパスへのHTTP `GET`が発行されます。このリクエストは、`lib/hello_web/controllers/page_controller.ex`に定義された`HelloWeb.PageController`モジュールの`index`関数によって処理されます。
+このRouteの意味を説明します。[http://localhost:4000/](http://localhost:4000/) にアクセスをすると、ルートパスへのHTTP `GET`リクエストが発行されます。このリクエストは、`lib/hello_web/controllers/page_controller.ex`に定義された`HelloWeb.PageController`モジュールの`index`関数によって処理されます。
 
 [http://localhost:4000/hello](http://localhost:4000/hello)にブラウザでアクセスしたら、"Hello World, from Phoenix!"を表示するようにして行きましょう。
 
