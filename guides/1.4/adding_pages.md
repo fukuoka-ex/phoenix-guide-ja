@@ -207,7 +207,7 @@ TemplateのスコープはViewに限定され、ViewはControllerに限定され
 
 ## ２つめの新しいページ
 
-アプリケーションに少し複雑な変更を加えてみましょう。URLの一部を認識する新しいページを使いしてみましょう。"messenger"というラベルを付け、Controllerを介してTemplateに渡し、messengerがあいさつするようにします。
+アプリケーションに少し複雑な変更を加えてみます。URLの一部を認識する新しいページを作成してみましょう。"messenger"というラベルを付け、Controllerを介してTemplateに渡し、messengerがあいさつするようにします。
 
 前回同様、まずは新しいルートを作りましょう。
 
