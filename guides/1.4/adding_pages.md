@@ -183,7 +183,7 @@ PhoenixのTemplateはデータをレンダーします。Phoenixのデフォル�
 
 TemplateのスコープはViewに限定され、ViewはControllerに限定されます。Phoenixは`lib/hello_web/templates`ディレクトリを作ります。View名とController名の最初の部分は一致している必要があったように、Templateにも格納場所には意味があります。helloページのためには、`lib/hello_web/templates`の下に`hello`ディレクトリを作り、そのなかに`index.html.eex`ファイルを作ります。
 
-それでは、`lib/hello_web/templates/hello/index.html.eex`を作って、以下のようにに中身を書いてみましょう:
+それでは、`lib/hello_web/templates/hello/index.html.eex`を作って、以下のように中身を書いてみましょう:
 
 ```html
 <div class="phx-hero">
