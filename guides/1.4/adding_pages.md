@@ -250,7 +250,7 @@ def show(conn, %{"messenger" => messenger} = params) do
 end
 ```
 
-`params` mapのキーはいつも文字列であり、= は割り当てを表すのではなく、[pattern match](https://elixir-lang.org/getting-started/pattern-matching.html)表明であることを覚えておくのは良いことです。
+`params` mapのキーはいつも文字列であり、= は割り当てを表すのではなく、[pattern match](https://elixir-lang.org/getting-started/pattern-matching.html)表明であることを覚えておくと良いでしょう。
 
 ### 新しいTemplate
 
