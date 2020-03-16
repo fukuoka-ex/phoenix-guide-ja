@@ -74,7 +74,7 @@ lib
 
 ### 新しいRoute
 
-Routeは一意なHTTP verb/pathのペアをそれらを処理するcontroller/actionのペアを紐付けます。Phoenixはこの紐付けを行うファイルとして`lib/hello_web/router.ex`を生成します。このセクションではこのファイルを変更していきます。
+Routeは、一意なHTTPメソッド/pathのペアを、それらを処理するcontroller/actionのペアに紐付けます。Phoenixはこの紐付けを行うファイルとして`lib/hello_web/router.ex`を生成します。このセクションではこのファイルを変更していきます。
 
 前回のUp And Running Guideで表示した"Welcome to Phoenix!"ページのためのルートは以下の部分が該当します。
 
