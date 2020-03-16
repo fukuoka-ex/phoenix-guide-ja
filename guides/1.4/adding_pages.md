@@ -154,7 +154,7 @@ end
 ```
 `use HelloWeb, :controller`については、[Controllers Guide](controllers.html)に譲ることにします。いまは、`index/2`アクションに着目します。
 
-すべてのコントローラーアクションは２つの引数を取ります。第一引数は`conn`で、これはリクエストについての
+すべてのコントローラーアクションは2つの引数を取ります。第1引数は`conn`で、これはリクエストについての
 リクエストに関する大量のデータを保持する構造体です。第二引数は`params`でリクエストパラメータです。ここでは未使用のため、コンパイラの警告を避けるため、`_params`としています。
 
 このアクションのポイントは`render(conn, "index.html")`です。これはPhoenixに`index.html.eex`というテンプレートをみつけてレンダーするように指示しています。Phoenixはコントローラー名にちなんだtemplateディレクトリを探します。今回の場合は、`lib/hello_web/templates/hello`となります。
