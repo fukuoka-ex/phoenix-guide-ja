@@ -51,7 +51,7 @@ Phoenixプロジェクトを新規作成すると、ディレクトリ構造は�
 
 `assets`ディレクトリには、アプリケーション全体で使うjs、css、画像ファイルがあり、webpackもしくは他のフロントエンドツールでビルドされます。このガイドではこれらに変更を加えることはしませんが、あとにでてくる参照先を探すことは良いことです。
 
-またwebとは関係しないファイルがあることも知っておくべきです。Elixirアプリケーションとsupervision treeを開始するファイルは、`lib/hello/application.ex`にあります。またデータベースを操作するEcto Repoは、`lib/hello/repo.ex` があります。[guide for Ecto](ecto.html)でより詳しく説明します。
+またwebとは関係しないファイルがあることも知っておくべきです。applicationファイル（Elixirアプリケーションとsupervision treeを開始するファイル）は、`lib/hello/application.ex`にあります。またデータベースを操作するEcto Repoも、`lib/hello/repo.ex` にあります。[guide for Ecto](ecto.html)でより詳しく説明します。
 
 ```console
 lib
