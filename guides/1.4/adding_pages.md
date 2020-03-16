@@ -240,7 +240,7 @@ end
 
 ここでいくつかのことに気づかれるでしょう。URLの`:messenger`の位置にある値を`messenger`変数として束縛するように、show関数へ渡されたparamsにパターンマッチを使います。たとえば、URLが[http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank)だとすると、messenger変数は`Frank`に束縛されます。
 
-`show` action内のrender関数では第三引数を渡しています。keyが`:messenger`で値は`messenger`変数です。
+`show` action内のrender関数では第3引数を渡しています。keyが`:messenger`で値は`messenger`変数です。
 
 > Note: アクション内でMapパラメータ全体へのアクセスが必要なのであれば、messenger変数へ束縛することに加えて、params変数にも束縛するように、`show/2`のように以下のように定義します。
 
