@@ -195,7 +195,7 @@ TemplateのスコープはViewに限定され、ViewはControllerに限定され
 
 ![Phoenix Greets Us](assets/images/hello-from-phoenix.png)
 
-ここまでおこなったことに興味深いことがいくつかあったことにお気づきのことでしょう。これらの変更を行う間、サーバーを止めたり再起動する必要はなかった。その通りです！ Phoenixはホットコードリローディングをしてくれます。また`index.html.eex`が`div`タグだけで構成されるようにすると、ページは全部のHTMLを得ます。indexテンプレートは、アプリケーションレイアウトでレンダリングされています。アプリケーションレイアウトは`lib/hello_web/templates/layout/app.html.eex`にあります。これを開くと、以下のような行が含まれています:
+ここまで行ったことに興味深いことがいくつかあったことにお気づきのことでしょう。これらの変更を行う間、サーバーを止めたり再起動する必要はありませんでした。その通りです！ Phoenixはホットコードリローディングをしてくれます。また`index.html.eex`が`div`タグだけで構成されているにも関わらず、取得されるページは完全なHTMLドキュメントになっています。indexテンプレートは、アプリケーションレイアウトでレンダリングされています。アプリケーションレイアウトは`lib/hello_web/templates/layout/app.html.eex`にあります。これを開くと、以下のような行が含まれています:
 
 ```html
 <%= render @view_module, @view_template, assigns %>
