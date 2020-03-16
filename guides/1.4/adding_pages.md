@@ -139,7 +139,7 @@ end
 
 ### 新しいコントローラー
 
-コントローラーはElixirのモジュールです。アクションはElixirの関数です。アクションは、レンダリングのためにデータを集めて必要なタスクを実行します。`index/2`アクションを持つ`HelloWeb.HelloController`モジュールをRouteで指定しています。
+コントローラーはElixirのモジュールであり、アクションはコントローラー内に定義されるElixirの関数です。アクションは、レンダリングのためにデータを集めて必要なタスクを実行します。`index/2`アクションを持つ`HelloWeb.HelloController`モジュールをRouteで指定しています。
 
 そのため、`lib/hello_web/controllers/hello_controller.ex`を以下のように作成してみましょう。
 
