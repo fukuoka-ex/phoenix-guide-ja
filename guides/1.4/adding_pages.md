@@ -1,11 +1,11 @@
 ---
 layout: default
 group: guides
-title: Adding Pages
+title: ページの追加
 nav_order: 2
 hash: dc3fc93e975d3f1c9f19df79a5a522dce4fdc3d6
 ---
-# Adding Pages
+# ページの追加
 
 Phoenixプロジェクトに2つの新しいページを追加してみましょう。1つ目は単純な静的ページを追加します。2つ目はURLから値を取得して動的なページを追加します。途中で、Phoenixプロジェクトにおける基本的なコンポーネントに詳しくなれるでしょう。基本的なコンポーネントとは、ルーター、コントローラー、ビュー、テンプレートを指します。
 
