@@ -71,7 +71,7 @@ $ PORT=4001 MIX_ENV=prod mix phx.server
 
 エラーメッセージは非常に明確です。Phoenixが静的なマニフェストを見つけられなかったことを表しています。上記のコマンドを実行して修正するか、アセットを提供しないかまったく気にしない場合には、`config/prod.exs`から`cache_static_manifest`設定を削除してください。
 
-## productionモードでサーバーを開始
+## productionモードでのサーバーの起動
 
 productionモードでPhoenixを開始するには、`mix phx.server`を実行する際に、`PORT`と`MIX_ENV`環境を設定しておく必要があります:
 
