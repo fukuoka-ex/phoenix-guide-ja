@@ -36,7 +36,7 @@ $ export DATABASE_URL=ecto://USER:PASS@HOST/database
 
 これらの値をそのままコピーしてはいけません。`mix phx.gen.secret`の結果に従って、`SECRET_KEY_BASE`を設定してください。`DATABASE_URL`はデータベースアドレスに従って設定をしてください。
 
-いくつのか理由により環境変数を使いたくない場合には、`config/prod.secret.exs`に直接、シークレートを書き込んでください。しかし、`config/prod.secret.exs`がバージョンコントロールシステムで取り扱われないように確認をしておいてください。
+いくつのか理由により環境変数を使いたくない場合には、`config/prod.secret.exs`に直接、シークレットを書き込んでください。しかし、`config/prod.secret.exs`がバージョンコントロールシステムで取り扱われないように確認をしておいてください。
 
 シークレット情報が適切で安全に設定できたので、アセットを構成してみましょう!
 
