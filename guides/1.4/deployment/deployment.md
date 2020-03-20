@@ -117,4 +117,4 @@ $ MIX_ENV=prod mix ecto.migrate
 $ PORT=4001 MIX_ENV=prod mix phx.server
 ```
 
-以上です。次は[how to deploy Phoenix with Elixir's releases](releases.html) と [how to deploy to Heroku](heroku.html)を学ぶことができます。
+以上です。次は[ElixirのリリースでPhoenixをデプロイする方法](releases.html) と [Herokuへデプロイする方法](heroku.html)を学ぶことができます。
