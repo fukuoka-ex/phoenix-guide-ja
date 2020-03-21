@@ -40,6 +40,9 @@ note: v1.4ブランチ自体の最新commitではなく、v1.4ブランチの **
 
 [GitHub Actionのworkflow](https://github.com/fukuoka-ex/phoenix-guide-ja/blob/master/.github/workflows/check_hash.yml)によってdailyで翻訳元リポジトリのcommit logを確認し、翻訳ファイルのhashと差分が生じている場合は自動でissueが作成されます。
 
+## 翻訳の方針
+
+[ガイドライン](./GUIDELINE.md)にまとめていますので、ご確認ください。
 
 ## Pull Request
 
