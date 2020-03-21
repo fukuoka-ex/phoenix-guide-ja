@@ -1,21 +1,21 @@
 ---
 layout: default
 group: guides
-title: Plug
+title: プラグ
 nav_order: 4
 hash: 0909faec38227c68a703711753e6413a64ae155a
 ---
 
-# Plug
+# プラグ
 
-Plug lives at the heart of Phoenix's HTTP layer, and Phoenix puts Plug front and center. We interact with plugs at every step of the connection lifecycle, and the core Phoenix components like Endpoints, Routers, and Controllers are all just Plugs internally. Let's jump in and find out just what makes Plug so special.
+プラグはPhoenixのHTTPレイヤーの中心にあり、Phoenixはプラグを中心に置いています。コネクションライフサイクルのすべてのステップでプラグを使用しており、エンドポイント、ルーター、コントローラーなどのPhoenixのコアコンポーネントは、内部的にはすべてプラグです。プラグの特徴を見てみましょう。
 
-[Plug](https://github.com/elixir-lang/plug) is a specification for composable modules in between web applications. It is also an abstraction layer for connection adapters of different web servers. The basic idea of Plug is to unify the concept of a "connection" that we operate on. This differs from other HTTP middleware layers such as Rack, where the request and response are separated in the middleware stack.
+[プラグ](https://github.com/elixir-lang/plug)は、Webアプリケーションの間にある合成可能なモジュールのための仕様です。また、異なるウェブサーバの接続アダプターのための抽象化レイヤーでもあります。プラグの基本的な考え方は、我々が操作する「コネクション」という概念を統一することです。これは、ミドルウェアスタックの中でリクエストとレスポンスが分離されているRackなどの他のHTTPミドルウェア層とは異なります。
 
-At the simplest level, the Plug specification comes in two flavors: *function plugs* and *module plugs*.
+もっとも単純なレベルでは、プラグの仕様には2つの特徴があります。*関数プラグ*と*モジュールプラグ*です。
 
-## Function Plugs
-In order to act as a plug, a function simply needs to accept a connection struct (`%Plug.Conn{}`) and options. It also needs to return a connection struct. Any function that meets those criteria will do. Here's an example.
+## 関数プラグ
+プラグとして動作するためには、関数は単にコネクション構造体（`%Plug.Conn{}`）とオプションを受け取る必要があります。また、コネクション構造体を返す必要があります。これらの基準を満たす関数であれば、どのようにしても動作します。以下に例を示します。
 
 ```elixir
 def put_headers(conn, key_values) do
@@ -25,9 +25,9 @@ def put_headers(conn, key_values) do
 end
 ```
 
-Pretty simple, right?
+簡単ですよね？
 
-This is how we use them to compose a series of transformations on our connection in Phoenix:
+これを使ってPhoenixでのコネクションで一連の変換を構成します。
 
 ```elixir
 defmodule HelloWeb.MessageController do
@@ -40,7 +40,7 @@ defmodule HelloWeb.MessageController do
 end
 ```
 
-By abiding by the plug contract, `put_headers/2`, `put_layout/2`, and even `action/2` turn an application request into a series of explicit transformations. It doesn't stop there. To really see how effective Plug's design is, let's imagine a scenario where we need to check a series of conditions and then either redirect or halt if a condition fails. Without plug, we would end up with something like this:
+プラグの規約に従うことで、`put_headers/2`、`put_layout/2`、さらには`action/2`はアプリケーションのリクエストを明示的に変換します。これで終わりではありません。プラグの設計がどれほど効果的かを実際に見るために、一連の条件をチェックして、条件が失敗した場合にリダイレクトするか停止する必要があるシナリオを想像してみましょう。プラグがなければ、次のようなシナリオになるでしょう。
 
 ```elixir
 defmodule HelloWeb.MessageController do
@@ -67,7 +67,7 @@ defmodule HelloWeb.MessageController do
 end
 ```
 
-Notice how just a few steps of authentication and authorization require complicated nesting and duplication? Let's improve this with a couple of plugs.
+認証と認可のわずか数ステップで、複雑な入れ子と重複を必要とすることにお気づきでしょうか？これをいくつかのプラグで改善してみましょう。
 
 ```elixir
 defmodule HelloWeb.MessageController do
@@ -109,19 +109,18 @@ defmodule HelloWeb.MessageController do
 end
 ```
 
-By replacing the nested blocks of code with a flattened series of plug transformations, we are able to achieve the same functionality in a much more composable, clear, and reusable way.
+入れ子になっていたコードのブロックを、フラットな一連のプラグに置き換えることで、同じ機能を、より構成しやすく、明確で、再利用可能な方法で実現することができるようになりました。
 
-Now let's look at the other flavor plugs come in, module plugs.
+次に、他の特徴を持つプラグであるモジュールプラグを見てみましょう。
 
-## Module Plugs
+## モジュールプラグ
 
-Module plugs are another type of Plug that let us define a connection transformation in a module. The module only needs to implement two functions:
+モジュールプラグは、モジュール内のコネクション変換を定義するためのプラグの別のタイプです。モジュールは2つの関数を実装するだけです。
 
-- `init/1` which initializes any arguments or options to be passed to `call/2`
-- `call/2` which carries out the connection transformation. `call/2` is just a function plug that we saw earlier
+- `init/1`: `call/2`に渡される引数やオプションを初期化します。
+- `call/2`: コネクション変換を実行します。`call/2`は先ほど見た関数プラグです。
 
-
-To see this in action, let's write a module plug that puts the `:locale` key and value into the connection assign for downstream use in other plugs, controller actions, and our views.
+これを実際に見るために、`:locale`のキーと値をコネクションのassignに設定するモジュールプラグを書いてみましょう。
 
 ```elixir
 defmodule HelloWeb.Plugs.Locale do
@@ -151,6 +150,7 @@ defmodule HelloWeb.Router do
   ...
 ```
 
-We are able to add this module plug to our browser pipeline via `plug HelloWeb.Plugs.Locale, "en"`. In the `init/1` callback, we pass a default locale to use if none is present in the params. We also use pattern matching to define multiple `call/2` function heads to validate the locale in the params, and fall back to "en" if there is no match.
+このモジュールのプラグインをbrowserのパイプラインに追加するには、`plug HelloWeb.Plugs.Locale, "en"`を使用します。`init/1`コールバックでは、パラメーターにロケールがない場合に使用するデフォルトのロケールを渡します。また、パターンマッチングを使用して複数の`call/2`関数を定義してパラメーターのロケールを検証し、マッチしない場合は"en"にフォールバックします。
 
-That's all there is to Plug. Phoenix embraces the plug design of composable transformations all the way up and down the stack. This is just the first taste. If we ask ourselves, "Could I put this in a plug?" The answer is usually, "Yes!"
+プラグはこれだけです。Phoenixは、スタック全体で構成可能な変換を行うプラグデザインを採用しています。これははじめての経験に過ぎません。これをプラグに入れてもいいかな？と自問自答すれば、たいていの場合、答えは"Yes！"です。
+
