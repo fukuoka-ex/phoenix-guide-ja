@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Endpoint
 nav_order: 5
-hash: 6b9e9839b588b6338d1457fd988ec109f605646b
+hash: 706f3f036c5f14b48fe8278fab3735c05d1fbfa1
 ---
 
 # Endpoint
@@ -83,10 +83,7 @@ plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 [Plug.Session](https://hexdocs.pm/plug/Plug.Session.html) handles the session cookies and session stores.
 
 ```elixir
-plug Plug.Session,
-  store: :cookie,
-  key: "_hello_key",
-  signing_salt: "change_me"
+plug Plug.Session, @session_options
 ```
 
 By default the last plug in the endpoint is the router. The router matches a path to a particular controller action or plug. The router is covered in the [Routing Guide](routing.html).
@@ -177,7 +174,7 @@ In these examples, the `rewrite_on:` key specifies the HTTP header used by a rev
 
 ### HSTS
 
-HSTS or "strict-transport-security" is a mechanism that allows a website to declare itself as only accessible via a secure connection (HTTPS). It was introduced to prevent man-in-the-middle attacks that strip SSL/TLS. It causes web browers to redirect from HTTP to HTTPS and refuse to connect unless the connection uses SSL/TLS.
+HSTS or "strict-transport-security" is a mechanism that allows a website to declare itself as only accessible via a secure connection (HTTPS). It was introduced to prevent man-in-the-middle attacks that strip SSL/TLS. It causes web browsers to redirect from HTTP to HTTPS and refuse to connect unless the connection uses SSL/TLS.
 
 With `force_ssl: :hsts` set the `Strict-Transport-Security` header is set with a max age that defines the length of time the policy is valid for. Modern web browsers will respond to this by redirecting from HTTP to HTTPS for the standard case but it does have other consequenses. [RFC6797](https://tools.ietf.org/html/rfc6797) which defines HSTS also specifies **that the browser should keep track of the policy of a host and apply it until it expires.** It also specifies that **traffic on any port other than 80 is assumed to be encrypted** as per the policy.
 
