@@ -3,13 +3,13 @@ layout: default
 group: deployment
 title: Deploying with Releases
 nav_order: 2
-hash: 9e192222ee86e1a7110a650bd53908c1f828f8a6
+hash: 5bda94164d5e0d52c740f499d4cf7fcf449d82ab
 ---
 # Deploying with Releases
 
 ## What we'll need
 
-The only thing we'll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the [Up and Running guide](up_and_running.html).
+The only thing we'll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the [Up and Running guide](https://hexdocs.pm/phoenix/up_and_running.html).
 
 ## Goals
 
@@ -26,11 +26,11 @@ $ elixir -v
 
 If you are not familiar with Elixir releases yet, we recommend you to read [Elixir's excellent docs](https://hexdocs.pm/mix/Mix.Tasks.Release.html) before continuing.
 
-Once that is done, you can assemble a release by going through all of the steps in our general [deployment guide](deployment.html) with `mix release` at the end. Let's recap.
+Once that is done, you can assemble a release by going through all of the steps in our general [deployment guide](/deployment.html) with `mix release` at the end. Let's recap.
 
 First set the environment variables:
 
-```console
+```
 $ mix phx.gen.secret
 REALLY_LONG_SECRET
 $ export SECRET_KEY_BASE=REALLY_LONG_SECRET
@@ -39,7 +39,7 @@ $ export DATABASE_URL=ecto://USER:PASS@HOST/database
 
 Then load dependencies to compile code and assets:
 
-```console
+```
 # Initial setup
 $ mix deps.get --only prod
 $ MIX_ENV=prod mix compile
@@ -51,7 +51,7 @@ $ mix phx.digest
 
 And now run `mix release`:
 
-```console
+```
 $ MIX_ENV=prod mix release
 Generated my_app app
 * assembling my_app-0.1.0 on MIX_ENV=prod
@@ -75,7 +75,7 @@ config :my_app, MyApp.Endpoint, server: true
 
 Now assemble the release once again:
 
-```console
+```
 $ MIX_ENV=prod mix release
 Generated my_app app
 * assembling my_app-0.1.0 on MIX_ENV=prod
@@ -105,7 +105,7 @@ However, in many cases, we don't want to set the values for `SECRET_KEY_BASE` an
 
 Now if you assemble another release, you should see this:
 
-```console
+```
 $ MIX_ENV=prod mix release
 Generated my_app app
 * assembling my_app-0.1.0 on MIX_ENV=prod
@@ -125,24 +125,18 @@ defmodule MyApp.Release do
   @app :my_app
 
   def migrate do
-    load_app()
-
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
   end
 
   def rollback(repo, version) do
-    load_app()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
   defp repos do
-    Application.fetch_env!(@app, :ecto_repos)
-  end
-
-  defp load_app do
     Application.load(@app)
+    Application.fetch_env!(@app, :ecto_repos)
   end
 end
 ```
@@ -151,23 +145,11 @@ Where you replace the first two lines by your application names.
 
 Now you can assemble a new release with `MIX_ENV=prod mix release` and you can invoke any code, including the functions in the module above, by calling the `eval` command:
 
-```console
+```
 $ _build/prod/rel/my_app/bin/my_app eval "MyApp.Release.migrate"
 ```
 
 And that's it!
-
-You can use this approach to create any custom command to run in production. In this case, we used `load_app`, which calls `Application.load/1` to load the current application without starting it. However, you may want to write a custom command that starts the whole application. In such cases, `Application.ensure_all_started/1` must be used. Keep in mind starting the application will start all processes for the current application, including the Phoenix endpoint. This can be circumvented by changing your supervision tree to not start certain children under certain conditions. For example, in the release commands file you could do:
-
-```elixir
-defp start_app do
-  load_app()
-  Application.put_env(@app, :minimal, true)
-  Application.ensure_all_started(@app)
-end
-```
-
-And then in your application you check `Application.get_env(@app, :minimal)` and start only part of the children when it is set.
 
 ## Containers
 
@@ -175,11 +157,11 @@ Elixir releases work well with container technologies, such as Docker. The idea 
 
 Here is an example Docker file to run at the root of your application covering all of the steps above:
 
-```docker
-FROM elixir:1.9.0-alpine AS build
+```
+# FROM elixir:1.9.0-alpine as build
 
 # install build dependencies
-RUN apk add --update build-base npm git
+RUN apk add --update git build-base nodejs yarn python
 
 # prepare build dir
 RUN mkdir /app
