@@ -1,15 +1,14 @@
 ---
 layout: default
 group: guides
-title: Endpoint
+title: エンドポイント
 nav_order: 5
 hash: 706f3f036c5f14b48fe8278fab3735c05d1fbfa1
 ---
 
-# Endpoint
+# エンドポイント
 
-Phoenix applications start the HelloWeb.Endpoint as a supervised process. By default, the Endpoint is added to the supervision tree in `lib/hello/application.ex` as a supervised process. Each request begins and ends its lifecycle inside your application in an endpoint. The endpoint handles starting the web server and transforming requests through several defined plugs before calling the [Router](routing.html).
-
+Phoenixアプリケーションは、HelloWeb.Endpointを監視下のプロセスとして開始します。デフォルトでは、エンドポイントは`lib/hello/application.ex`の監視対象プロセスとして監視対象ツリーに追加されます。各リクエストはエンドポイントでアプリケーション内でライフサイクルを開始し、終了します。エンドポイントは、[ルーター]](routing.html)を呼び出す前に、ウェブサーバを起動し、いくつかの定義されたプラグを通してリクエストを変換する処理を行います。
 
 ```elixir
 defmodule Hello.Application do
@@ -27,24 +26,25 @@ defmodule Hello.Application do
 end
 ```
 
-### Endpoint Contents
+### エンドポイントの内容
 
-Endpoints gather together common functionality and serve as entrance and exit for all of the HTTP requests to your application. The endpoint holds plugs that are common to all requests coming into your application.
+エンドポイントは共通の機能を集め、アプリケーションへのすべてのHTTPリクエストの入り口と出口として機能します。エンドポイントは、アプリケーションに入ってくるすべてのリクエストに共通するプラグを保持します。
 
-Let's take a look at the endpoint for the application `Hello` generated in the [Up and Running](up_and_running.html) page.
+[起動ガイド](up_and_running.html) ページで生成されたアプリケーション`Hello`のエンドポイントを見てみましょう。
 
 ```elixir
 defmodule HelloWeb.Endpoint do
   ...
 end
 ```
-The first call inside of our Endpoint module is the `use Phoenix.Endpoint` macro with the `otp_app`. The `otp_app` is used for the configuration. This defines several functions on the `HelloWeb.Endpoint` module, including the `start_link` function which is called in the supervision tree.
+
+Endpointモジュールの最初の呼び出しは、`otp_app`を持つ`use Phoenix.Endpoint`マクロです。この `otp_app`は設定に使われます。これは`HelloWeb.Endpoint`モジュール上のいくつかの関数を定義しています。
 
 ```elixir
 use Phoenix.Endpoint, otp_app: :hello
 ```
 
-Next the endpoint declares a socket on the "/socket" URI. "/socket" requests will be handled by the `HelloWeb.UserSocket` module which is declared elsewhere in our application. Here we are just declaring that such a connection will exist.
+次に、エンドポイントは"/socket"URIにソケットを宣言します。"/socket"リクエストは、アプリケーションの他の場所で宣言されている`HelloWeb.UserSocket`モジュールによって処理されます。ここでは、このようなコネクションが存在することを宣言しているだけです。
 
 ```elixir
 socket "/socket", HelloWeb.UserSocket,
@@ -52,9 +52,9 @@ socket "/socket", HelloWeb.UserSocket,
   longpoll: false
 ```
 
-Next comes a series of plugs that are relevant to all requests in our application. We can customize some of the features, for example, enabling `gzip: true` when deploying to production to gzip the static files.
+次に、アプリケーション内のすべてのリクエストに関連する一連のプラグが登場します。たとえば、本番環境へデプロイする際に`gzip: true`を有効にして静的ファイルをgzipするなど、いくつかの機能をカスタマイズできます。
 
-Static files are served from `priv/static` before any part of our request makes it to a router.
+静的ファイルは、リクエストがルーターへ届く前に `priv/static` から提供されます。
 
 ```elixir
 plug Plug.Static,
@@ -63,7 +63,8 @@ plug Plug.Static,
   gzip: false,
   only: ~w(css fonts images js favicon.ico robots.txt)
 ```
-If code reloading is enabled, a socket will be used to communicate to the browser that the page needs to be reloaded when code is changed on the server. This feature is enabled by default in the development environment. This is configured using `config :hello, HelloWeb.Endpoint, code_reloader: true`.
+
+コードのリロードが有効になっている場合、サーバー上でコードが変更されたときに、ページをリロードする必要があることをブラウザへ伝えるためにソケットが使用されます。この機能は開発環境ではデフォルトで有効になっています。これは`config :hello, HelloWeb.Endpoint, code_reloader: true`で設定します。
 
 ```elixir
 if code_reloading? do
@@ -73,39 +74,38 @@ if code_reloading? do
 end
 ```
 
-[Plug.RequestId](https://hexdocs.pm/plug/Plug.RequestId.html) generates a unique id for each request and [Plug.Telemetry](https://hexdocs.pm/plug/Plug.Telemetry.html) adds instrumentation points so Phoenix can log the request path, status code and request time by default.
+[Plug.RequestId](https://hexdocs.pm/plug/Plug.RequestId.html)は各リクエストに固有のIDを生成し、[Plug.Telemetry](https://hexdocs.pm/plug/Plug.Telemetry.html)は計測ポイントを追加して、Phoenixがデフォルトでリクエストパス、ステータスコード、リクエスト時間をログに記録できるようにします。
 
 ```elixir
 plug Plug.RequestId
 plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 ```
 
-[Plug.Session](https://hexdocs.pm/plug/Plug.Session.html) handles the session cookies and session stores.
+[Plug.Session](https://hexdocs.pm/plug/Plug.Session.html)は、セッションクッキーとセッションストアを処理します。
 
 ```elixir
 plug Plug.Session, @session_options
 ```
 
-By default the last plug in the endpoint is the router. The router matches a path to a particular controller action or plug. The router is covered in the [Routing Guide](routing.html).
+デフォルトでは、エンドポイントの最後のプラグはルーターです。ルーターは、特定のコントローラーアクションまたはプラグへのパスにマッチします。ルータについては、[ルーティングガイド](routing.html)で説明しています。
 
 ```elixir
 plug HelloWeb.Router
 ```
 
-The endpoint can be customized to add additional plugs, to allow HTTP basic authentication, CORS, subdomain routing and more.
+エンドポイントをカスタマイズしてプラグを追加し、HTTPベーシック認証、CORS、サブドメインルーティングなどを有効にできます。
 
-Faults in the different parts of the supervision tree, such as the Ecto Repo, will not immediately impact the main application. The supervisor is therefore able to restart those processes separately after unexpected faults. It is also possible for an application to have multiple endpoints, each with its own supervision tree.
+Ecto Repoのような監視ツリーの異なる部分で障害が発生しても、すぐにメインアプリケーションに影響を与えることはありません。そのため、スーパバイザは予期せぬ障害が発生した後に、それらのプロセスを個別に再起動することができます。また、アプリケーションが複数のエンドポイントを持ち、それぞれが独自の監視ツリーを持つことも可能です。
 
-There are many functions defined in the endpoint module for path helpers, channel subscriptions and broadcasts, instrumentation, and endpoint configuration. These are all covered in the [Endpoint API docs](Phoenix.Endpoint.html#module-endpoint-api) for `Phoenix.Endpoint`.
+エンドポイントモジュールには、パスヘルパー、チャネルのサブスクリプションとブロードキャスト、インスツルメンテーション、エンドポイント設定のために定義された多くの機能があります。これらはすべて、`Phoenix.Endpoint`の[Endpoint APIドキュメント](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html#module-endpoint-api)で説明されています。
 
+## SSLを利用する
 
-## Using SSL
+アプリケーションがSSLでリクエストに応答するように準備するには、少しの設定と2つの環境変数を追加する必要があります。SSLが実際に動作するためには、認証局の鍵ファイルと証明書ファイルが必要です。必要な環境変数はこれら2つのファイルへのパスです。
 
-To prepare an application to serve requests over SSL, we need to add a little bit of configuration and two environment variables. In order for SSL to actually work, we'll need a key file and certificate file from a certificate authority. The environment variables that we'll need are paths to those two files.
+設定はエンドポイント用の新しい`https:`キーで構成され、その値はポート、キーファイルへのパス、証明書（pem）ファイルへのパスのキーワードリストです。アプリケーションの名前を表す`otp_app:`キーを追加すると、プラグはアプリケーションのルートでそれらのファイルを探し始めます。これらのファイルを`priv`ディレクトリに置き、パスを`priv/our_keyfile.key`と`priv/our_cert.crt`に設定します。
 
-The configuration consists of a new `https:` key for our endpoint whose value is a keyword list of port, path to the key file, and path to the cert (pem) file. If we add the `otp_app:` key whose value is the name of our application, Plug will begin to look for them at the root of our application. We can then put those files in our `priv` directory and set the paths to `priv/our_keyfile.key` and `priv/our_cert.crt`.
-
-Here's an example configuration from `config/prod.exs`.
+以下は `config/prod.exs` の設定例です。
 
 ```elixir
 use Mix.Config
@@ -126,20 +126,19 @@ config :hello, HelloWeb.Endpoint,
 
 ```
 
-Without the `otp_app:` key, we need to provide absolute paths to the files wherever they are on the filesystem in order for Plug to find them.
+`otp_app:`キーがない場合、プラグがファイルを見つけるためには、ファイルシステム上のどこにあってもファイルへの絶対パスを指定する必要があります。
 
 ```elixir
 Path.expand("../../../some/path/to/ssl/key.pem", __DIR__)
 ```
 
-The options under the `https:` key are passed to the Plug adapter, typically `Plug.Cowboy`, which in turn uses `Plug.SSL` to select the TLS socket options. Please refer to the documentation for [Plug.SSL.configure/1](https://hexdocs.pm/plug/Plug.SSL.html#configure/1) for more information on the available options and their defaults. The [Plug HTTPS Guide](https://hexdocs.pm/plug/https.html) and the [Erlang/OTP ssl](http://erlang.org/doc/man/ssl.html) documentation also provide valuable information.
+`https:`キーの下にあるオプションはプラグアダプタ（通常は `Plug.Cowboy`）に渡され、プラグアダプタは`Plug.SSL`を使用してTLSソケットのオプションを選択します。利用可能なオプションとそのデフォルト値の詳細については、[Plug.SSL.configure/1](https://hexdocs.pm/plug/Plug.SSL.html#configure/1)のドキュメントを参照してください。[Plug HTTPS Guide](https://hexdocs.pm/plug/https.html) や [Erlang/OTP ssl](http://erlang.org/doc/man/ssl.html) のドキュメントも貴重な情報を提供しています。
 
+### 開発環境でのSSL
 
-### SSL in Development
+開発でHTTPSを使いたい場合、`mix phx.gen.cert`を実行することで自己署名証明書を生成できます。これにはErlang/OTP 20以降が必要です。
 
-If you would like to use HTTPS in development, a self-signed certificate can be generated by running: `mix phx.gen.cert`. This requires Erlang/OTP 20 or later.
-
-With your self-signed certificate, your development configuration in `config/dev.exs` can be updated to run an HTTPS endpoint:
+自己署名証明書があれば、`config/dev.exs`の設定をHTTPSエンドポイントを実行するように更新できます。
 
 ```elixir
 config :my_app, MyApp.Endpoint,
@@ -152,32 +151,32 @@ config :my_app, MyApp.Endpoint,
   ]
 ```
 
-This can replace your `http` configuration, or you can run HTTP and HTTPS servers on different ports.
+これは`http`の設定を置き換えることもできますし、異なるポートでHTTPとHTTPSサーバを実行することもできます。
 
-### Force SSL
+### 強制SSL化
 
-In many cases, you'll want to force all incoming requests to use SSL by redirecting HTTP to HTTPS. This can be accomplished by setting the `:force_ssl` option in your endpoint configuration. It expects a list of options which are forwarded to `Plug.SSL`. By default it sets the "strict-transport-security" header in HTTPS requests, forcing browsers to always use HTTPS. If an unsafe (HTTP) request is sent, it redirects to the HTTPS version using the `:host` specified in the `:url` configuration. For example:
+多くの場合、HTTPをHTTPSにリダイレクトすることで、すべての受信リクエストにSSLを使用させたいと思うでしょう。これはエンドポイントの設定で`:force_ssl`オプションを設定することで実現できます。これは `Plug.SSL`に転送されるオプションのリストを渡す必要があります。デフォルトでは、HTTPSリクエストに "strict-transport-security"ヘッダーが設定され、ブラウザは常にHTTPSを使用するように強制されます。安全でない（HTTP）リクエストが送信された場合、`:url`設定で指定した`:host`を使ってHTTPSバージョンにリダイレクトします。たとえば、以下のようになります。
 
 ```elixir
 config :my_app, MyApp.Endpoint,
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 ```
 
-To dynamically redirect to the `host` of the current request, set `:host` in the `:force_ssl` configuration to `nil`.
+現在のリクエストの`host`に動的にリダイレクトするには、`:force_ssl`の設定で`:host`を`nil`に設定してください。
 
 ```elixir
 config :my_app, MyApp.Endpoint,
   force_ssl: [rewrite_on: [:x_forwarded_proto], host: nil]
 ```
 
-In these examples, the `rewrite_on:` key specifies the HTTP header used by a reverse proxy or load balancer in front of the application to indicate whether the request was received over HTTP or HTTPS. For more information on the implications of offloading TLS to an external element, in particular relating to secure cookies, refer to the [Plug HTTPS Guide](https://hexdocs.pm/plug/https.html#offloading-tls). Keep in mind that the options passed to `Plug.SSL` in that document should be set using the `force_ssl:` endpoint option in a Phoenix application.
+これらの例では、`rewrite_on:`キーは、リバースプロキシやロードバランサーがアプリケーションの前で使用するHTTPヘッダーを指定し、リクエストがHTTPで受信したかHTTPSで受信したかを示します。TLSを外部要素にオフロードすることの意味合い、特にセキュアクッキーに関連する詳細については、[Plug HTTPS Guide](https://hexdocs.pm/plug/https.html#offloading-tls)を参照してください。このドキュメントで`Plug.SSL`に渡されるオプションは、Phoenixアプリケーションの`force_ssl:`エンドポイントオプションを使って設定する必要があることに注意してください。
 
 ### HSTS
 
-HSTS or "strict-transport-security" is a mechanism that allows a website to declare itself as only accessible via a secure connection (HTTPS). It was introduced to prevent man-in-the-middle attacks that strip SSL/TLS. It causes web browsers to redirect from HTTP to HTTPS and refuse to connect unless the connection uses SSL/TLS.
+HSTSまたは"strict-transport-security"は、ウェブサイトが安全な接続（HTTPS）を介してのみアクセス可能であることを宣言できるようにする仕組みです。SSL/TLSを剥奪する中間者攻撃を防ぐために導入されました。これにより、WebブラウザはHTTPからHTTPSにリダイレクトし、SSL/TLSを使用しない限り接続を拒否するようになります。
 
-With `force_ssl: :hsts` set the `Strict-Transport-Security` header is set with a max age that defines the length of time the policy is valid for. Modern web browsers will respond to this by redirecting from HTTP to HTTPS for the standard case but it does have other consequenses. [RFC6797](https://tools.ietf.org/html/rfc6797) which defines HSTS also specifies **that the browser should keep track of the policy of a host and apply it until it expires.** It also specifies that **traffic on any port other than 80 is assumed to be encrypted** as per the policy.
+`force_ssl: :hsts` 設定すると、`Strict-Transport-Security`ヘッダにポリシーの有効期間を定義するmax ageが設定されます。最近のWebブラウザは、標準的なケースではHTTPからHTTPSにリダイレクトすることでこれに対応しますが、他の結果になることもあります。また、HSTSを定義している [RFC6797](https://tools.ietf.org/html/rfc6797) は、**ブラウザがホストのポリシーを追跡し、それが期限切れになるまで適用すること**を規定しています。また、ポリシーに従って、**80以外のポートのトラフィックは暗号化されていることを前提とすること**も指定されています。
 
-This can result in unexpected behaviour if you access your application on localhost, for example `https://localhost:4000`, as from that point forward and traffic coming from localhost will be expected to be encrypted, except port 80 which will be redirected to port 443. This has the potential to disrupt traffic to any other local servers or proxies that you may be running on your computer. Other applications or proxies on localhost will refuse to work unless the traffic is encrypted.
+これは、`https://localhost:4000`などのローカルホスト上のアプリケーションにアクセスした場合、予期せぬ動作をする可能性があります。これは、コンピューター上で実行している他のローカルサーバやプロキシへのトラフィックを混乱させる可能性があります。localhost上の他のアプリケーションやプロキシは、トラフィックが暗号化されていない限り動作を拒否します。
 
-If you do inadvertently turn on HSTS for localhost you may need to reset the cache on your browser before it will accept any HTTP traffic from localhost. For Chrome you need to `Empty Cache and Hard Reload` which is available from the reload menu that appears when you click and hold the reload icon from the Developer Tools Panel. For Safari you will need to clear your cache, remove the entry from `~/Library/Cookies/HSTS.plist` (or delete that file entirely) and restart Safari. Alternately you can set the `:expires` option on `force_ssl` to `0` which should expired the entry to turn off HSTS. More information on the options for HSTS are available at [Plug.SSL](https://hexdocs.pm/plug/Plug.SSL.html).
+誤ってlocalhostのHSTSを有効にしてしまった場合、localhostからのHTTPトラフィックを受け入れる前にブラウザのキャッシュをリセットする必要があるかもしれません。Chromeの場合は、開発者ツールパネルのリロードアイコンをクリックしたままにすると表示されるリロードメニューから、「キャッシュの消去とハード再読み込み」を実行する必要があります。Safariの場合は、キャッシュをクリアし、`~/Library/Cookies/HSTS.plist`のエントリを削除して（またはファイルを完全に削除して）、Safariを再起動する必要があります。あるいは、`force_ssl`の`:expires`オプションを`0`に設定することもできます。HSTSのオプションについての詳細は [Plug.SSL](https://hexdocs.pm/plug/Plug.SSL.html) にあります。
