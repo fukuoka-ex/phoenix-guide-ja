@@ -6,7 +6,11 @@
 
 「ユーザー」「ルーター」「コントローラー」など-er相当の単語は長音をつけるように統一します。
 
-参考: https://news.mynavi.jp/article/20180419-617682/
+参考:  
+
+- https://news.mynavi.jp/article/20180419-617682/
+- https://manual-torisetsu.com/blog/3219/
+- https://qiita.com/tetsuo_jp/items/9bc1a05ab1504d815bb9
 
 ## カタカナ表記可能なものはカタカナ表記する
 
