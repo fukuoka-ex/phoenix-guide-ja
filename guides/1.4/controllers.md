@@ -3,14 +3,14 @@ layout: default
 group: guides
 title: Controllers
 nav_order: 6
-hash: 7de9894218160469f74abc6fda1d93d2f9afe444
+hash: eb3eb71b49de36f778141bdf6b6081a3fcac4d72
 ---
 
 # Controllers
 
 Phoenix controllers act as intermediary modules. Their functions - called actions - are invoked from the router in response to HTTP requests. The actions, in turn, gather all the necessary data and perform all the necessary steps before invoking the view layer to render a template or returning a JSON response.
 
-Phoenix controllers also build on the Plug package, and are themselves plugs. Controllers provide the functions to do almost anything we need to in an action. If we do find ourselves looking for something that Phoenix controllers don't provide, we might find what we're looking for in Plug itself. Please see the [Plug Guide](plug.html) or [Plug Documentation](https://hexdocs.pm/plug/) for more information.
+Phoenix controllers also build on the Plug package, and are themselves plugs. Controllers provide the functions to do almost anything we need to in an action. If we do find ourselves looking for something that Phoenix controllers don't provide; however, we might find what we're looking for in Plug itself. Please see the [Plug Guide](plug.html) or [Plug Documentation](https://hexdocs.pm/plug/) for more information.
 
 A newly generated Phoenix app will have a single controller, the `PageController`, which can be found at `lib/hello_web/controllers/page_controller.ex` and looks like this.
 
@@ -422,7 +422,7 @@ end
 
 We would then need to provide an `index.xml.eex` template which created valid xml, and we would be done.
 
-For a list of valid content mime-types, please see the [mime.types](https://github.com/elixir-plug/mime/blob/master/priv/mime.types) documentation from the mime type library.
+For a list of valid content mime-types, please see the [mime.types](https://github.com/elixir-lang/mime/blob/master/lib/mime.types) documentation from the mime type library.
 
 ### Setting the HTTP Status
 
