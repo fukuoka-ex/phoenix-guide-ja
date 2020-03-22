@@ -1,22 +1,22 @@
 ---
 layout: default
 group: guides
-title: Views
+title: ビュー
 nav_order: 7
 hash: 8d130727f9d6b92ae2eab5990fa6943773facfb5
 ---
 
-# Views
+# ビュー
 
-Phoenix views have two main jobs. First and foremost, they render templates (this includes layouts). The core function involved in rendering, `render/3`, is defined in Phoenix itself in the `Phoenix.View` module. Views also provide functions which take raw data and make it easier for templates to consume. If you are familiar with decorators or the facade pattern, this is similar.
+Phoenixビューには主に2つの仕事があります。まず第一に、テンプレートをレンダリングします（これにはレイアウトも含まれます）。レンダリングに関わるコア関数である`render/3`は、Phoenix自体の`Phoenix.View`モジュールで定義されています。ビューは、生データを取得してテンプレートで使いやすくする関数も提供しています。デコレータやファサードパターンに慣れている人なら、これと似たようなものです。 
 
-## Rendering Templates
+## テンプレートのレンダリング
 
-Phoenix assumes a strong naming convention from controllers to views to the templates they render. The `PageController` requires a `PageView` to render templates in the `lib/hello_web/templates/page` directory. If we want to, we can change the directory Phoenix considers to be the template root. Phoenix provides a `view/0` function in the `HelloWeb` module defined in `lib/hello_web.ex`. The first line of `view/0` allows us to change our root directory by changing the value assigned to the `:root` key.
+Phoenixでは、コントローラーからビュー、そしてそれらがレンダリングするテンプレートに至るまで、強力な命名規則を前提としています。`PageController`は、`lib/hello_web/templates/page`ディレクトリにあるテンプレートをレンダリングするために、`PageView`を必要とします。必要であれば、Phoenixがテンプレートのルートとみなすディレクトリを変更可能です。Phoenixは `lib/hello_web.ex` で定義されている `HelloWeb` モジュールの中に `view/0` 関数を提供しています。`view/0`の最初の行では、`:root`キーに代入された値を変更することで、ルートディレクトリを変更できます。
 
-A newly generated Phoenix application has three view modules - `ErrorView`, `LayoutView`, and `PageView` -  which are all in the, `lib/hello_web/views` directory.
+新しく生成されたPhoenixアプリケーションには、`ErrorView`、`LayoutView`、`PageView`の3つのビューモジュールがあり、これらはすべて`lib/hello_web/views`ディレクトリにあります。
 
-Let's take a quick look at the `LayoutView`.
+`LayoutView`を簡単に見てみましょう。
 
 ```elixir
 defmodule HelloWeb.LayoutView do
@@ -24,23 +24,24 @@ defmodule HelloWeb.LayoutView do
 end
 ```
 
-That's simple enough. There's only one line, `use HelloWeb, :view`. This line calls the `view/0` function we just saw above. Besides allowing us to change our template root, `view/0` exercises the `__using__` macro in the `Phoenix.View` module. It also handles any module imports or aliases our application's view modules might need.
+これだけで十分シンプルです。`use HelloWeb, :view`という一行だけです。この行は上で見た `view/0` 関数を呼び出します。`view/0` はテンプレートのルートを変更できるだけでなく、`Phoenix.View` モジュールの `__using__` マクロを実行します。また、アプリケーションのビューモジュールが必要とするモジュールのインポートやエイリアスも処理します。
 
-At the top of this guide, we mentioned that views are a place to put functions for use in our templates. Let's experiment with that a little bit.
+このガイドの最初の方で、ビューはテンプレートで利用するための関数を配置する場所であることを述べました。それでは、少し実験してみましょう。
 
-Let's open up our application layout template, `lib/hello_web/templates/layout/app.html.eex`, and change this line,
+アプリケーションのレイアウトテンプレート `lib/hello_web/templates/layout/app.html.eex` を開いて、この行を変更してみましょう。
 
 ```html
 <title>Hello · Phoenix Framework</title>
 ```
 
-to call a `title/0` function, like this.
+`title/0` 関数を呼び出すには、このようにします。
+
 
 ```html
 <title><%= title() %></title>
 ```
 
-Now let's add a `title/0` function to our `LayoutView`.
+それでは、`LayoutView`に`title/0`関数を追加してみましょう。
 
 ```elixir
 defmodule HelloWeb.LayoutView do
@@ -52,11 +53,11 @@ defmodule HelloWeb.LayoutView do
 end
 ```
 
-When we reload the Welcome to Phoenix page, we should see our new title.
+「ようこそフェニックスへ」のページをリロードすると、新しいタイトルが表示されるはずです。
 
-The `<%=` and `%>` are from the Elixir [EEx](https://hexdocs.pm/eex/EEx.html) project. They enclose executable Elixir code within a template. The `=` tells EEx to print the result. If the `=` is not there, EEx will still execute the code, but there will be no output. In our example, we are calling the `title/0` function from our `LayoutView` and printing the output into the title tag.
+`<%=`と`%>`はElixirの[EEx](https://hexdocs.pm/eex/EEx.html)プロジェクトのものです。これらはテンプレート内で実行可能なElixirのコードを囲んでいます。`=` はEExに結果を表示するように指示します。もし`=`がない場合でもEExはコードを実行しますが、出力はありません。この例では、`LayoutView`から`title/0`関数を呼び出し、出力をタイトルタグに出力しています。
 
-Note that we didn't need to fully qualify `title/0` with `HelloWeb.LayoutView` because our `LayoutView` actually does the rendering. In fact, "templates" in Phoenix are really just function definitions on their view module. You can try this out by temporarily deleting your `lib/hello_web/templates/page/index.html.eex` file and adding this function clause to your `PageView` module in `lib/hello_web/views/page_view.ex`.
+`LayoutView`が実際にレンダリングを行うので、`title/0`を`HelloWeb.LayoutView`で完全に修飾する必要はありません。実際、Phoenixの"テンプレート"は、ビューモジュールの関数定義にすぎません。これを試すには、`lib/hello_web/templates/page/index.html.eex`ファイルを一時的に削除して、`lib/hello_web/views/page_view.ex`の中の`PageView`モジュールにこの関数を追加します。
 
 ```elixir
 defmodule HelloWeb.PageView do
@@ -68,17 +69,17 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-Now if you fire up the server with `mix phx.server` and visit `http://localhost:4000`, you should see the following text below your layout header instead of the main template page:
+さて、`mix phx.server`でサーバを起動して`http://localhost:4000`にアクセスすると、メインテンプレートページの代わりにレイアウトヘッダの下に以下のテキストが表示されるはずです。
+
 ```console
 rendering with assigns [:conn, :view_module, :view_template]
 ```
 
-Pretty neat, right? At compile-time, Phoenix precompiles all `*.html.eex` templates and turns them into `render/2` function clauses on their respective view modules. At runtime, all templates are already loaded in memory. There's no disk reads, complex file caching, or template engine computation involved. This is also why we were able to define functions like `title/0` in our `LayoutView` and they were immediately available inside the layout's `app.html.eex` – the call to `title/0` was just a local function call!
+とてもすっきりしていますよね？コンパイル時に、Phoenixはすべての`*.html.eex`テンプレートをプリコンパイルし、それぞれのビューモジュール上で`render/2`関数定義に変換します。実行時には、すべてのテンプレートはすでにメモリにロードされています。ディスクの読み込み、複雑なファイルのキャッシング、テンプレートエンジンの計算などはありません。これが `LayoutView` の中で `title/0` のような関数を定義でき、レイアウトの `app.html.eex` の中ですぐに利用できる理由でもあります - `title/0` への呼び出しはローカル関数の呼び出しに過ぎません。
 
-When we `use HelloWeb, :view`, we get other conveniences as well. Since `view/0` aliases `HelloWeb.Router.Helpers` as `Routes` (look in `lib/hello_web.ex`), we can simply call these helpers by using `Routes.*_path` in templates. Let's see how that works by changing the template for our Welcome to Phoenix page.
+`use HelloWeb, :view`をuseすると、他にも便利なことがあります。`view/0`は`HelloWeb.Router.Helpers`を`Routes`としてエイリアスしているので（`lib/hello_web.ex`を参照してください）、テンプレートで `Routes.*_path`を利用してこれらのヘルパーを簡単に呼び出すことができます。それでは、Welcome to Phoenixページのテンプレートを変更して、どのように動作するか見てみましょう。
 
-
-Let's open up the `lib/hello_web/templates/page/index.html.eex` and locate this stanza.
+`lib/hello_web/templates/page/index.html.eex`を開いて、次の一節を探してみましょう。
 
 ```html
 <section class="phx-hero">
@@ -87,33 +88,33 @@ Let's open up the `lib/hello_web/templates/page/index.html.eex` and locate this 
 </section>
 ```
 
-Then let's add a line with a link back to the same page. (The objective is to see how path helpers respond in a template, not to add any functionality.)
+そして、同じページに戻るリンクを持つ行を追加してみましょう。（目的はテンプレート内でパスヘルパーがどのように反応するかを見ることであり、機能を追加することではありません）。
 
 ```html
 <section class="phx-hero">
   <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
   <p>A productive web framework that<br/>does not compromise speed or maintainability.</p>
   <p><a href="<%= Routes.page_path(@conn, :index) %>">Link back to this page</a></p>
-</div>
+</section>
 ```
 
-Now we can reload the page and view source to see what we have.
+あとはページをリロードしてソースを表示して、何があるのかを確認するだけです。
 
 ```html
 <a href="/">Link back to this page</a>
 ```
 
-Great, `Routes.page_path/2` evaluated to `/` as we would expect, we just had to use the alias set in `Phoenix.View`.
+素晴らしい、セットされたエイリアスを利用するだけで、`Routes.page_path/2`は期待通り`/`に評価されました。
 
-If you happen to need access to the path helpers outside views, controllers or templates, you can either call them by the full qualified name, e.g. `HelloWeb.Router.Helpers.page_path(@conn, :index)` or alias it yourself in the calling module, by defining `alias HelloWeb.Router.Helpers, as: Routes` in the module you want to use, and then calling, e.g., `Routes.page_path(@conn, :index)`.
+ビュー、コントローラー、テンプレートの外でパスヘルパーにアクセスする必要がある場合は、`HelloWeb.Router.Helperers.page_path(@conn, :index)`のような完全な修飾名で呼び出すか、使用したいモジュール内で`alias HelloWeb.Router.Helperers, as.Routes`を定義してから、`Routes.page_path(@conn, :index)`のように呼び出します。
 
-### More About Views
+### ビューの詳細
 
-You might be wondering how views are able to work so closely with templates.
+どうやってビューがテンプレートと密接に動作するのか不思議に思うかもしれません。
 
-The `Phoenix.View` module gains access to template behavior via the `use Phoenix.Template` line in its `__using__/1` macro. `Phoenix.Template` provides many convenience methods for working with templates - finding them, extracting their names and paths, and much more.
+`Phoenix.View`モジュールは`__using__/1`マクロの`use Phoenix.Template`行を使ってテンプレートの振る舞いにアクセスしています。`Phoenix.Template`には、テンプレートの検索や名前やパスの抽出など、テンプレートを操作するための便利なメソッドがたくさんあります。
 
-Let's experiment a little with one of the generated views Phoenix provides us, `lib/hello_web/views/page_view.ex`. We'll add a `message/0` function to it, like this.
+Phoenixが生成してくれるビューの1つである`lib/hello_web/views/page_view.ex`を使って少し実験してみましょう。これに`message/0`関数を追加すると、次のようになります。
 
 ```elixir
 defmodule HelloWeb.PageView do
@@ -125,28 +126,29 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-Now let's create a new template to play around with, `lib/hello_web/templates/page/test.html.eex`.
+それでは、新しいテンプレート`lib/hello_web/templates/page/test.html.eex`を作成して遊んでみましょう。
 
 ```html
 This is the message: <%= message() %>
 ```
 
-This doesn't correspond to any action in our controller, but we'll exercise it in an `iex` session. At the root of our project, we can run `iex -S mix`, and then explicitly render our template.
+これはコントローラー内のアクションには対応していませんが、`iex`セッションで実行できます。プロジェクトのルートで `iex -S mix` を実行し、テンプレートを明示的にレンダリングします。
 
 ```elixir
 iex(1)> Phoenix.View.render(HelloWeb.PageView, "test.html", %{})
   {:safe, [["" | "This is the message: "] | "Hello from the view!"]}
 ```
-As we can see, we're calling `render/3` with the individual view responsible for our test template, the name of our test template, and an empty map representing any data we might have wanted to pass in. The return value is a tuple beginning with the atom `:safe` and the resultant io list of the interpolated template. "Safe" here means that Phoenix has escaped the contents of our rendered template. Phoenix defines its own `Phoenix.HTML.Safe` protocol with implementations for atoms, bitstrings, lists, integers, floats, and tuples to handle this escaping for us as our templates are rendered into strings.
 
-What happens if we assign some key value pairs to the third argument of `render/3`? In order to find out, we need to change the template just a bit.
+見ての通り、testテンプレートを担当する個々のビュー、testテンプレートの名前、そして渡したいデータを表す空のマップを指定して`render/3`を呼び出しています。戻り値は、`:safe`アトムで始まるタプルと、補間されたテンプレートの結果のioリストです。ここでの"Safe"は、Phoenixがレンダリングされたテンプレートの内容をエスケープしたことを意味します。Phoenixは独自の`Phoenix.HTML.Safe`プロトコルを定義しており、アトム、ビットストリング、リスト、整数、浮動小数点数、タプルなどの実装があり、テンプレートが文字列へレンダリングされる際にエスケープ処理してくれます。
+
+もし、`render/3`の第3引数にいくつかのキー値のペアを代入するとどうなるでしょうか？それを知るためには、テンプレートを少し変更する必要があります。
 
 ```html
 I came from assigns: <%= @message %>
 This is the message: <%= message() %>
 ```
 
-Note the `@` in the top line. Now if we change our function call, we see a different rendering after recompiling `PageView` module.
+上の行の`@`に注目してください。関数呼び出しを変更すると、`PageView`モジュールを再コンパイルした後に、異なるレンダリングが表示されるようになります。
 
 ```elixir
 iex(2)> r HelloWeb.PageView
@@ -160,7 +162,8 @@ iex(3)> Phoenix.View.render(HelloWeb.PageView, "test.html", message: "Assigns ha
   [[[["" | "I came from assigns: "] | "Assigns has an @."] |
   "\nThis is the message: "] | "Hello from the view!"]}
  ```
-Let's test out the HTML escaping, just for fun.
+
+試しにHTMLエスケープを試してみましょう。
 
 ```elixir
 iex(4)> Phoenix.View.render(HelloWeb.PageView, "test.html", message: "<script>badThings();</script>")
@@ -170,7 +173,7 @@ iex(4)> Phoenix.View.render(HelloWeb.PageView, "test.html", message: "<script>ba
     "\nThis is the message: "] | "Hello from the view!"]}
 ```
 
-If we need only the rendered string, without the whole tuple, we can use the `render_to_iodata/3`.
+タプル全体を抜きにしてレンダリングされた文字列だけが必要な場合は、`render_to_iodata/3`を使うことができます。
 
 ```elixir
 iex(5)> Phoenix.View.render_to_iodata(HelloWeb.PageView, "test.html", message: "Assigns has an @.")
@@ -178,19 +181,19 @@ iex(5)> Phoenix.View.render_to_iodata(HelloWeb.PageView, "test.html", message: "
   "\nThis is the message: "] | "Hello from the view!"]
 ```
 
-### A Word About Layouts
+### レイアウトについて
 
-Layouts are just templates. They have a view, just like other templates. In a newly generated app, this is `lib/hello_web/views/layout_view.ex`. You may be wondering how the string resulting from a rendered view ends up inside a layout. That's a great question! If we look at `lib/hello_web/templates/layout/app.html.eex`, just about in the middle of the `<body>`, we will see this.
+レイアウトは単なるテンプレートです。他のテンプレートと同じようにビューを持っています。新しく生成されたアプリでは、`lib/hello_web/views/layout_view.ex`となります。レンダリングされたビューから得られる文字列がどのようにレイアウト内で終わるのか不思議に思うかもしれません。それはいい質問ですね！ `lib/hello_web/templates/layout/app.html.ex`を見てみると、`<body>`のちょうど真ん中あたりにこのような記述があります。
 
 ```html
 <%= render(@view_module, @view_template, assigns) %>
 ```
 
-This is where the view module and its template from the controller are rendered to a string and placed in the layout.
+ここに、コントローラーからのビューモジュールとそのテンプレートが文字列にレンダリングされてレイアウトに配置されます。
 
-## The ErrorView
+## エラービュー
 
-Phoenix has a view called the `ErrorView` which lives in `lib/hello_web/views/error_view.ex`. The purpose of the `ErrorView` is to handle two of the most common errors - `404 not found` and `500 internal error` - in a general way, from one centralized location. Let's see what it looks like.
+Phoenixには`ErrorView`というビューがあり、`lib/hello_web/views/error_view.ex`にあります。この `ErrorView` の目的は、もっとも一般的なエラーである`404 not found`と`500 internal error`の2つのエラーを一般的な方法で一箇所から処理することです。どのように見えるか見てみましょう。
 
 ```elixir
 defmodule HelloWeb.ErrorView do
@@ -206,7 +209,7 @@ defmodule HelloWeb.ErrorView do
 end
 ```
 
-Before we dive into this, let's see what the rendered `404 not found` message looks like in a browser. In the development environment, Phoenix will debug errors by default, showing us a very informative debugging page. What we want here, however, is to see what page the application would serve in production. In order to do that we need to set `debug_errors: false` in `config/dev.exs`.
+その前に、レンダリングされた`404 not found`メッセージがブラウザ上でどのように見えるか見てみましょう。開発環境では、Phoenixはデフォルトでエラーをデバッグし、非常に有益なデバッグページを表示します。しかし、ここで私たちが知りたいのは、アプリケーションが本番環境でどのようなページを表示するのかを見ることです。そのためには、`config/dev.exs`で`debug_errors: false`を設定する必要があります。
 
 ```elixir
 use Mix.Config
@@ -218,13 +221,13 @@ config :hello, HelloWeb.Endpoint,
   . . .
 ```
 
-After modifying our config file, we need to restart our server in order for this change to take effect. After restarting the server, let's go to [http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path) for a running local application and see what we get.
+設定ファイルを変更した後、この変更を有効にするにはサーバを再起動する必要があります。サーバーを再起動した後、ローカルアプリケーションの[http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path)にアクセスして、何が表示されるか見てみましょう。
 
-Ok, that's not very exciting. We get the bare string "Page not found", displayed without any markup or styling.
+さて、これはあまりエキサイティングではありません。「ページが見つかりませんでした」というむき出しの文字列が表示され、何のマークアップもスタイリングもされていません。
 
-Let's see if we can use what we already know about views to make this a more interesting error page.
+これをより面白いエラーページにするために、ビューについてすでに知っていることを使ってみましょう。
 
-The first question is, where does that error string come from? The answer is right in the `ErrorView`.
+最初の質問は、このエラー文字列はどこから来ているのか？ということです。答えは `ErrorView` の中にあります。
 
 ```elixir
 def render("404.html", _assigns) do
@@ -232,8 +235,7 @@ def render("404.html", _assigns) do
 end
 ```
 
-Great, so we have a `render/2` function that takes a template and an `assigns` map, which we ignore. Where is this `render/2` function being called from? The answer is the `render/5` function defined in the `Phoenix.Endpoint.RenderErrors` module. The whole purpose of this module is to catch errors and render them with a view, in our case, the `HelloWeb.ErrorView`. Now that we understand how we got here, let's make a better error page. Phoenix generates an `ErrorView` for us, but it doesn't give us a `lib/hello_web/templates/error` directory. Let's create one now. Inside our new directory, let's add a template, `404.html.eex` and give it some markup - a mixture of our application layout and a new `div` with our message to the user.
-
+良いですね。`render/2`関数はテンプレートと`assigns`マップを受け取りますが、`assigns`マップは無視しています。この`render/2`関数はどこから呼び出されているのでしょうか？答えは`Phoenix.Endpoint.RenderErrors`モジュールで定義されている`render/5`関数です。このモジュールの目的は、エラーをキャッチしてビューでレンダリングすること、今回の場合は`HelloWeb.ErrorView`でレンダリングすることです。ここまでの経緯が理解できたので、より良いエラーページを作ってみましょう。Phoenixは`ErrorView`を生成してくれますが、`lib/hello_web/templates/error`ディレクトリを与えてくれません。それでは、作成してみましょう。新しいディレクトリの中に `404.html.eex` というテンプレートを追加して、アプリケーションのレイアウトとユーザーへのメッセージを含む新しい`div`をマークアップしてみましょう。
 
 ```html
 <!DOCTYPE html>
@@ -272,7 +274,7 @@ Great, so we have a `render/2` function that takes a template and an `assigns` m
 </html>
 ```
 
-Now we can use the `render/2` function we saw above when we were experimenting with rendering in the `iex` session. Since we know that Phoenix will precompile the `404.html.eex` template as a `render("404.html", assigns)` function clause, we can delete the clause from our ErrorView.
+これで、`iex`セッションでレンダリングを実験していたときに見た`render/2`関数を使用できるようになりました。Phoenixは `404.html.eex` テンプレートを`render("404.html", assigns)`関数としてプリコンパイルすることがわかっているので、この関数定義をErrorViewから削除することができます。
 
 ```diff
 - def render("404.html", _assigns) do
@@ -280,11 +282,11 @@ Now we can use the `render/2` function we saw above when we were experimenting w
 - end
 ```
 
-When we go back to [http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path), we should see a much nicer error page. It is worth noting that we did not render our `404.html.eex` template through our application layout, even though we want our error page to have the look and feel of the rest of our site. The main reason is that it's easy to run into edge case issues while handling errors globally. If we want to minimize duplication between our application layout and our `404.html.eex` template, we can implement shared templates for our header and footer. Please see the [Template Guide](templates.html) for more information. Of course, we can do these same steps with the `def render("500.html", _assigns) do` clause in our `ErrorView` as well. We can also use the `assigns` map passed into any `render/2` clause in the `ErrorView`, instead of discarding it, in order to display more information in our templates.
+[http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path)に戻ると、より良いエラーページを見ることができるはずです。エラーページをサイトの残りの部分と同じような見た目にしたいのに、アプリケーションのレイアウトで`404.html.eex`テンプレートをレンダリングしなかったことは注目に値します。主な理由は、エラーをグローバルに処理している間にエッジケースの問題に遭遇しやすいからです。アプリケーションレイアウトと`404.html.eex`テンプレート間の重複を最小限にしたい場合は、ヘッダーとフッターに共有テンプレートを実装することができます。詳細は[テンプレートガイド](templates.html)を参照してください。もちろん、`ErrorView`の`def render("500.html", _assigns) do`関数を使っても同じことができます。また、`ErrorView`の`render/2`句に渡された`assigns`マップを捨てずに使用することで、テンプレートに多くの情報を表示することができます。
 
-## Rendering JSON
+## JSONのレンダリング
 
-The view's job is not only to render HTML templates. Views are about data presentation. Given a bag of data, the view's purpose is to present that in a meaningful way given some format, be it HTML, JSON, CSV, or others. Many web apps today return JSON to remote clients, and Phoenix views are *great* for JSON rendering. Phoenix uses [Jason](https://github.com/michalmuskala/jason) to encode Maps to JSON, so all we need to do in our views is format the data we'd like to respond with as a Map, and Phoenix will do the rest. It is possible to respond with JSON back directly from the controller and skip the View. However, if we think about a controller as having the responsibilities of receiving a request and fetching data to be sent back, data manipulation and formatting don't fall under those responsibilities. A view gives us a module responsible for formatting and manipulating the data. Let's take our `PageController`, and see what it might look like when we respond with some static page maps as JSON, instead of HTML.
+ビューの仕事はHTMLテンプレートをレンダリングするだけではありません。ビューの目的はデータの表示です。データがどっさりと与えられたとき、ビューの目的は、HTML、JSON、CSV、その他のフォーマットにより意味付けされた方法でそのデータを表示することです。今日の多くのWebアプリケーションは、JSONをリモートクライアントに返しますが、PhoenixのビューはJSONレンダリングに最適です。Phoenixは[Jason](https://github.com/michalmuskala/jason)を使用してマップをJSONにエンコードするので、ビューで必要なのは、応答したいデータをマップとしてフォーマットするだけで、あとはPhoenixが行います。コントローラーから直接JSONを返して、Viewをスキップして応答することも可能です。しかし、コントローラーはリクエストを受信してデータを取得して送信する責任があると考えると、データ操作やフォーマットはこれらの責任には該当しません。ビューは、データをフォーマットしたり操作したりするモジュールの責務を提供してくれます。ここでは`PageController`を例にとり、HTMLの代わりに静的なページマップをJSONで返したときにどのように見えるかを見てみましょう。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -304,7 +306,7 @@ defmodule HelloWeb.PageController do
 end
 ```
 
-Here, we have our `show/2` and `index/2` actions returning static page data. Instead of passing in `"show.html"` to `render/3` as the template name, we pass `"show.json"`. This way, we can have views that are responsible for rendering HTML as well as JSON by pattern matching on different file types.
+ここでは、`show/2`と`index/2`アクションが静的なページデータを返しています。テンプレート名として`render/3`に`"show.html"`を渡す代わりに、`"show.json"`を渡します。このようにして、異なるファイルタイプでパターンマッチを行うことで、HTMLとJSONのレンダリングを担当するビューを持つことができます。
 
 ```elixir
 defmodule HelloWeb.PageView do
@@ -324,7 +326,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-In the view we see our `render/2` function pattern matching on `"index.json"`, `"show.json"`, and `"page.json"`. In our controller `show/2` function, `render(conn, "show.json", page: page)` will pattern match on the matching name and extension in the view's `render/2` functions. In other words, `render(conn, "index.json", pages: pages)` will call `render("index.json", %{pages: pages})`. The `render_many/3` function takes the data we want to respond with (`pages`), a `View`, and a string to pattern match on the `render/2` function defined on `View`. It will map over each item in `pages`, and pass the item to the `render/2` function in `View` matching the file string. `render_one/3` follows, the same signature, ultimately using the `render/2` matching `page.json` to specify what each `page` looks like. The `render/2` matching `"index.json"` will respond with JSON as you would expect:
+ビューでは、`render/2`関数が`"index.json"`,`"show.json"`,`"page.json"`でパターンマッチしています。コントローラーの`show/2`関数内の`render(conn, "show.json", page: page)`は、ビューの`render/2`関数内のマッチする名前と拡張子でパターンマッチを行います。つまり、`render(conn, "index.json", pages: pages)`は`render("index.json", %{pages: pages})`を呼び出します。`render_many/3`関数は、応答したいデータ(`pages`)、`View`、そして`View`で定義された`render/2`関数でパターンマッチする文字列を受け取ります。`pages`の各要素をマップし、ファイルの文字列にマッチした要素を`View`の`render/2`関数に渡します。これに続いて`render_one/3`も同じシグネチャで、最終的には `render/2` にマッチする `page.json` を使って各 `page` がどのように見えるかを指定します。マッチする `"index.json"` は、期待通りのJSONで応答します。
 
 ```javascript
 {
@@ -339,7 +341,8 @@ In the view we see our `render/2` function pattern matching on `"index.json"`, `
 }
 ```
 
-And the `render/2` matching `"show.json"`:
+そして、`"show.json"`にマッチする`render/2`関数の結果は次のようになります:
+
 
 ```javascript
 {
@@ -349,8 +352,7 @@ And the `render/2` matching `"show.json"`:
 }
 ```
 
-It's useful to build our views like this so they can be composable. Imagine a situation where our `Page` has a `has_many` relationship with `Author`, and depending on the request, we may want to send back `author` data with the `page`. We can easily accomplish this with a new `render/2`:
-
+このようにビューを構築して、それらを合成できるようにしておくと便利です。たとえば、`Page`が`Author`と`has_many`の関係を持っていて、リクエストによっては`author`のデータを`page`と一緒に送り返したい場合を想像してみてください。これは新しい`render/2`で簡単に実現できます:
 
 ```elixir
 defmodule HelloWeb.PageView do
@@ -368,7 +370,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-The name used in assigns is determined from the view. For example the `PageView` will use `%{page: page}` and the `AuthorView` will use `%{author: author}`. This can be overridden with the `as` option. Let's assume that the author view uses `%{writer: writer}` instead of `%{author: author}`:
+assigns（訳注: render/2の第2引数）で使用される名前はビューから決定されます。たとえば、`PageView`は`%{page: page}`を、`AuthorView`は`%{author: author}`を使用します。これは`as`オプションで上書きすることができます。ここで、著者ビューでは `%{author: author}` の代わりに `%{writer: writer}` を使うと仮定してみましょう。
 
 ```elixir
 def render("page_with_authors.json", %{page: page}) do
