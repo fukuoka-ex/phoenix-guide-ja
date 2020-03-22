@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Ecto
 nav_order: 11
-hash: cb5abddfa44c5fdb9f90e3b120427801ff78e715
+hash: e40ab10b5484da01bc51c4a637c8dc8c8a7c17af
 ---
 # Ecto
 
@@ -11,8 +11,8 @@ Most web applications today need some form of data validation and persistence. I
 
 Ecto has out of the box support for the following databases:
 
-* PostgreSQL (via [`postgrex`](https://github.com/elixir-ecto/postgrex))
-* MySQL (via [`myxql`](https://github.com/elixir-ecto/myxql))
+* PostgreSQL (via `postgrex`)
+* MySQL (via `myxql`)
 
 Newly generated Phoenix projects include Ecto with the PostgreSQL adapter by default (you can pass the `--no-ecto` flag to exclude this).
 
@@ -129,9 +129,11 @@ Our `Hello.Repo` module is the foundation we need to work with databases in a Ph
 defmodule Hello.Repo do
   use Ecto.Repo,
     otp_app: :hello,
-    adapter: Ecto.Adapter.Postgres
+    adapter: Ecto.Adapters.Postgres
 end
 ```
+
+It begins by configuring our `otp_app` name and repo module. Then it sets the adapter – Postgres, in our case. It also sets our login credentials. Of course, you can change these to match your actual credentials if they are different.
 
 Our repo has three main tasks - to bring in all the common query functions from `Ecto.Repo`, to set the `otp_app` name equal to our application name, and to configure our database adapter. We'll talk more about how to use the Repo in a bit.
 
@@ -148,8 +150,6 @@ config :hello, Hello.Repo,
   pool_size: 10
 ...
 ```
-
-It begins by configuring our `otp_app` name and repo module. Then it sets the adapter – Postgres, in our case. It also sets our login credentials. Of course, you can change these to match your actual credentials if they are different.
 
 We also have similar configuration in `config/test.exs` and `config/prod.secret.exs` which can also be changed to match your actual credentials.
 
@@ -269,7 +269,7 @@ iex> changeset.errors
  bio: {"can't be blank", [validation: :required]}]
 ```
 
-What happens if we pass a key/value pair that is neither defined in the schema nor required?
+What happens if we pass a key/value pair that is in neither defined in the schema nor required?
 
 Inside our existing IEx shell, let's create a `params` map with valid values plus an extra `random_key: "random value"`.
 
@@ -375,7 +375,7 @@ iex> alias Hello.{Repo, User}
 [Hello.Repo, Hello.User]
 iex> Repo.insert(%User{email: "user1@example.com"})
 [debug] QUERY OK db=4.6ms
-{% raw %}INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user1@example.com" {{2017, 5, 23}, {19, 6, 4, 822044}}, {{2017, 5, 23}, {19, 6, 4, 822055}}]{% endraw %}
+INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user1@example.com", {{2017, 5, 23}, {19, 6, 4, 822044}}, {{2017, 5, 23}, {19, 6, 4, 822055}}]
 {:ok,
  %Hello.User{__meta__: #Ecto.Schema.Metadata<:loaded, "users">,
   bio: nil, email: "user1@example.com", id: 3,
@@ -384,14 +384,13 @@ iex> Repo.insert(%User{email: "user1@example.com"})
 
 iex> Repo.insert(%User{email: "user2@example.com"})
 [debug] QUERY OK db=5.1ms
-{% raw %}INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user2@example.com", {{2017, 5, 23}, {19, 6, 8, 452545}}, {{2017, 5, 23}, {19, 6, 8, 452556}}]{% endraw %}
+INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user2@example.com", {{2017, 5, 23}, {19, 6, 8, 452545}}, {{2017, 5, 23}, {19, 6, 8, 452556}}]
 {:ok,
  %Hello.User{__meta__: #Ecto.Schema.Metadata<:loaded, "users">,
   bio: nil, email: "user2@example.com", id: 4,
   inserted_at: ~N[2017-05-23 19:06:08.452545], name: nil, number_of_pets: nil,
   updated_at: ~N[2017-05-23 19:06:08.452556]}}
 ```
-
 
 We started by aliasing our `User` and `Repo` modules for easy access. Next, we called `Repo.insert/1` and passed a user struct. Since we're in the `dev` environment, we can see the debug logs for the query our Repo performed when inserting the underlying `%User{}` data. We received a 2-tuple back with `{:ok, %User{}}`, which lets us know the insertion was successful. With a couple of users inserted, let's fetch them back out of the repo.
 
@@ -476,6 +475,7 @@ defmodule HelloPhoenix.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.4.0"},
+      {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.1"},
       {:myxql, ">= 0.0.0"},

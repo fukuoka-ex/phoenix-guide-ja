@@ -3,7 +3,7 @@ layout: default
 group: guides
 title: Mix Tasks
 nav_order: 13
-hash: dc896c5d544f4273be63deadc01454aec6f5e9db
+hash: ebadf26e3dccd440be26e4217d36db3d4cc24777
 ---
 # Mix Tasks
 
@@ -668,7 +668,7 @@ $ mix ecto.create
 
 To fix this, we can change the password in the environment specific configuration file. For the development environment the password used can be found at the bottom of the `config/dev.exs` file.
 
-### `mix ecto.drop`
+#### `ecto.drop`
 
 This task will drop the database specified in our repo. By default it will look for the repo named after our application (the one generated with our app unless we opted out of ecto). It will not prompt us to check if we're sure we want to drop the db, so do exercise caution.
 
