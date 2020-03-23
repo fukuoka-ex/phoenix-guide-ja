@@ -1,29 +1,31 @@
 ---
 layout: default
 group: guides
-title: Templates
+title: テンプレート
 nav_order: 8
 hash: 71fafc9392ac49f029a93f403a58253b3a5efc59
 ---
-# Templates
 
-Templates are what they sound like they should be: files into which we pass data to form complete HTTP responses. For a web application these responses would typically be full HTML documents. For an API, they would most often be JSON or possibly XML. The majority of the code in template files is often markup, but there will also be sections of Elixir code for Phoenix to compile and evaluate. The fact that Phoenix templates are pre-compiled makes them extremely fast.
+# テンプレート
 
-EEx is the default template system in Phoenix, and it is quite similar to ERB in Ruby. It is actually part of Elixir itself, and Phoenix uses EEx templates to create files like the router and the main application view while generating a new application.
+テンプレートとは、完全なHTTPレスポンスを形成するためにデータを渡すファイルのことです。 ウェブアプリケーションの場合、これらのレスポンスは通常完全なHTMLドキュメントになります。APIの場合は、ほとんどの場合JSONや場合によってはXMLになります。テンプレートファイルのコードの大部分はマークアップであることが多いですが、Phoenixがコンパイルして評価するためのElixirコードのセクションもあります。Phoenixのテンプレートはあらかじめコンパイルされているため、非常に高速です。 
 
-As we learned in the [View Guide](views.html), by default, templates live in the `lib/hello_web/templates` directory, organized into directories named after a view. Each directory has its own view module to render the templates in it.
+EExはPhoenixのデフォルトのテンプレートシステムで、RubyのERBによく似ています。実際にはElixir自体の一部であり、PhoenixはEExテンプレートを使用して、新しいアプリケーションを生成しながらルーターやメインアプリケーションビューのようなファイルを作成します。 
 
-### Examples
+[ビューガイド](views.html)で学んだように、デフォルトでは、テンプレートは`lib/hello_web/templates`ディレクトリにあり、ビューにちなんだ名前で整理されています。各ディレクトリには、テンプレートをレンダリングするための独自のビューモジュールがあります。 
 
-We've already seen several ways in which templates are used, notably in the [Adding Pages Guide](adding_pages.html) and the [Views Guide](views.html). We may cover some of the same territory here, but we will certainly add some new information.
+### Example
+
+テンプレートの使用方法については、とくに[ページの追加ガイド](adding_pages.html) と [ビューのガイド](views.html) ですでにいくつか見てきました。ここでは同じ領域のいくつかをカバーするかもしれませんが、新しい情報を追加することは間違いありません。
 
 ##### hello_web.ex
 
-Phoenix generates a `lib/hello_web.ex` file that serves as place to group common imports and aliases. All declarations here within the `view` block apply to all your templates.
+Phoenixは `lib/hello_web.ex` ファイルを生成し、共通のインポートやエイリアスをグループ化する場所として機能します。ここでの `view` ブロック内のすべての宣言は、すべてのテンプレートに適用されます。
 
-Let's make some additions to our application so we can experiment a little.
+それでは、アプリケーションにいくつか追加を加えて、少し実験してみましょう。
 
-First, let's define a new route in `lib/hello_web/router.ex`.
+まず、`lib/hello_web/router.ex` で新しいルートを定義してみましょう。
+
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -43,7 +45,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Now, let's define the controller action we specified in the route. We'll add a `test/2` action in the `lib/hello_web/controllers/page_controller.ex` file.
+続いて、ルートで指定したコントローラーのアクションを定義してみましょう。`lib/hello_web/controllers/page_controller.ex` ファイルに `test/2` アクションを追加します。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -55,9 +57,10 @@ defmodule HelloWeb.PageController do
 end
 ```
 
-We're going to create a function that tells us which controller and action are handling our request.
+次に、どのコントローラーとアクションがリクエストを処理しているのかを教えてくれる関数を作成します。
 
-To do that, we need to import the `action_name/1` and `controller_module/1` functions from `Phoenix.Controller` in `lib/hello_web.ex`.
+そのためには、`lib/hello_web.ex` の `Phoenix.Controller` から `action_name/1` と `controller_module/1` 関数をインポートする必要があります。
+
 
 ```elixir
   def view do
@@ -74,7 +77,7 @@ To do that, we need to import the `action_name/1` and `controller_module/1` func
   end
 ```
 
-Next, let's define a `handler_info/1` function at the bottom of the ` lib/hello_web/views/page_view.ex` which makes use of the `controller_module/1` and `action_name/1` functions we just imported. We'll also define a `connection_keys/1` function that we'll use in a moment.
+次に、`lib/hello_web/views/page_view.ex` の下部に `handler_info/1` 関数を定義して、インポートした `controller_module/1` と `action_name/1` 関数を利用します。また、`connection_keys/1` 関数も定義しています。これはすぐに使います。
 
 ```elixir
 defmodule HelloWeb.PageView do
@@ -92,7 +95,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-We have a route. We created a new controller action. We have made modifications to the main application view. Now all we need is a new template to display the string we get from `handler_info/1`. Let's create a new one at `lib/hello_web/templates/page/test.html.eex`.
+ルートを作成しました。新しいコントローラーアクションも作成しました。メインのアプリケーションビューに変更を加えました。あとは `handler_info/1` から取得した文字列を表示するための新しいテンプレートを作成するだけです。`lib/hello_web/templates/page/test.html.eex`を作成してみましょう。
 
 ```html
 <div class="phx-hero">
@@ -100,21 +103,21 @@ We have a route. We created a new controller action. We have made modifications 
 </div>
 ```
 
-Notice that `@conn` is available to us in the template for free via the `assigns` map.
+テンプレート内では `@conn` が `assigns` マップを介して自由に利用できることに注目してください。
 
-If we visit [localhost:4000/test](http://localhost:4000/test), we will see that our page is brought to us by `Elixir.HelloWeb.PageController.test`.
+[localhost:4000/test](http://localhost:4000/test)にアクセスすると、`Elixir.HelloWeb.PageController.test` によってページが作成されていることがわかります。
 
-We can define functions in any individual view in `lib/hello_web/views`. Functions defined in an individual view will only be available to templates which that view renders. For example, functions like our `handler_info` above, will only be available to templates in `lib/hello_web/templates/page`.
+`lib/hello_web/views` の中のそれぞれのビューに関数を定義することができます。個々のビューで定義された関数は、そのビューがレンダリングするテンプレートでのみ利用可能です。たとえば、上記の `handler_info` のような関数は、`lib/hello_web/templates/page` にあるテンプレートでのみ利用可能です。
 
-##### Displaying Lists
+##### リストの表示
 
-So far, we've only displayed singular values in our templates - strings here, and integers in other guides. How would we approach displaying all the elements of a list?
+これまでのところ、テンプレートでは単数の値しか表示していませんでした - ここでは文字列、他のガイドでは整数です。では、リストのすべての要素を表示するにはどうすればいいのでしょうか？
 
-The answer is that we can use Elixir's list comprehensions.
+答えは、Elixirのリスト内包表記を使うことです。
 
-Now that we have a function, visible to our template, that returns a list of keys in the `conn` struct, all we need to do is modify our `lib/hello_web/templates/page/test.html.eex` template a bit to display them.
+`conn` 構造体のキーのリストを返す関数がテンプレートから利用できるので、あとは `lib/hello_web/templates/page/test.html.eex` テンプレートを少し修正して、それらを表示するだけです。
 
-We can add a header and a list comprehension like this.
+このようにヘッダとリスト内包を追加することができます。
 
 ```html
 <div class="phx-hero">
@@ -128,30 +131,32 @@ We can add a header and a list comprehension like this.
 </div>
 ```
 
-We use the list of keys returned by the `connection_keys` function as the source list to iterate over. Note that we need the `=` in both `<%=` - one for the top line of the list comprehension and the other to display the key. Without them, nothing would actually be displayed.
+`connection_keys` 関数が返すキーのリストを、繰り返し処理を行うソースリストとして利用します。`<%=` の両方（リスト内包表記の1行目とkeyを表示するための行）に `=` が必要なので注意してください。これがなければ、実際には何も表示されません。
 
-When we visit [localhost:4000/test](http://localhost:4000/test) again, we see all the keys displayed.
+再度 [localhost:4000/test](http://localhost:4000/test) にアクセスすると、すべてのキーが表示されています。
 
-##### Render templates within templates
 
-In our list comprehension example above, the part that actually displays the values is quite simple.
+##### テンプレート内でのレンダリング
+
+上のリスト内包の例では、実際に値を表示する部分は非常にシンプルです。
 
 ```html
 <p><%= key %></p>
 ```
-We are probably fine with leaving this in place. Quite often, however, this display code is somewhat more complex, and putting it in the middle of a list comprehension makes our templates harder to read.
 
-The simple solution is to use another template! Templates are just function calls, so like regular code, composing your greater template by small, purpose-built functions can lead to clearer design. This is simply a continuation of the rendering chain we have already seen. Layouts are templates into which regular templates are rendered. Regular templates may have other templates rendered into them.
+おそらく、このままにしておいても問題ないでしょう。しかし、多くの場合、この表示コードはやや複雑で、リスト内包の途中でこれを配置すると、テンプレートが読みにくくなります。
 
-Let's turn this display snippet into its own template. Let's create a new template file at `lib/hello_web/templates/page/key.html.eex`, like this.
+簡単な解決策は、別のテンプレートを使うことです！テンプレートは単なる関数呼び出しなので、通常のコードと同じように、より大きなテンプレートを小さな目的の関数で構成することで、より明確な設計を実現することができます。これは、すでに見てきたレンダリングチェーンの続きに過ぎません。レイアウトは、通常のテンプレートがレンダリングされるテンプレートです。通常のテンプレートには、他のテンプレートがレンダリングされている場合があります。
+
+この表示スニペットを独自のテンプレートにしてみましょう。新しいテンプレートファイルを `lib/hello_web/templates/page/key.html.eex` に作成してみましょう。
 
 ```html
 <p><%= @key %></p>
 ```
 
-We need to change `key` to `@key` here because this is a new template, not part of a list comprehension. The way we pass data into a template is by the `assigns` map, and the way we get the values out of the `assigns` map is by referencing the keys with a preceding `@`. `@` is actually a macro that translates `@key` to `Map.get(assigns, :key)`.
+ここでは `key` を リスト内包の一部ではなく `@key` に変更する必要があります。テンプレートへデータは `assigns` マップを用いて渡し、`assigns` マップから `@` でキーを参照して取り出します。実際には `@` は `@key` を `Map.get(assigns, :key)` に変換するマクロです。
 
-Now that we have a template, we simply render it within our list comprehension in the `test.html.eex` template.
+テンプレートができたので、`test.html.eex` テンプレート内のリスト内包の中でそれをレンダリングします。
 
 ```html
 <div class="phx-hero">
@@ -165,15 +170,15 @@ Now that we have a template, we simply render it within our list comprehension i
 </div>
 ```
 
-Let's take a look at [localhost:4000/test](http://localhost:4000/test) again. The page should look exactly as it did before.
+もう一度、[localhost:4000/test](http://localhost:4000/test)を見てみましょう。ページは以前とまったく同じように見えるはずです。
 
-##### Shared Templates Across Views
+##### ビュー間の共有テンプレート
 
-Often, we find that small pieces of data need to be rendered the same way in different parts of the application. It's a good practice to move these templates into their own shared directory to indicate that they ought to be available anywhere in the app.
+多くの場合、小さなデータの断片は、アプリケーションの異なる部分で同じようにレンダリングする必要があります。これらのテンプレートを独自の共有ディレクトリに移動して、アプリ内のどこでも利用可能であることを示すのはグッドプラクティスです。
 
-Let's move our template into a shared view.
+テンプレートを共有ビューに移動してみましょう。
 
-`key.html.eex` is currently rendered by the `HelloWeb.PageView` module, but we use a render call which assumes that the current schema is what we want to render with. We could make that explicit, and re-write it like this:
+現在、`key.html.eex`は`HelloWeb.PageView`モジュールによってレンダリングされていますが、現在のスキーマをレンダリングすることを前提としてrender関数をcallしています。これを明示的にして、次のように書き直すことができます。
 
 ```html
 <div class="phx-hero">
@@ -185,7 +190,7 @@ Let's move our template into a shared view.
 </div>
 ```
 
-Since we want this to live in a new `lib/hello_web/templates/shared` directory, we need a new individual view to render templates in that directory, `lib/hello_web/views/shared_view.ex`.
+これを新しい `lib/hello_web/templates/shared` ディレクトリに配置したいので、そのディレクトリ内のテンプレートをレンダリングするための新しい個別のビュー `lib/hello_web/views/shared_view.ex` が必要です。
 
 ```elixir
 defmodule HelloWeb.SharedView do
@@ -193,11 +198,10 @@ defmodule HelloWeb.SharedView do
 end
 ```
 
-Now we can move `key.html.eex` from the `lib/hello_web/templates/page` directory into the `lib/hello_web/templates/shared` directory. Once that happens, we can change the render call in `lib/hello_web/templates/page/test.html.eex` to use the new `HelloWeb.SharedView`.
-
 ```html
 <%= for key <- connection_keys(@conn) do %>
   <%= render(HelloWeb.SharedView, "key.html", key: key) %>
 <% end %>
 ```
-Going back to [localhost:4000/test](http://localhost:4000/test) again. The page should look exactly as it did before.
+
+再び [localhost:4000/test](http://localhost:4000/test) に戻ります。ページは以前とまったく同じように見えるはずです。
