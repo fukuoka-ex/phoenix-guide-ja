@@ -326,7 +326,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-ビューでは、`render/2`関数が`"index.json"`,`"show.json"`,`"page.json"`でパターンマッチしています。コントローラーの`show/2`関数内の`render(conn, "show.json", page: page)`は、ビューの`render/2`関数内のマッチする名前と拡張子でパターンマッチを行います。つまり、`render(conn, "index.json", pages: pages)`は`render("index.json", %{pages: pages})`を呼び出します。`render_many/3`関数は、応答したいデータ(`pages`)、`View`、そして`View`で定義された`render/2`関数でパターンマッチする文字列を受け取ります。`pages`の各要素をマップし、ファイルの文字列にマッチした要素を`View`の`render/2`関数に渡します。これに続いて`render_one/3`も同じシグネチャで、最終的には `render/2` にマッチする `page.json` を使って各 `page` がどのように見えるかを指定します。マッチする `"index.json"` は、期待通りのJSONで応答します。
+ビューでは、`render/2`関数が`"index.json"`,`"show.json"`,`"page.json"`でパターンマッチしています。コントローラーの`show/2`関数内の`render(conn, "show.json", page: page)`は、ビューの`render/2`関数内のマッチする名前と拡張子でパターンマッチを行います。つまり、`render(conn, "index.json", pages: pages)`は`render("index.json", %{pages: pages})`を呼び出します。`render_many/3`関数は、応答したいデータ（`pages`）、`View`、そして`View`で定義された`render/2`関数でパターンマッチする文字列を受け取ります。`pages`の各要素をマップし、ファイルの文字列にマッチした要素を`View`の`render/2`関数に渡します。これに続いて`render_one/3`も同じシグネチャで、最終的には `render/2` にマッチする `page.json` を使って各 `page` がどのように見えるかを指定します。マッチする `"index.json"` は、期待通りのJSONで応答します。
 
 ```javascript
 {
