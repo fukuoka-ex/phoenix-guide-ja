@@ -1,26 +1,26 @@
 ---
 layout: default
 group: guides
-title: Channels
+title: チャネル
 nav_order: 9
 hash: db21f47bded4bf91790a78887c95d16bda5ee849
-
 ---
-# Channels
 
-Channels are an exciting part of Phoenix that enable soft real-time communication with and between millions of connected clients.
-Some possible use cases include:
+# チャネル
 
-- Chat rooms and APIs for messaging apps
-- Breaking news, like "a goal was scored" or "an earthquake is coming"
-- Tracking trains, trucks, or race participants on a map
-- Events in multiplayer games
-- Monitoring sensors and controlling lights
-- Notifying a browser that a page's CSS or JavaScript has changed (this is handy in development)
+チャネルは、何百万もの接続されたクライアントとの間でソフトリアルタイムなコミュニケーションを可能にする、Phoenixのエキサイティングな部分です。
+いくつかのユースケースが考えられます。
 
-Conceptually, Channels are pretty simple.
-Clients connect and subscribe to one or more topics, whether that's `public_chat` or `updates:user1`.
-Any message sent on a topic, whether from the server or from a client, is sent to all clients subscribed to that topic (including the sender, if it's subscribed), like this:
+- メッセージングアプリのためのチャットルームとAPI
+- "ゴールが決まった" や "地震が来る "などの速報
+- 地図上で列車、トラック、レース参加者のトラッキング
+- マルチプレイヤーゲームでのイベント
+- センサーのモニタリングと照明の制御
+- ブラウザーへのページのCSSやJavaScriptの変更の通知（開発時に便利）
+
+概念的には、チャネルはとてもシンプルです。
+クライアントは、`public_chat` や `updates:user1` のような 1 つ以上のトピックに接続してサブスクライブします。
+サーバーからでもクライアントからでも、トピックで送信されたメッセージはそのトピックをサブスクライブしているすべてのクライアント（サブスクライブしている場合は送信者を含む）へ次のように送信されます。
 
 ```plaintext
                                                                   +----------------+
@@ -36,35 +36,35 @@ Any message sent on a topic, whether from the server or from a client, is sent t
                                                                   +----------------+
 ```
 
-Channels can support any kind of client: a browser, native app, smart watch, embedded device, or anything else that can connect to a network.
-All the client needs is a suitable library; see the [Client Libraries](#client-libraries) section below.
-Each client library communicates using one of the "transports" that Channels understand.
-Currently, that's either Websockets or long polling, but other transports may be added in the future.
+チャネルは、ブラウザー、ネイティブアプリ、スマートウォッチ、組み込みデバイス、その他ネットワークに接続できるあらゆる種類のクライアントをサポートします。
+クライアントに必要なのは、適切なライブラリだけです。以下の[クライアントライブラリ](#client-libraries) の項を参照してください。
+各クライアントライブラリは、チャネルが理解する「トランスポート」の1つを使って通信します。
+現在のところ、それはWebsocketsかロングポーリングですが、将来的には他のトランスポートも追加されるかもしれません。
 
-Unlike stateless HTTP connections, Channels support long-lived connections, each backed by a lightweight BEAM process, working in parallel and maintaining its own state.
+ステートレスHTTP接続とは異なり、チャネルは、軽量なBEAMプロセスに裏付けされたlong-livedな接続をサポートしており、それぞれが並行して動作し、独自の状態を維持しています。
 
-This architecture scales well; Phoenix Channels [can support millions of subscribers with reasonable latency on a single box](http://phoenixframework.org/blog/the-road-to-2-million-websocket-connections), passing hundreds of thousands of messages per second.
-And that capacity can be multiplied by adding more nodes to the cluster.
+このアーキテクチャは拡張性に優れています。Phoenix Channelsは[1つのボックスで数百万人のサブスクライバーを適正なレイテンシでサポート](http://phoenixframework.org/blog/the-road-to-2-million-websocket-connections)することができ、毎秒数十万のメッセージを転送しています。
+また、このキャパシティは、クラスターにノードを追加して増やすことができます。
 
-## The Moving Parts
+## 動作コンポーネント
 
-Although Channels are simple to use from a client perspective, there are a number of components involved in routing messages to clients across a cluster of servers.
-Let's take a look at them.
+チャネルはクライアントの視点から見ると簡単に使えますが、サーバーのクラスターをまたいでクライアントにメッセージをルーティングするためには、いくつかのコンポーネントがあります。
+それらを見てみましょう。
 
-### Overview
+### 概要
 
-To start communicating, a client connects to a node (a Phoenix server) using a transport (eg, Websockets or long polling) and joins one or more channels using that single network connection.
-One channel server process is created per client, per topic.
-The appropriate socket handler initializes a `%Phoenix.Socket` for the channel server (possibly after authenticating the client).
-The channel server then holds onto the `%Phoenix.Socket{}` and can maintain any state it needs within its `socket.assigns`.
+通信を開始するには、クライアントはトランスポート（Websocketまたはロングポーリングなど）を使用してノード（Phoenixサーバー）に接続し、その単一のネットワーク接続を使用して1つ以上のチャネルに参加します。
+クライアントごと、トピックごとに1つのチャネルサーバープロセスが作成されます。
+適切なソケットハンドラーは、チャネルサーバー用の`%Phoenix.Socket`を初期化します（クライアントを認証した後である可能性もあります）。
+その後、チャネルサーバーは `%Phoenix.Socket{}` を保持し、`socket.assigns` の中で必要な状態を維持します。
 
-Once the connection is established, each incoming message from a client is routed, based on its topic, to the correct channel server.
-If the channel server asks to broadcast a message, that message is sent to the local PubSub, which sends it out to any clients connected to the same server and subscribed to that topic.
+接続が確立されると、クライアントからの受信メッセージはトピックに基づいて正しいチャネルサーバーにルーティングされます。
+チャネルサーバーがメッセージをブロードキャストするように要求した場合、そのメッセージはローカルのPubSubに送信され、同じサーバーに接続されていてそのトピックをサブスクライブしているすべてのクライアントに送信されます。
 
-If there are other nodes in the cluster, the local PubSub also forwards the message to their PubSubs, which send it out to their own subscribers.
-Because only one message has to be sent per additional node, the performance cost of adding nodes is negligible, while each new node supports many more subscribers.
+クラスター内に他のノードがある場合は、ローカルPubSubはそのメッセージを他ノードへのPubSubにも転送し、そのPubSubは自分のサブスクライバーにメッセージを送信します。
+追加ノードごとに1つのメッセージを送信する必要があるだけなので、ノードを追加する際のパフォーマンスコストはごくわずかで、各新しいノードはより多くのサブスクライバーをサポートします。
 
-The message flow looks something like this:
+メッセージの流れは次のようになります。
 
 ```plaintext
                                  Channel   +-------------------------+      +--------+
@@ -101,9 +101,9 @@ The message flow looks something like this:
 +----------------+                         +-------------------------+      +--------+
 ```
 
-### Endpoint
+### エンドポイント
 
-In your Phoenix app's `Endpoint` module, a `socket` declaration specifies which socket handler will receive connections on a given URL.
+Phoenixアプリの `Endpoint` モジュールでは、`socket` 宣言で指定したURLからの接続を受け取るソケットハンドラーを指定します。
 
 ```elixir
 socket "/socket", HelloWeb.UserSocket,
@@ -111,84 +111,85 @@ socket "/socket", HelloWeb.UserSocket,
   longpoll: false
 ```
 
-Phoenix comes with two default transports: websocket and longpoll. You can configure them directly via the `socket` declaration.
+Phoenixには、websocketとlongpollという2つのデフォルトのトランスポートが付属しています。これらは `socket` 宣言で直接設定できます。
 
-### Socket Handlers
+### ソケットハンドラー
 
-Socket handlers, such as `HelloWeb.UserSocket` in the example above, are called when Phoenix is setting up a channel connection.
-Connections to a given URL will all use the same socket handler, based on your endpoint configuration.
-But that handler can be used for setting up connections on any number of topics.
+上の例の `HelloWeb.UserSocket` のようなソケットハンドラーは、Phoenixがチャネル接続をセットアップするときに呼び出されます。
+指定されたURLへの接続は、エンドポイントの設定に基づいて、すべて同じソケットハンドラーを使用します。
+しかし、このハンドラーは、任意の数のトピックの接続をセットアップするために使用できます。
 
-Within the handler, you can authenticate and identify a socket connection and set default socket assigns.
+ハンドラー内では、ソケット接続を認証して識別し、デフォルトのソケットへのassignsを設定することができます。
 
-### Channel Routes
+### チャネルルート
 
-Channel routes are defined in socket handlers, such as `HelloWeb.UserSocket` in the example above.
-They match on the topic string and dispatch matching requests to the given Channel module.
+チャネルルートは上の例での `HelloWeb.UserSocket` のようなソケットハンドラーで定義されます。
+これらはトピック文字列にマッチし、マッチしたリクエストを指定されたチャネルモジュールにディスパッチします。
 
-The star character `*` acts as a wildcard matcher, so in the following example route, requests for `room:lobby` and `room:123` would both be dispatched to the `RoomChannel`.
+星形文字 `*` はワイルドカードマッチの役割を果たすので、以下の例では `room:lobby` と `room:123` へのリクエストは両方とも `RoomChannel` にディスパッチされます。
 
 ```elixir
 channel "room:*", HelloWeb.RoomChannel
 ```
 
-### Channels
+### チャネル
 
-Channels handle events from clients, so they are similar to Controllers, but there are two key differences. Channel events can go both directions - incoming and outgoing. Channel connections also persist beyond a single request/response cycle. Channels are the highest level abstraction for realtime communication components in Phoenix.
+チャネルはクライアントからのイベントを扱うので、コントローラーと似ていますが、2つの重要な違いがあります。チャネルのイベントは、受信と発信の両方の方向に行くことができます。チャネル接続はまた、単一のリクエスト/レスポンスサイクルを超えて持続します。チャネルは、Phoenixのリアルタイム通信コンポーネントの最高レベルの抽象化です。
 
-Each Channel will implement one or more clauses of each of these four callback functions - `join/3`, `terminate/2`, `handle_in/3`, and `handle_out/3`.
+各チャネルは、`join/3`、`terminate/2`、`handle_in/3`、`handle_out/3`の4つのコールバック関数のそれぞれの1つ以上を実装します。
 
-### Topics
+### トピック
 
-Topics are string identifiers - names that the various layers use in order to make sure messages end up in the right place. As we saw above, topics can use wildcards. This allows for a useful `"topic:subtopic"` convention. Often, you'll compose topics using record IDs from your application layer, such as `"users:123"`.
+トピックは文字列識別子で、メッセージが適切な場所に届くようにするために、さまざまなレイヤーが使用する名前です。上で見たように、トピックはワイルドカードを使用できます。これにより、便利な `"topic:subtopic"` の規約ができます。多くの場合、`"users:123"`のように、アプリケーションレイヤーのレコードIDを使用してトピックを作成します。
 
-### Messages
+### メッセージ
 
-The `Phoenix.Socket.Message` module defines a struct with the following keys which denotes a valid message. From the [Phoenix.Socket.Message docs](https://hexdocs.pm/phoenix/Phoenix.Socket.Message.html).
-- `topic` - The string topic or `"topic:subtopic"` pair namespace, such as `"messages"` or `"messages:123"`
-- `event` - The string event name, for example `"phx_join"`
-- `payload` - The message payload
-- `ref` - The unique string ref
+`Phoenix.Socket.Message`モジュールは、以下のキーを持つ構造体を定義します。[Phoenix.Socket.Message のドキュメント](https://hexdocs.pm/phoenix/Phoenix.Socket.Message.html)より。
+
+- `topic` 文字列トピックまたは `"messages"` や `"messages:123"` のような `"topic:subtopic"` のペアの名前空間
+- `event` - 文字列のイベント名、たとえば `"phx_join"` のようなもの
+- `payload` - メッセージのペイロード
+- `ref` - 一意の文字列
 
 ### PubSub
 
-Typically, we don't directly use the Phoenix PubSub layer when developing Phoenix applications.
-Rather, it's used internally by Phoenix itself.
-But we may need to configure it.
+通常、Phoenixアプリケーションを開発する際に、Phoenix PubSubレイヤーを直接使用することはありません。
+むしろ、Phoenix自体によって内部的に使用されます。
+しかし、それを設定する必要があるかもしれません。
 
-PubSub consists of the `Phoenix.PubSub` module and a variety of modules for different adapters and their `GenServer`s.
-These modules contain functions which are the nuts and bolts of organizing Channel communication - subscribing to topics, unsubscribing from topics, and broadcasting messages on a topic.
+PubSubは、`Phoenix.PubSub` モジュールと、さまざまなアダプターとその `GenServer` 用のさまざまなモジュールで構成されています。
+これらのモジュールには、トピックのサブスクライブ、トピックからのサブスクライブ解除、トピックに関するメッセージのブロードキャストなど、チャネル通信を構成するための基本的な機能が含まれています。
 
-The PubSub system also takes care of getting messages from one node to another, so that it can be sent to all subscribers across the cluster.
-By default, this is done using [Phoenix.PubSub.PG2](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.PG2.html), which uses native BEAM messaging.
+PubSubシステムはまた、あるノードから別のノードへのメッセージを取得し、クラスター全体のすべてのサブスクライバーへ送信できるようにします。
+デフォルトでは、ネイティブBEAMメッセージングを使用する [Phoenix.PubSub.PG2](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.PG2.html) を使用して行われます。
 
-If your deployment environment does not support distributed Elixir or direct communication between servers, Phoenix also ships with a [Redis Adapter](https://hexdocs.pm/phoenix_pubsub_redis/Phoenix.PubSub.Redis.html) that uses Redis to exchange PubSub data. Please see the [Phoenix.PubSub docs](http://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) for more information.
+デプロイ環境が分散Elixirやサーバー間の直接通信をサポートしていない場合は、PubSub データを交換するためにRedisを使用する[Redis Adapter](https://hexdocs.pm/phoenix_pubsub_redis/Phoenix.PubSub.Redis.html)も同梱されています。詳細については、[Phoenix.PubSub docs](http://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html)を参照してください。
 
-### Client Libraries
+### クライアントライブラリ
 
-Any networked device can connect to Phoenix Channels as long as it has a client library.
-The following libraries exist today, and new ones are always welcome.
+クライアントライブラリがあれば、ネットワークに接続されたデバイスであれば、どのようなデバイスでもPhoenix Channelsに接続できます。
+現在、以下のライブラリが存在しており、新しいライブラリはいつでも歓迎します。
 
 #### Official
 
-Phoenix ships with a JavaScript client that is available when generating a new Phoenix project. The documentation for the JavaScript module is available at [https://hexdocs.pm/phoenix/js/](https://hexdocs.pm/phoenix/js/); the code is in [phoenix.js](https://github.com/phoenixframework/phoenix/blob/v1.4/assets/js/phoenix.js).
+Phoenixには、新しいPhoenixプロジェクトを生成する際に使用できるJavaScriptクライアントが同梱されています。JavaScriptモジュールのドキュメントは [https://hexdocs.pm/phoenix/js/](https://hexdocs.pm/phoenix/js/) にあり、コードは [phoenix.js](https://github.com/phoenixframework/phoenix/blob/v1.4/assets/js/phoenix.js) にあります。
 
 #### 3rd Party
 
-+ Swift (iOS)
+- Swift (iOS)
   - [SwiftPhoenix](https://github.com/davidstump/SwiftPhoenixClient)
-+ Java (Android)
+- Java (Android)
   - [JavaPhoenixChannels](https://github.com/eoinsha/JavaPhoenixChannels)
-+ C#
+- C#
   - [PhoenixSharp](https://github.com/Mazyod/PhoenixSharp)
-  - [dn-phoenix](https://github.com/jfis/dn-phoenix)
-+ Elixir
+- Elixir
   - [phoenix_gen_socket_client](https://github.com/Aircloak/phoenix_gen_socket_client)
-+ GDScript (Godot Game Engine)
-  - [GodotPhoenixChannels)(https://github.com/alfredbaudisch/GodotPhoenixChannels)
+- GDScript (Godot Game Engine)
+  - [GodotPhoenixChannels](https://github.com/alfredbaudisch/GodotPhoenixChannels)
 
-## Tying it all together
-Let's tie all these ideas together by building a simple chat application. After [generating a new Phoenix application](https://hexdocs.pm/phoenix/up_and_running.html) we'll see that the endpoint is already set up for us in `lib/hello_web/endpoint.ex`:
+## すべてを結び付ける
+
+簡単なチャットアプリケーションを構築することで、これらのアイデアをすべて結びつけてみましょう。[起動ガイド](https://hexdocs.pm/phoenix/up_and_running.html)の後、`lib/hello_web/endpoint.ex`にエンドポイントがすでに設定されていることがわかります。
 
 ```elixir
 defmodule HelloWeb.Endpoint do
@@ -199,7 +200,7 @@ defmodule HelloWeb.Endpoint do
 end
 ```
 
-In `lib/hello_web/channels/user_socket.ex`, the `HelloWeb.UserSocket` we pointed to in our endpoint has already been created when we generated our application. We need to make sure messages get routed to the correct channel. To do that, we'll uncomment the "room:*" channel definition:
+`lib/hello_web/channels/user_socket.ex` では、エンドポイントで指定した `HelloWeb.UserSocket` は、アプリケーションを生成したときにすでに作成されています。メッセージが正しいチャネルへルーティングされるようにする必要があります。そのためには、 `"room:\*"` チャネルの定義のコメントを外します。
 
 ```elixir
 defmodule HelloWeb.UserSocket do
@@ -210,11 +211,11 @@ defmodule HelloWeb.UserSocket do
   ...
 ```
 
-Now, whenever a client sends a message whose topic starts with `"room:"`, it will be routed to our RoomChannel. Next, we'll define a `HelloWeb.RoomChannel` module to manage our chat room messages.
+これで、クライアントが `"room:"` で始まるトピックを持つメッセージを送信すると、いつでもそれがRoomChannelへルーティングされるようになります。次に、チャットルームのメッセージを管理するための `HelloWeb.RoomChannel` モジュールを定義します。
 
-### Joining Channels
+### チャネルに参加する
 
-The first priority of your channels is to authorize clients to join a given topic. For authorization, we must implement `join/3` in `lib/hello_web/channels/room_channel.ex`.
+チャネルの最優先事項は、クライアントが指定したトピックに参加することを認可することです。認可を行うには、`lib/hello_web/channels/room_channel.ex` で `join/3` を実装しなければなりません。
 
 ```elixir
 defmodule HelloWeb.RoomChannel do
@@ -229,18 +230,18 @@ defmodule HelloWeb.RoomChannel do
 end
 ```
 
-For our chat app, we'll allow anyone to join the `"room:lobby"` topic, but any other room will be considered private and special authorization, say from a database, will be required.
-(We won't worry about private chat rooms for this exercise, but feel free to explore after we finish.)
+私たちのチャットアプリでは、誰でも `"room:lobby"` トピックに参加できるようにしますが、それ以外のルームはプライベートルームとみなされ、データベースからの特別な承認が必要になります。
+（この演習ではプライベートなチャットルームのことは気にしませんが、終了後は自由に探索してください）
 
-To authorize the socket to join a topic, we return `{:ok, socket}` or `{:ok, reply, socket}`. To deny access, we return `{:error, reply}`. More information about authorization with tokens can be found in the [`Phoenix.Token` documentation](https://hexdocs.pm/phoenix/Phoenix.Token.html).
+ソケットにトピックへの参加を許可するには、`{:ok, socket}` または `{:ok, reply, socket}` を返します。アクセスを拒否するには `{:error, reply}` を返します。トークンを使った認証についての詳細は、[`Phoenix.Token` documentation](https://hexdocs.pm/phoenix/Phoenix.Token.html)にあります。
 
-With our channel in place, let's get the client and server talking.
+チャネルを用意したので、クライアントとサーバーが話をするようにしましょう。
 
-Phoenix projects come with [webpack](https://webpack.js.org) by default, unless disabled with the `--no-webpack` option when you run `mix phx.new`.
+`mix phx.new`を実行する際に `--no-webpack` オプションで無効にしていない限り、Phoenixプロジェクトにはデフォルトで[webpack](https://webpack.js.org)が付属しています。
 
-The `assets/js/socket.js` defines a simple client based on the socket implementation that ships with Phoenix.
+`assets/js/socket.js` は、Phoenixに同梱されているソケット実装をベースにしたシンプルなクライアントを定義しています。
 
-We can use that library to connect to our socket and join our channel, we just need to set our room name to `"room:lobby"` in that file.
+このファイルで、ルームの名前を `"room:lobby"` に設定するだけで、このライブラリを使ってソケットに接続してチャネルに参加することができます。
 
 ```javascript
 // assets/js/socket.js
@@ -256,23 +257,23 @@ channel.join()
 export default socket
 ```
 
-After that, we need to make sure `assets/js/socket.js` gets imported into our application JavaScript file. To do that, uncomment the last line in `assets/js/app.js`.
+その後、`assets/js/socket.js`がアプリケーションのJavaScriptファイルにインポートされることを確認する必要があります。そのためには、`assets/js/app.js` の最後の行のコメントを外します。
 
 ```javascript
 // ...
 import socket from "./socket"
 ```
 
-Save the file and your browser should auto refresh, thanks to the Phoenix live reloader. If everything worked, we should see "Joined successfully" in the browser's JavaScript console. Our client and server are now talking over a persistent connection. Now let's make it useful by enabling chat.
+ファイルを保存すると、Phoenix live reloaderのおかげでブラウザーが自動更新されるはずです。すべてがうまくいった場合、ブラウザーのJavaScriptコンソールに「Joined successfully」と表示されるはずです。クライアントとサーバーは、現在、持続的な接続を介してやり取りしています。チャットを有効にして、それを便利にしてみましょう。
 
-In `lib/hello_web/templates/page/index.html.eex`, we'll replace the existing code with a container to hold our chat messages, and an input field to send them:
+`lib/hello_web/templates/page/index.html.eex` で、既存のコードをチャットメッセージを格納するコンテナと、チャットメッセージを送信するための入力フィールドに置き換えます。
 
 ```html
 <div id="messages"></div>
 <input id="chat-input" type="text"></input>
 ```
 
-Now let's add a couple of event listeners to `assets/js/socket.js`:
+それでは、いくつかのイベントリスナーを `assets/js/socket.js` に追加してみましょう。
 
 ```javascript
 // ...
@@ -294,7 +295,7 @@ channel.join()
 export default socket
 ```
 
-All we had to do is detect that enter was pressed and then `push` an event over the channel with the message body. We named the event `"new_msg"`. With this in place, let's handle the other piece of a chat application where we listen for new messages and append them to our messages container.
+エンターキーが押されたことを検出して、メッセージ本文を含むイベントをチャネル上に `push` するだけです。イベント名は `"new_msg"` です。ここで、チャットアプリケーションのもう1つの部分、新しいメッセージをリッスンしてメッセージコンテナに追加する処理を行いましょう。
 
 ```javascript
 // ...
@@ -322,10 +323,11 @@ channel.join()
 export default socket
 ```
 
-We listen for the `"new_msg"` event using `channel.on`, and then append the message body to the DOM. Now let's handle the incoming and outgoing events on the server to complete the picture.
+`channel.on` を使って `"new_msg"` イベントをリッスンし、メッセージ本文をDOMに追加します。それでは、サーバー上で受信イベントと送信イベントを処理して、図を完成させましょう。
 
-### Incoming Events
-We handle incoming events with `handle_in/3`. We can pattern match on the event names, like `"new_msg"`, and then grab the payload that the client passed over the channel. For our chat application, we simply need to notify all other `room:lobby` subscribers of the new message with `broadcast!/3`.
+### 受信イベント
+
+受信イベントは `handle_in/3` で処理します。`"new_msg"` のようにイベント名をパターンマッチさせて、クライアントがチャネルを介して渡したペイロードを取得します。チャットアプリケーションでは、他の `room:lobby` のサブスクライバーに新しいメッセージを通知するために `broadcast!/3` を使います。
 
 ```elixir
 defmodule HelloWeb.RoomChannel do
@@ -345,10 +347,11 @@ defmodule HelloWeb.RoomChannel do
 end
 ```
 
-`broadcast!/3` will notify all joined clients on this `socket`'s topic and invoke their `handle_out/3` callbacks. `handle_out/3` isn't a required callback, but it allows us to customize and filter broadcasts before they reach each client. By default, `handle_out/3` is implemented for us and simply pushes the message on to the client, just like our definition. We included it here because hooking into outgoing events allows for powerful message customization and filtering. Let's see how.
+`broadcast!/3` は、この `socket` のトピックに参加しているすべてのクライアントに通知し、`handle_out/3` コールバックを呼び出します。`handle_out/3` は必須のコールバックではありませんが、各クライアントに届く前にブロードキャストをカスタマイズしたりフィルタリングしたりすることができます。デフォルトでは、`handle_out/3` が実装されており、定義と同じように単にメッセージをクライアントにプッシュするだけです。送信イベントにフックすることで、メッセージのカスタマイズやフィルタリングを強力に行うことができるからです。それでは、その方法を見てみましょう。
 
-#### Intercepting Outgoing Events
-We won't implement this for our application, but imagine our chat app allowed users to ignore messages about new users joining a room. We could implement that behavior like this where we explicitly tell Phoenix which outgoing event we want to intercept and then define a `handle_out/3` callback for those events. (Of course, this assumes that we have a `Accounts` context with an `ignoring_user?/2` function, and that we pass a user in via the `assigns` map). It is important to note that the `handle_out/3` callback will be called for every recipient of a message, so more expensive operations like hitting the database should be considered carefully before being included in `handle_out/3`.
+#### 発信イベントの傍受
+
+私たちのアプリケーションには実装しませんが、チャットアプリで新しいユーザーが部屋に入ってきたメッセージを無視できるようにしたと想像してみてください。このような動作を実装するには、Phoenixにどの発信イベントを傍受したいかを明示的に伝え、それらのイベントのために `handle_out/3` コールバックを定義します（もちろん、これは `Accounts` コンテキストに `ignoring_user?/2` 関数があり、`assigns` マップを使ってユーザーを渡すことを前提としています）。重要なのは、`handle_out/3` コールバックはメッセージの受信者ごとに呼び出されることで、データベースへのアクセスのようなコストが大きい操作は `handle_out/3` に含める前に慎重に検討すべきです。
 
 ```elixir
 intercept ["user_joined"]
@@ -363,25 +366,25 @@ def handle_out("user_joined", msg, socket) do
 end
 ```
 
-That's all there is to our basic chat app. Fire up multiple browser tabs and you should see your messages being pushed and broadcasted to all windows!
+基本的なチャットアプリはこれだけです。複数のブラウザータブを起動すると、あなたのメッセージがすべてのウィンドウにプッシュされ、ブロードキャストされているのを見ることができます。
 
-#### Socket Assigns
+#### ソケットの割り当て
 
-Similar to connection structs, `%Plug.Conn{}`, it is possible to assign values to a channel socket. `Phoenix.Socket.assign/3` is conveniently imported into a channel module as `assign/3`:
+コネクション構造体 `%Plug.Conn{}` と同様に、チャネルソケットに値を割り当てることができます。`Phoenix.Socket.assign/3` は、`assign/3` としてチャネルモジュールに便利にインポートされています。
 
 ```elixir
 socket = assign(socket, :user, msg["user"])
 ```
 
-Sockets store assigned values as a map in `socket.assigns`.
+ソケットは、割り当てられた値をマップとして `socket.assigns` に格納します。
 
-#### Using Token Authentication
+#### トークン認証の利用
 
-When we connect, we'll often need to authenticate the client. Fortunately, this is a 4-step process with [Phoenix.Token](https://hexdocs.pm/phoenix/Phoenix.Token.html).
+接続する際には、クライアントの認証が必要になることがよくあります。幸いなことに、これは [Phoenix.Token](https://hexdocs.pm/phoenix/Phoenix.Token.html) を使った4段階のプロセスです。
 
-**Step 1 - Assign a Token in the Connection**
+**ステップ1 - コネクションでトークンを割り当てる**
 
-Let's say we have an authentication plug in our app called `OurAuth`. When `OurAuth` authenticates a user, it sets a value for the `:current_user` key in `conn.assigns`. Since the `current_user` exists, we can simply assign the user's token in the connection for use in the layout. We can wrap that behavior up in a private function plug, `put_user_token/2`. This could also be put in its own module as well. To make this all work, we just add `OurAuth` and `put_user_token/2` to the browser pipeline.
+アプリに `OurAuth` という認証プラグがあるとしましょう。`OurAuth`がユーザーを認証すると、`conn.assigns`のキー `:current_user` に値を設定します。`current_user` が存在するので、レイアウトで使用するためにユーザーのトークンをコネクションに割り当てることができます。この動作をプライベートな関数プラグ `put_user_token/2` でまとめることができます。これは独自のモジュールに入れることもできます。これを動作させるには、`OurAuth` と `put_user_token/2` をブラウザーのパイプラインに追加するだけです。
 
 ```elixir
 pipeline :browser do
@@ -400,20 +403,20 @@ defp put_user_token(conn, _) do
 end
 ```
 
-Now our `conn.assigns` contains the `current_user` and `user_token`.
+これで、`conn.assigns` には `current_user` と `user_token` が含まれるようになりました。
 
-**Step 2 - Pass the Token to the JavaScript**
+**ステップ2 - JavaScriptにトークンを渡す**
 
-Next we need to pass this token to JavaScript. We can do so inside a script tag in `web/templates/layout/app.html.eex` right above the app.js script, as follows:
+次に、このトークンをJavaScriptに渡す必要があります。これは、app.jsスクリプトのすぐ上にある `web/templates/layout/app.html.eex` のscriptタグの中で、次のように行います。
 
 ```html
 <script>window.userToken = "<%= assigns[:user_token] %>";</script>
 <script src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
 ```
 
-**Step 3 - Pass the Token to the Socket Constructor and Verify**
+**ステップ 3 - ソケットのコンストラクターにトークンを渡して検証する**
 
-We also need to pass the `:params` to the socket constructor and verify the user token in the `connect/3` function. To do so, edit `web/channels/user_socket.ex`, as follows:
+また、ソケットのコンストラクターに `:params` を渡し、`connect/3` 関数でユーザートークンを検証する必要があります。そのためには、`web/channels/user_socket.ex`を以下のように編集します。
 
 ```elixir
 def connect(%{"token" => token}, socket, _connect_info) do
@@ -427,24 +430,24 @@ def connect(%{"token" => token}, socket, _connect_info) do
 end
 ```
 
-In our JavaScript, we can use the token set previously when to pass the token when constructing the Socket:
+JavaScriptでは、Socketを構築する際に、先に設定したトークンを使用できます。
 
 ```javascript
 let socket = new Socket("/socket", {params: {token: window.userToken}})
 ```
 
-We used `Phoenix.Token.verify/4` to verify the user token provided by the client. `Phoenix.Token.verify/4` returns either `{:ok, user_id}` or `{:error, reason}`. We can pattern match on that return in a `case` statement. With a verified token, we set the user's id as the value to `:current_user` in the socket. Otherwise, we return `:error`.
+クライアントから提供されたユーザートークンを検証するには `Phoenix.Token.verify/4` を用います。`Phoenix.Token.verify/4` は `{:ok, user_id}` か `{:error, reason}` を返します。`case`文でパターンマッチを行うことができます。トークンが検証された場合、ソケットの `:current_user` にユーザーのIDを設定します。そうでない場合は `:error` を返します。
 
-**Step 4 - Connect to the socket in JavaScript**
+**ステップ4 - JavaScriptでソケットに接続する**
 
-With authentication set up, we can connect to sockets and channels from JavaScript.
+認証を設定したことで、JavaScriptからソケットやチャネルへ接続できるようになりました。
 
 ```javascript
 let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 ```
 
-Now that we are connected, we can join channels with a topic:
+これで繋がったので、トピックを持ってチャネルに参加することができるようになりました。
 
 ```elixir
 let channel = socket.channel("topic:subtopic", {})
@@ -455,30 +458,31 @@ channel.join()
 export default socket
 ```
 
-Note that token authentication is preferable since it's transport agnostic and well-suited for long running-connections like channels, as opposed to using sessions or authentication approaches.
+トークン認証はトランスポートに依存せず、チャネルのような長期的な接続に適しているので、セッションや認証アプローチを使用するのではなく、トークン認証が望ましいことに注意してください。
 
-#### Fault Tolerance and Reliability Guarantees
+## フォールトトレランスと信頼性保証
 
-Servers restart, networks split, and clients lose connectivity. In order to design robust systems, we need to understand how Phoenix responds to these events and what guarantees it offers.
+サーバーの再起動、ネットワークの切断、クライアントの接続性の低下などが発生します。堅牢なシステムを設計するためには、Phoenixがこれらのイベントにどのように対応し、どのような保証を提供しているかを理解する必要があります。
 
-### Handling Reconnection
+### 再接続のハンドリング
 
-Clients subscribe to topics, and Phoenix stores those subscriptions in an in-memory ETS table. If a channel crashes, the clients will need to reconnect to the topics they had previously subscribed to. Fortunately, the Phoenix JavaScript client knows how to do this. The server will notify all the clients of the crash. This will trigger each client's `Channel.onError` callback. The clients will attempt to reconnect to the server using an exponential back off strategy. Once they reconnect, they'll attempt to rejoin the topics they had previously subscribed to. If they are successful, they'll start receiving messages from those topics as before.
+クライアントはトピックをサブスクライブし、PhoenixはそれらのサブスクライブをインメモリETSテーブルに保存します。チャネルがクラッシュした場合、クライアントは以前にサブスクライブしていたトピックに再接続する必要があります。幸いなことに、PhoenixのJavaScriptクライアントはこの方法を知っています。サーバーは、クラッシュが発生したことをすべてのクライアントに通知します。これにより、各クライアントの `Channel.onError` コールバックがトリガーされます。クライアントは、指数バックオフ（exponential back off）戦略を使ってサーバーへの再接続を試みます。再接続すると、以前にサブスクライブしていたトピックへの再接続を試みます。成功した場合は、以前と同様に、それらのトピックからのメッセージの受信を開始します。
 
-### Resending Client Messages
+### クライアントメッセージの再送信
 
-Channel clients queue outgoing messages into a `PushBuffer`, and send them to the server when there is a connection. If no connection is available, the client holds on to the messages until it can establish a new connection. With no connection, the client will hold the messages in memory until it establishes a connection, or until it receives a `timeout` event. The default timeout is set to 5000 milliseconds. The client won't persist the messages in the browser's local storage, so if the browser tab closes, the messages will be gone.
+チャネルクライアントは送信メッセージを `PushBuffer` にキューイングし、コネクションがあるときにサーバーに送信します。コネクションがない場合、クライアントは新しいコネクションを確立できるまでメッセージを保持します。接続がない場合、クライアントは接続を確立するまで、あるいは `timeout` イベントを受け取るまでメッセージをメモリに保持します。デフォルトのタイムアウトは5000ミリ秒に設定されています。クライアントはブラウザーのローカルストレージにメッセージを保持しないので、ブラウザータブが閉じられるとメッセージは消えてしまいます。
 
-### Resending Server Messages
+### サーバーメッセージの再送信
 
-Phoenix uses an at-most-once strategy when sending messages to clients. If the client is offline and misses the message, Phoenix won't resend it. Phoenix doesn't persist messages on the server. If the server restarts, unsent messages will be gone. If our application needs stronger guarantees around message delivery, we'll need to write that code ourselves. Common approaches involve persisting messages on the server and having clients request missing messages. For an example, see Chris McCord's Phoenix training: [client code](https://github.com/chrismccord/elixirconf_training/blob/master/web/static/js/app.js#L38-L39) and [server code](https://github.com/chrismccord/elixirconf_training/blob/master/web/channels/document_channel.ex#L13-L19).
+Phoenixは、クライアントにメッセージを送信する際にat-most-once戦略を使用します。クライアントがオフラインでメッセージを受信できなかった場合、Phoenixはメッセージを再送信しません。Phoenixはサーバー上にメッセージを永続化しません。サーバーが再起動すると、未送信のメッセージは消えてしまいます。アプリケーションがメッセージの配信についてより強力な保証を必要とする場合は、自分たちでそのコードを書く必要があります。一般的なアプローチとしては、サーバー上にメッセージを永続化し、クライアントが欠落しているメッセージをリクエストするという方法があります。例としては、Chris McCord氏のPhoenixのトレーニング: [クライアントコード](https://github.com/chrismccord/elixirconf_training/blob/master/web/static/js/app.js#L38-L39) と [サーバーコード](https://github.com/chrismccord/elixirconf_training/blob/master/web/channels/document_channel.ex#L13-L19) を参照してください。
 
+### プレゼンス
 
-### Presence
+Phoenixは、Phoenix.PubSubとPhoenixチャネルの上に構築されたオンラインユーザーを扱う方法を持っています。プレゼンスの使い方は、[プレゼンスガイド](presence.html)で解説しています。
 
-Phoenix ships with a way of handling online users that is built on top of Phoenix.PubSub and Phoenix channels. The usage of presence is covered in the [presence guide](presence.html).
+#### アプリケーション例
 
-#### Example Application
-To see an example of the application we just built, checkout the project [phoenix_chat_example](https://github.com/chrismccord/phoenix_chat_example).
+先ほど構築したアプリケーションの例を見るには、[phoenix_chat_example](https://github.com/chrismccord/phoenix_chat_example) プロジェクトをチェックしてください。
 
-You can also see a live demo at <http://phoenixchat.herokuapp.com/>.
+また、[http://phoenixchat.herokuapp.com/](http://phoenixchat.herokuapp.com/) でライブデモを見ることができます。
+
