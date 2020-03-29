@@ -246,27 +246,22 @@ end
 ```javascript
 // assets/js/socket.js
 // ...
-socket.connect();
+socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel('room:lobby', {});
-channel
-  .join()
-  .receive('ok', resp => {
-    console.log('Joined successfully', resp);
-  })
-  .receive('error', resp => {
-    console.log('Unable to join', resp);
-  });
+let channel = socket.channel("room:lobby", {})
+channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
 
-export default socket;
+export default socket
 ```
 
 その後、`assets/js/socket.js`がアプリケーションのJavaScriptファイルにインポートされることを確認する必要があります。そのためには、`assets/js/app.js` の最後の行のコメントを外します。
 
 ```javascript
 // ...
-import socket from './socket';
+import socket from "./socket"
 ```
 
 ファイルを保存すると、Phoenix live reloaderのおかげでブラウザーが自動更新されるはずです。すべてがうまくいった場合、ブラウザーのJavaScriptコンソールに「Joined successfully」と表示されるはずです。クライアントとサーバーは、現在、持続的な接続を介してやり取りしています。チャットを有効にして、それを便利にしてみましょう。
@@ -282,60 +277,50 @@ import socket from './socket';
 
 ```javascript
 // ...
-let channel = socket.channel('room:lobby', {});
-let chatInput = document.querySelector('#chat-input');
-let messagesContainer = document.querySelector('#messages');
+let channel           = socket.channel("room:lobby", {})
+let chatInput         = document.querySelector("#chat-input")
+let messagesContainer = document.querySelector("#messages")
 
-chatInput.addEventListener('keypress', event => {
-  if (event.keyCode === 13) {
-    channel.push('new_msg', { body: chatInput.value });
-    chatInput.value = '';
+chatInput.addEventListener("keypress", event => {
+  if(event.keyCode === 13){
+    channel.push("new_msg", {body: chatInput.value})
+    chatInput.value = ""
   }
-});
+})
 
-channel
-  .join()
-  .receive('ok', resp => {
-    console.log('Joined successfully', resp);
-  })
-  .receive('error', resp => {
-    console.log('Unable to join', resp);
-  });
+channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
 
-export default socket;
+export default socket
 ```
 
 エンターキーが押されたことを検出して、メッセージ本文を含むイベントをチャネル上に `push` するだけです。イベント名は `"new_msg"` です。ここで、チャットアプリケーションのもう1つの部分、新しいメッセージをリッスンしてメッセージコンテナに追加する処理を行いましょう。
 
 ```javascript
 // ...
-let channel = socket.channel('room:lobby', {});
-let chatInput = document.querySelector('#chat-input');
-let messagesContainer = document.querySelector('#messages');
+let channel           = socket.channel("room:lobby", {})
+let chatInput         = document.querySelector("#chat-input")
+let messagesContainer = document.querySelector("#messages")
 
-chatInput.addEventListener('keypress', event => {
-  if (event.keyCode === 13) {
-    channel.push('new_msg', { body: chatInput.value });
-    chatInput.value = '';
+chatInput.addEventListener("keypress", event => {
+  if(event.keyCode === 13){
+    channel.push("new_msg", {body: chatInput.value})
+    chatInput.value = ""
   }
-});
+})
 
-channel.on('new_msg', payload => {
-  let messageItem = document.createElement('li');
-  messageItem.innerText = `[${Date()}] ${payload.body}`;
-  messagesContainer.appendChild(messageItem);
-});
+channel.on("new_msg", payload => {
+  let messageItem = document.createElement("li")
+  messageItem.innerText = `[${Date()}] ${payload.body}`
+  messagesContainer.appendChild(messageItem)
+})
 
-channel
-  .join()
-  .receive('ok', resp => {
-    console.log('Joined successfully', resp);
-  })
-  .receive('error', resp => {
-    console.log('Unable to join', resp);
-  });
+channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
 
-export default socket;
+export default socket
 ```
 
 `channel.on` を使って `"new_msg"` イベントをリッスンし、メッセージ本文をDOMに追加します。それでは、サーバー上で受信イベントと送信イベントを処理して、図を完成させましょう。
@@ -448,7 +433,7 @@ end
 JavaScriptでは、Socketを構築する際に、先に設定したトークンを使用できます。
 
 ```javascript
-let socket = new Socket('/socket', { params: { token: window.userToken } });
+let socket = new Socket("/socket", {params: {token: window.userToken}})
 ```
 
 クライアントから提供されたユーザートークンを検証するには `Phoenix.Token.verify/4` を用います。`Phoenix.Token.verify/4` は `{:ok, user_id}` か `{:error, reason}` を返します。`case`文でパターンマッチを行うことができます。トークンが検証された場合、ソケットの `:current_user` にユーザーのIDを設定します。そうでない場合は `:error` を返します。
@@ -458,8 +443,8 @@ let socket = new Socket('/socket', { params: { token: window.userToken } });
 認証を設定したことで、JavaScriptからソケットやチャネルへ接続できるようになりました。
 
 ```javascript
-let socket = new Socket('/socket', { params: { token: window.userToken } });
-socket.connect();
+let socket = new Socket("/socket", {params: {token: window.userToken}})
+socket.connect()
 ```
 
 これで繋がったので、トピックを持ってチャネルに参加することができるようになりました。
