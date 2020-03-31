@@ -1,19 +1,19 @@
 ---
 layout: default
 group: guides
-title: Custom Errors
+title: カスタムエラー
 nav_order: 14
 hash: 04b49caba15318c4ed23b36888fdd893e1cd6abe
 ---
-# Custom Errors
+# カスタムエラー
 
-Phoenix provides an `ErrorView`, `lib/hello_web/views/error_view.ex`, to render errors in our applications. The full module name will include the name of our application, as in `Hello.ErrorView`.
+Phoenixはアプリケーションのエラーを表示するための `ErrorView`, `lib/hello_web/views/error_view.ex` を提供しています。`Hello.ErrorView`のように、完全なモジュール名にはアプリケーションの名前が含まれます。
 
-Phoenix will detect any 400 or 500 status level errors in our application and use the `render/2` function in our `ErrorView` to render an appropriate error template. Any errors which don't match an existing clause of `render/2` will be caught by `template_not_found/2`.
+Phoenixはアプリケーション内の400または500のステータスレベルのエラーを検出すると、`ErrorView`の`render/2`関数を使用して適切なエラーテンプレートをレンダリングします。既存の `render/2` の節にマッチしないエラーは、`template_not_found/2` によって捕捉されます。
 
-We can also customize the implementation of any of these functions however we like.
+また、これらの関数の実装を好きなようにカスタマイズすることもできます。
 
-Here's what the `ErrorView` looks like.
+以下は、`ErrorView`がどのようなものかを示しています。
 
 ```elixir
 defmodule Hello.ErrorView do
@@ -34,7 +34,7 @@ defmodule Hello.ErrorView do
 end
 ```
 
-> NOTE: In the development environment, this behavior will be overridden. Instead, we will get a really great debugging page. In order to see the `ErrorView` in action, we'll need to set `debug_errors:` to `false` in `config/dev.exs`. The server must be restarted for the changes to become effective.
+> 注意: 開発環境では、この動作はオーバーライドされます。その代わりに、とても有益なデバッグページが表示されます。動作中の `ErrorView` を見るためには、`config/dev.exs` で `debug_errors: false` を設定する必要があります。変更を有効にするにはサーバを再起動する必要があります。
 
 ```elixir
 config :hello, HelloWeb.Endpoint,
@@ -46,17 +46,17 @@ config :hello, HelloWeb.Endpoint,
                     cd: Path.expand("../assets", __DIR__)]]
 ```
 
-To learn more about custom error pages, please see [The Error View](views.html#the-errorview) section of the View Guide.
+カスタムエラーページの詳細については、ビューガイドの[エラービュー](views.html#エラービュー)のセクションを参照してください。
 
-#### Custom Errors
+## カスタム例外
 
-Elixir provides a macro called `defexception` for defining custom exceptions. Exceptions are represented as structs, and structs need to be defined inside of modules.
+Elixirには、カスタム例外を定義するための `defexception` というマクロがあります。例外は構造体として表現され、構造体はモジュール内で定義する必要があります。
 
-In order to create a custom error, we need to define a new module. Conventionally this will have "Error" in the name. Inside of that module, we need to define a new exception with `defexception`.
+カスタムエラーを作成するためには、新しいモジュールを定義する必要があります。通常、このモジュールの名前には "Error"が含まれます。このモジュールの中に、`defexception`で新しい例外を定義する必要があります。
 
-We can also define a module within a module to provide a namespace for the inner module.
+また、モジュール内にモジュールを定義して、内部モジュールの名前空間を提供することもできます。
 
-Here's an example from the [Phoenix.Router](https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/router.ex) which demonstrates all of these ideas.
+ここでは、これらの考え方のすべてを示している [Phoenix.Router](https://github.com/phoenixframework/phoenix/blob/master/lib/phoenix/router.ex) の例を紹介します。
 
 ```elixir
 defmodule Phoenix.Router do
@@ -79,9 +79,9 @@ defmodule Phoenix.Router do
 end
 ```
 
-Plug provides a protocol called `Plug.Exception` specifically for adding a status to exception structs.
+プラグは `Plug.Exception` というプロトコルを提供しており、特に例外構造体にステータスを追加するためのものです。
 
-If we wanted to supply a status of 404 for an `Ecto.NoResultsError`, we could do it by defining an implementation for the `Plug.Exception` protocol like this:
+`Ecto.NoResultsError`に対して404のステータスを提供したい場合は、以下のように `Plug.Exception` プロトコルの実装を定義することで行うことができます。
 
 ```elixir
 defimpl Plug.Exception, for: Ecto.NoResultsError do
@@ -89,4 +89,4 @@ defimpl Plug.Exception, for: Ecto.NoResultsError do
 end
 ```
 
-Note that this is just an example: Phoenix [already does this](https://github.com/phoenixframework/phoenix_ecto/blob/master/lib/phoenix_ecto/plug.ex) for `Ecto.NoResultsError`, so you don't have to.
+これは単なる例であることに注意してください。Phoenixは`Ecto.NoResultsError` に対して[既に実装済である](https://github.com/phoenixframework/phoenix_ecto/blob/master/lib/phoenix_ecto/plug.ex)ため、これを行う必要はありません。
