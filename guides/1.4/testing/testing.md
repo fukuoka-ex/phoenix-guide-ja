@@ -1,25 +1,25 @@
 ---
 layout: default
 group: testing
-title: Introduction to Testing
+title: テストの紹介
 nav_order: 1
 hash: 5d132fdb587634ec2322586785b1408886481beb
 ---
-# Introduction to Testing
+# テストの紹介
 
-> Note: the Testing guides have not been fully updated to Phoenix 1.3; they're a work in progress and more content is coming.
+> 注：テストガイドはPhoenix 1.3には完全に更新されていません。作業中であり、より多くのコンテンツが増えるでしょう。
 
-Testing has become integral to the software development process, and the ability to easily write meaningful tests is an indispensable feature for any modern web framework. Phoenix takes this seriously, providing support files to make all the major components of the framework easy to test. It also generates test modules with real-world examples alongside any generated modules to help get us going.
+テストは、ソフトウェア開発プロセスに不可欠なものとなっており、意味のあるテストを簡単に書く能力は、現代のWebフレームワークにとって不可欠な機能です。Phoenixはこれに真剣に取り組んでおり、フレームワークのすべての主要なコンポーネントを簡単にテストできるようにするためのサポートファイルを提供しています。また、生成されたモジュールと一緒に、実世界の例を含むテストモジュールを生成して、私たちの作業を支援してくれます。
 
-Elixir ships with a built-in testing framework called [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html). ExUnit strives to be clear and explicit, keeping magic to a minimum. Phoenix uses ExUnit for all of its testing, and we will use it here as well.
+Elixir には [ExUnit](https://hexdocs.pm/ex_unit/ExUnit.html) と呼ばれるテストフレームワークが組み込まれています。ExUnit は簡潔で明快なテストを心がけており、魔法を最小限に抑えています。Phoenix はすべてのテストに ExUnit を使用しています。ここでも使っていきます。
 
-ExUnit refers to a test module as a "test case", and we will do the same.
+ExUnitはテストモジュールのことを「テストケース」と呼んでいますが、これと同じことをします。
 
-Let's see this in action.
+これを実際に見てみましょう。
 
-> Note: Before we proceed, we'll need to have PostgreSQL installed and running on our system. We'll also need to configure our repo with the correct login credentials. [The section on ecto.create in the Mix Tasks guide](mix_tasks.html#ecto-specific-mix-tasks) has more information on this, and the [Ecto Guide](ecto.html) dives into the details on how it all works.
+> 注意: 先に進む前に、システムにPostgreSQLをインストールして実行しておく必要があります。また、正しいログイン認証情報でレポを設定する必要があります。[Mixタスクガイド内のecto.create節](../phoenix_mix_tasks.html#ecto-specific-mix-tasks)には多くの情報があります。また、[Ectoガイド](../ecto.html)には、それがどのように動作するかについての詳細が書かれています。
 
-In a freshly generated application (we use a project named "hello" in the examples), let's run `mix test` at the root of the project. (Please see the [Up and Running Guide](up_and_running.html) for instructions on generating a new application.)
+新しく生成したアプリケーション(例では "hello "という名前のプロジェクトを使っています)では、プロジェクトのルートで `mix test` を実行してみましょう。(新規アプリケーションの生成方法については、[起動](../up_and_running.html)を参照してください)。
 
 ```console
 $ mix test
@@ -31,11 +31,11 @@ Finished in 0.09 seconds
 Randomized with seed 652656
 ```
 
-We already have three tests!
+もうすでに3件のテストがあります!
 
-In fact, we already have a directory structure completely set up for testing, including a test helper and support files.
+実際には、テスト用のヘルパーやサポートファイルなどのディレクトリ構造はすでに完全に設定されています。
 
-> Note: We didn't need to create or migrate our test database because the test helper took care of all that for us.
+> 注: テストヘルパーがすべてのことをやってくれたので、テストデータベースを作成したり、マイグレートしたりする必要はありませんでした。
 
 ```console
 test
@@ -54,11 +54,11 @@ test
 └── test_helper.exs
 ```
 
-The test cases we get for free include `test/hello_web/controllers/page_controller_test.exs`, `test/hello_web/views/error_view_test.exs`, and `test/hello_web/views/page_view_test.exs`. Nice.
+はじめから用意されているテストケースは、`test/hello_web/controllers/page_controller_test.exs`、`test/hello_web/views/error_view_test.exs`、`test/hello_web/views/page_view_test.exs`です。素敵ですね。
 
-We're going to look at test cases in detail throughout the testing guides, but let's take a quick look at these three, just to get our feet wet.
+テストガイドではテストケースの詳細を見ていきますが、まずはこの3つのテストケースを手始めに見てみましょう。
 
-The first test case we'll look at is `test/hello_web/controllers/page_controller_test.exs`.
+最初に見てみるテストケースは `test/hello_web/controllers/page_controller_test.exs` です。
 
 ```elixir
 defmodule HelloWeb.PageControllerTest do
@@ -71,13 +71,13 @@ defmodule HelloWeb.PageControllerTest do
 end
 ```
 
-There are a couple of interesting things happening here.
+ここでは面白いことがいくつか起きています。
 
-The `get/2` function gives us a connection struct set up as if it had been used for a get request to "/". This saves us a considerable amount of tedious setup.
+関数 `get/2` は、あたかも "/" へのGETリクエストに使用されたかのようにコネクション構造体をセットアップしてくれます。これにより、かなりの量の面倒な設定を省くことができます。
 
-The assertion actually tests three things - that we got an HTML response (by checking for a content-type of "text/html"), that our response code was 200, and that the body of our response contains the string "Welcome to Phoenix!"
+アサーションは、実際に 3 つのことをテストしています - HTML レスポンスを受け取ったこと (content-type が "text/html"であること)、レスポンスコードが 200 であること、レスポンスのbodyに文字列 "Welcome to Phoenix!" が含まれていること。
 
-The error view test case, `test/hello_web/views/error_view_test.exs`, illustrates a few interesting things of its own.
+エラービューのテストケース `test/hello_web/views/error_view_test.exs` は、それ自体がいくつかの興味深いことを示しています。
 
 ```elixir
 defmodule HelloWeb.ErrorViewTest do
@@ -98,11 +98,11 @@ defmodule HelloWeb.ErrorViewTest do
 end
 ```
 
-`HelloWeb.ErrorViewTest` sets `async: true` which means that this test case will be run in parallel with other test cases. While individual tests within the case still run serially, this can greatly increase overall test speeds. It is possible to encounter strange behavior with asynchronous tests, but thanks to the [`Ecto.Adapters.SQL.Sandbox`](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html), async tests involving a database can be done without worry. This means that the vast majority of tests in your Phoenix application will be able to be run asynchronously.
+`HelloWeb.ErrorViewTest` は `async: true` を設定し、このテストケースが他のテストケースと並行して実行されることを意味します。ケース内の個々のテストはまだ連続的に実行されますが、これは全体的なテスト速度を大幅に向上させることができます。非同期テストでは奇妙な動作に遭遇する可能性がありますが、[`Ecto.Adapters.SQL.Sandbox`](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html) のおかげで、データベースを含む非同期テストは安心して行うことができます。これは、Phoenixアプリケーションのテストの大部分が非同期で実行できることを意味します。
 
-It also imports `Phoenix.View` in order to use the `render_to_string/3` function. With that, all the assertions can be simple string equality tests.
+また、`render_to_string/3` 関数を使うために `Phoenix.View` をインポートしています。これで、すべてのアサーションは単純に文字列が一致するかどうかのテストにすることができます。
 
-The page view case, `test/hello_web/views/page_view_test.exs`, does not contain any tests by default, but it is here for us when we need to add functions to our `HelloWeb.PageView` module.
+ページビューのケース `test/hello_web/views/page_view_test.exs` にはデフォルトではテストは含まれていませんが、`HelloWeb.PageView` モジュールに関数を追加する必要がある場合には、これを利用することができます。
 
 ```elixir
 defmodule HelloWeb.PageViewTest do
@@ -110,11 +110,11 @@ defmodule HelloWeb.PageViewTest do
 end
 ```
 
-Let's also take a look at the support and helper files Phoenix provides us.
+Phoenixが提供してくれるサポートファイルとヘルパーファイルも見てみましょう。
 
-The default test helper file, `test/test_helper.exs`, creates and migrates our test database for us. It also starts a transaction for each test to run in. This will "clean" the database by rolling back the transaction as each test completes.
+デフォルトのテストヘルパーファイル `test/test_helper.exs` は、テストデータベースを作成してマイグレートします。また、各テストを実行するためのトランザクションを開始します。これは、各テストが完了するたびにトランザクションをロールバックすることでデータベースを "初期化" しています。
 
-The test helper can also hold any testing-specific configuration our application might need.
+テストヘルパーは、アプリケーションが必要とするテスト固有の設定を保持することもできます。
 
 ```elixir
 ExUnit.start
@@ -122,13 +122,13 @@ ExUnit.start
 Ecto.Adapters.SQL.Sandbox.mode(Hello.Repo, :manual)
 ```
 
-The files in `test/support` are there to help us get our modules into a testable state. They provide convenience functions for tasks like setting up a connection struct and finding errors on an Ecto changeset. We'll take a closer look at them in action throughout the rest of the testing guides.
+`test/support` にあるファイルは、モジュールをテスト可能な状態にするための手助けをしてくれます。これらのファイルは、コネクション構造体を設定したり、Ecto チェンジセットでエラーを見つけたりするための便利な機能を提供します。残りのテストガイドでは、これらのファイルの動作を詳しく見ていきます。
 
-### Running Tests
+### テスト実行
 
-Now that we have an idea what our tests are doing, let's look at different ways to run them.
+テストが何をしているかわかったので、それらを実行するためのさまざまな方法を見てみましょう。
 
-As we saw near the beginning of this guide, we can run our entire suite of tests with `mix test`.
+このガイドの最初の方で見たように、`mix test`で一連のテスト全体を実行することができます。
 
 ```console
 $ mix test
@@ -140,7 +140,7 @@ Finished in 0.2 seconds
 Randomized with seed 540755
 ```
 
-If we would like to run all the tests in a given directory, `test/hello_web/controllers` for instance, we can pass the path to that directory to `mix test`.
+例えば `test/hello_web/controllers` のように、指定したディレクトリですべてのテストを実行したい場合は、そのディレクトリへのパスを `mix test` に渡すことができます。
 
 ```console
 $ mix test test/hello_web/controllers/
@@ -152,7 +152,7 @@ Finished in 0.2 seconds
 Randomized with seed 652376
 ```
 
-In order to run all the tests in a specific file, we can pass the path to that file into `mix test`.
+特定のファイル内のすべてのテストを実行するためには、そのファイルのパスを `mix test` に渡すことができます。
 
 ```console
 $ mix test test/hello_web/views/error_view_test.exs
@@ -164,9 +164,9 @@ Finished in 0.2 seconds
 Randomized with seed 220535
 ```
 
-And we can run a single test in a file by appending a colon and a line number to the filename.
+そして、ファイル名にコロンと行番号を追加することで、ファイル内の単一のテストを実行することができます。
 
-Let's say we only wanted to run the test for the way `HelloWeb.ErrorView` renders `500.html`. The test begins on line 12 of the file, so this is how we would do it.
+例えば、`HelloWeb.ErrorView` が `500.html` をどのようにレンダリングするかだけのテストを実行したいとしましょう。テストはファイルの12行目から始まっているので、以下のようにします。
 
 ```console
 $ mix test test/hello_web/views/error_view_test.exs:11
@@ -181,15 +181,15 @@ Finished in 0.1 seconds
 Randomized with seed 288117
 ```
 
-We chose to run this specifying the first line of the test, but actually, any line of that test will do. These line numbers would all work - `:11`, `:12`, or `:13`.
+ここではテストの最初の行を指定して実行することにしましたが、実際にはテストのどの行でも実行できます。これらの行番号はすべて動作します - `:11`, `:12`, `:13` です。
 
-### Running Tests Using Tags
+### タグを使ったテストの実行
 
-ExUnit allows us to tag our tests at the case level or on the individual test level. We can then choose to run only the tests with a specific tag, or we can exclude tests with that tag and run everything else.
+ExUnit では、ケースレベルや個別のテストレベルでテストにタグをつけることができます。特定のタグをつけたテストだけを実行したり、そのタグをつけたテストを除外してそれ以外のテストを実行したりすることができます。
 
-Let's experiment with how this works.
+これがどう動くのか実験してみましょう。
 
-First, we'll add a `@moduletag` to `test/hello_web/views/error_view_test.exs`.
+まず、`test/hello_web/views/error_view_test.exs`に `@moduletag` を追加します。
 
 ```elixir
 defmodule HelloWeb.ErrorViewTest do
@@ -200,7 +200,7 @@ defmodule HelloWeb.ErrorViewTest do
 end
 ```
 
-If we use only an atom for our module tag, ExUnit assumes that it has a value of `true`. We could also specify a different value if we wanted.
+モジュールタグにアトムだけを指定した場合は、ExUnit はその値が `true` であるとみなします。お望みであれば、別の値を指定することもできます。
 
 ```elixir
 defmodule HelloWeb.ErrorViewTest do
@@ -211,9 +211,9 @@ defmodule HelloWeb.ErrorViewTest do
 end
 ```
 
-For now, let's leave it as a simple atom `@moduletag :error_view_case`.
+とりあえず、単純なアトム `@moduletag :error_view_case` として残しておきましょう。
 
-We can run only the tests from the error view case by passing `--only error_view_case` into `mix test`.
+`mix test` に `--only error_view_case` を渡すことで、エラービューケースからのテストのみを実行することができます。
 
 ```console
 $ mix test --only error_view_case
@@ -228,7 +228,7 @@ Finished in 0.1 seconds
 Randomized with seed 125659
 ```
 
-> Note: ExUnit tells us exactly which tags it is including and excluding for each test run. If we look back to the previous section on running tests, we'll see that line numbers specified for individual tests are actually treated as tags.
+> 注記: ExUnit は、テストの実行ごとにどのタグを含めたり除外したりしているのかを正確に教えてくれます。前節のテストの実行についての説明を見てみると、 個々のテストで指定した行番号が実際にはタグとして扱われていることがわかります。
 
 ```console
 $ mix test test/hello_web/views/error_view_test.exs:11
@@ -243,7 +243,7 @@ Finished in 0.2 seconds
 Randomized with seed 364723
 ```
 
-Specifying a value of `true` for `error_view_case` yields the same results.
+`error_view_case` に `true` を指定しても同じ結果が得られます。
 
 ```console
 $ mix test --only error_view_case:true
@@ -258,7 +258,7 @@ Finished in 0.1 seconds
 Randomized with seed 833356
 ```
 
-Specifying `false` as the value for `error_view_case`, however, will not run any tests because no tags in our system match `error_view_case: false`.
+しかし、`error_view_case` に `false` を指定してもテストは実行されません。それは `error_view_case: false` にマッチするタグが私達のシステムの中にはないからです。
 
 ```console
 $ mix test --only error_view_case:false
@@ -274,7 +274,7 @@ Randomized with seed 622422
 The --only option was given to "mix test" but no test executed
 ```
 
-We can use the `--exclude` flag in a similar way. This will run all of the tests except those in the error view case.
+同様の方法で `--exclude` フラグを使うことができます。これはエラービューのケースを除いてすべてのテストを実行します。
 
 ```console
 $ mix test --exclude error_view_case
@@ -288,9 +288,9 @@ Finished in 0.2 seconds
 Randomized with seed 682868
 ```
 
-Specifying values for a tag works the same way for `--exclude` as it does for `--only`.
+タグに値を指定する方法は `--exclude` でも `--only` と同じ方法で動作します。
 
-We can tag individual tests as well as full test cases. Let's tag a few tests in the error view case to see how this works.
+完全なテストケースだけでなく、個々のテストにもタグを付けることができます。これがどのように動作するのか、エラービューのケースにいくつかのテストをタグ付けしてみましょう。
 
 ```elixir
 defmodule HelloWeb.ErrorViewTest do
@@ -315,7 +315,7 @@ defmodule HelloWeb.ErrorViewTest do
 end
 ```
 
-If we would like to run only tests tagged as `individual_test`, regardless of their value, this will work.
+値に関係なく `individual_test` としてタグ付けされたテストのみを実行したい場合は、以下のようにすれば実行できます。
 
 ```console
 $ mix test --only individual_test
@@ -330,7 +330,7 @@ Finished in 0.1 seconds
 Randomized with seed 813729
 ```
 
-We can also specify a value and run only tests with that.
+また、値を指定して、その値をもったテストのみを実行することもできます。
 
 ```console
 $ mix test --only individual_test:yup
@@ -345,7 +345,7 @@ Finished in 0.1 seconds
 Randomized with seed 770938
 ```
 
-Similarly, we can run all tests except for those tagged with a given value.
+同様に、与えられた値でタグ付けされたもの以外のすべてのテストを実行することができます。
 
 ```console
 $ mix test --exclude individual_test:nope
@@ -359,7 +359,7 @@ Finished in 0.2 seconds
 Randomized with seed 539324
 ```
 
-We can be more specific and exclude all the tests from the error view case except the one tagged with `individual_test` that has the value "yup".
+もっと指定を増やして、`individual_test` でタグ付けされた値が "yup" であるテストを除いて、エラービューのケースからすべてのテストを除外することができます。
 
 ```console
 $ mix test --exclude error_view_case --include individual_test:yup
@@ -374,7 +374,7 @@ Finished in 0.2 seconds
 Randomized with seed 61472
 ```
 
-Finally, we can configure ExUnit to exclude tags by default. Let's configure it to always exclude tests with the `error_view_case` tag in `test/test_helper.exs`.
+最後に、タグを除外するように ExUnit をデフォルトで設定することができます。`test/test_helper.exs` に `error_view_case` タグを持つテストを常に除外するように設定してみましょう。
 
 ```elixir
 ExUnit.start
@@ -384,7 +384,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Hello.Repo, :manual)
 ExUnit.configure(exclude: [error_view_case: true])
 ```
 
-Now when we run `mix test`, it only runs one spec from our `page_controller_test.exs`.
+これで、`mix test`を実行すると、`page_controller_test.exs`から1つのスペックだけが実行されるようになりました。
 
 ```console
 $ mix test
@@ -398,7 +398,7 @@ Finished in 0.2 seconds
 Randomized with seed 186055
 ```
 
-We can override this behavior with the `--include` flag, telling `mix test` to include tests tagged with `error_view_case`.
+この動作を `--include` フラグでオーバーライドし、`mix test` に `error_view_case` でタグ付けされたテストを含めるように指示することができます。
 
 ```console
 $ mix test --include error_view_case
@@ -413,11 +413,11 @@ Finished in 0.2 seconds
 Randomized with seed 748424
 ```
 
-### Randomization
+### ランダム化
 
-Running tests in random order is a good way to ensure that our tests are truly isolated. If we notice that we get sporadic failures for a given test, it may be because a previous test changes the state of the system in ways that aren't cleaned up afterward, thereby affecting the tests which follow. Those failures might only present themselves if the tests are run in a specific order.
+テストをランダムな順序で実行することは、テストが本当に分離されていることを保証する良い方法です。あるテストで散発的に失敗することに気がついた場合、それは前のテストでシステムの状態を変更し後始末がされず、その後のテストに影響を与えてしまったからかもしれません。これらの失敗は、テストが特定の順序で実行された場合にのみ現れるかもしれません。
 
-ExUnit will randomize the order tests run in by default, using an integer to seed the randomization. If we notice that a specific random seed triggers our intermittent failure, we can re-run the tests with that same seed to reliably recreate that test sequence in order to help us figure out what the problem is.
+ExUnit はデフォルトでテストの実行順をランダムな整数を使ってランダム化します。特定のランダムなシードが断続的な失敗の引き金になっていることに気づいた場合は、 同じシードでテストを再実行することで、そのテストの順番を確実に再現して問題の原因を突き止めることができます。
 
 ```console
 $ mix test --seed 401472
@@ -429,13 +429,13 @@ Finished in 0.2 seconds
 Randomized with seed 401472
 ```
 
-### Generating More Files
+### 生成ファイル
 
-We've seen what Phoenix gives us with a newly generated app. Now let's see what happens when we generate a new HTML resource.
+新しく生成されたアプリで、Phoenixが何を提供してくれるかを見てきました。では、新しい HTML リソースを生成するとどうなるか見てみましょう。
 
-Let's borrow the `users` resource we created in the [Ecto Guide](ecto.html).
+[Ectoガイド](../ecto.html)で作成した`users`リソースを拝借してみましょう。
 
-At the root of our new application, let's run the `mix phx.gen.html` task with the following options.
+新しいアプリケーションのルートで、`mix phx.gen.html` タスクを以下のオプションで実行してみましょう。
 
 ```console
 $ mix phx.gen.html Users User users name:string email:string bio:string number_of_pets:integer
@@ -464,7 +464,7 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-Now let's follow the directions and add the new resources route to our `lib/hello_web/router.ex` file.
+それでは、指示に従って `lib/hello_web/router.ex` ファイルに新しいリソースルートを追加してみましょう。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -486,7 +486,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-When we run `mix test` again, we see that we already have twenty tests!
+もう一度 `mix test` を実行してみると、すでに19件のテストが行われていることがわかります！
 
 ```console
 $ mix test
@@ -498,4 +498,4 @@ Finished in 0.1 seconds
 Randomized with seed 537537
 ```
 
-At this point, we are at a great place to transition to the rest of the testing guides, in which we'll examine these tests in much more detail, and add some of our own.
+この時点で、我々はテストガイドの残りの部分に移行するには絶好の場所にあり、その中で我々はこれらのテストをはるかに詳細に検討し、さらに追加をしていきます。
