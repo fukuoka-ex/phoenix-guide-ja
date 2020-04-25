@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: guides
 title: プレゼンス
 nav_order: 9

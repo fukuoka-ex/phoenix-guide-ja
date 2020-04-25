@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: guides
 title: ページの追加
 nav_order: 2

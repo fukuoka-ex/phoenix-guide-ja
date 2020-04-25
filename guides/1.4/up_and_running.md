@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: guides
 title: 起動
 nav_order: 1
