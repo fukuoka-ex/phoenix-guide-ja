@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: 1.4/layout
 title: Home
 nav_order: 1
 description: "Phoenix Guide"
