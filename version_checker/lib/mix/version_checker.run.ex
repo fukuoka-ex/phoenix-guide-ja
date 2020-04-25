@@ -1,47 +1,64 @@
 defmodule Mix.Tasks.VersionChecker.Run do
   use Mix.Task
 
+  require Logger
+
   def run(_args) do
     Tentacat.start()
 
     client =
       Tentacat.Client.new(%{access_token: Application.get_env(:version_checker, :github_token)})
 
-    translate_repo = Application.get_env(:version_checker, :translate_repo)
-    original_repo = Application.get_env(:version_checker, :original_repo)
-    translate_repo_dir = Path.basename(translate_repo)
-    original_repo_dir = Path.basename(original_repo)
+    our_repo = Application.get_env(:version_checker, :our_repo)
+    their_repo = Application.get_env(:version_checker, :their_repo)
+    our_repo_dir = Path.basename(our_repo)
+    their_repo_dir = Path.basename(their_repo)
 
-    {:ok, _} = Git.clone(["https://github.com/#{translate_repo}", "--depth", "1"])
-    {:ok, _} = Git.clone("https://github.com/#{original_repo}")
+    Logger.debug("clone https://github.com/#{our_repo}.")
+    Logger.debug("clone https://github.com/#{their_repo}.")
+
+    {:ok, _} = Git.clone(["https://github.com/#{our_repo}", "--depth", "1"])
+    {:ok, _} = Git.clone("https://github.com/#{their_repo}")
 
     Application.get_env(:version_checker, :guide_files)
-    |> Enum.each(fn guide_file ->
-      translate_file = String.replace(guide_file, "guides/", "guides/1.4/")
+    |> Enum.each(fn {version, guide_files} ->
+      Enum.each(guide_files, fn guide_file ->
+        our_file = String.replace(guide_file, "guides/", "guides/#{version}/")
 
-      translate_hash = get_translate_file_config(translate_repo_dir, translate_file)[:hash]
-      original_file_latest_hash = get_latest_hash(original_repo_dir, guide_file)
+        our_file_hash = get_our_file_config(our_repo_dir, our_file)[:hash]
+        their_file_latest_hash = get_latest_hash(their_repo_dir, version, guide_file)
 
-      case String.equivalent?(translate_hash, original_file_latest_hash) do
-        true ->
-          :ok
+        # 翻訳ファイルのcommit hashがlong hashの場合でも動作するように、完全一致ではなく先頭の部分一致で判定している
+        "^#{their_file_latest_hash}"
+        |> Regex.compile!()
+        |> Regex.match?(our_file_hash)
+        |> case do
+          true ->
+            :ok
 
-        false ->
-          post_issue(client, %{
-            guide_file: guide_file,
-            translate_hash: translate_hash,
-            original_file_latest_hash: original_file_latest_hash
-          })
-      end
+          false ->
+            Logger.debug("Hash does not match: #{our_file}")
+            Logger.debug("our file hash: #{our_file_hash}")
+            Logger.debug("their file hash: #{their_file_latest_hash}")
+
+            post_issue(client, %{
+              guide_file: guide_file,
+              our_file_hash: our_file_hash,
+              their_file_latest_hash: their_file_latest_hash
+            })
+        end
+      end)
     end)
   end
 
   @doc """
   最新のcommit hashを取得する
   """
-  def get_latest_hash(repo_dir, filepath) do
+  def get_latest_hash(repo_dir, version, filepath) do
     args =
-      ~s(--git-dir #{repo_dir}/.git log --first-parent remotes/origin/v1.4 -n 1 --pretty=format:"%h" -- #{filepath})
+      ~s(--git-dir #{repo_dir}/.git log remotes/origin/v#{version} -n 1 --pretty=format:"%h" -- #{
+        filepath
+      })
       |> String.split(" ")
 
     {commit_short_hash, 0} = System.cmd("git", args)
@@ -52,7 +69,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
   @doc """
   翻訳ファイルの設定を取得する
   """
-  def get_translate_file_config(repo_dir, filepath) do
+  def get_our_file_config(repo_dir, filepath) do
     Path.join([repo_dir, filepath])
     |> File.read!()
     |> extract_yml_config()
@@ -86,7 +103,7 @@ defmodule Mix.Tasks.VersionChecker.Run do
   def post_issue(client, attrs) do
     run? = Application.get_env(:version_checker, :post_issue, false)
 
-    [owner, repo] = Path.split(Application.get_env(:version_checker, :translate_repo))
+    [owner, repo] = Path.split(Application.get_env(:version_checker, :our_repo))
     title = issue_title(attrs)
 
     if run? and !issue_exists?(owner, repo, title) do
@@ -112,8 +129,8 @@ defmodule Mix.Tasks.VersionChecker.Run do
 
   defp issue_body(%{
          guide_file: guide_file,
-         translate_hash: translate_hash,
-         original_file_latest_hash: original_file_latest_hash
+         our_file_hash: our_file_hash,
+         their_file_latest_hash: their_file_latest_hash
        }) do
     """
       ## 概要
@@ -122,12 +139,12 @@ defmodule Mix.Tasks.VersionChecker.Run do
 
       ## commit log
       - 翻訳元ファイルの最新commit: https://github.com/phoenixframework/phoenix/blob/#{
-      original_file_latest_hash
+      their_file_latest_hash
     }/#{guide_file}
-      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{translate_hash}/#{
-      guide_file
-    }
-      - history: https://github.com/phoenixframework/phoenix/commits/#{original_file_latest_hash}/#{
+      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{
+      our_file_hash
+    }/#{guide_file}
+      - history: https://github.com/phoenixframework/phoenix/commits/#{their_file_latest_hash}/#{
       guide_file
     }
     """
