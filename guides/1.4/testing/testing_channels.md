@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: testing
 title: "Testing Channels"
 nav_order: 4

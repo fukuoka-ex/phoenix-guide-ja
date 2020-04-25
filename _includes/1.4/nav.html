@@ -1,7 +1,7 @@
 <nav role="navigation" aria-label="Main navigation">
 
     <div class="text-delta mb-2">Introduction</div>
-    {%- assign pages_list = site.html_pages | sort:"nav_order" -%}
+    {%- assign pages_list = site.html_pages | where: "version", "1.4" | sort:"nav_order" -%}
     <ul class="navigation-list">
     {%- for node in pages_list -%}
       {%- if node.group == "introduction" -%}

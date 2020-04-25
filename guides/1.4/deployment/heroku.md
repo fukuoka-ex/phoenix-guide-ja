@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: deployment
 title: Deploying on Heroku
 nav_order: 3

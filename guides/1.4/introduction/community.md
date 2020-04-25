@@ -1,5 +1,6 @@
 ---
-layout: default
+layout: 1.4/layout
+version: 1.4
 group: introduction
 title: コミュニティ
 nav_order: 4
