@@ -1,8 +1,8 @@
 import Config
 
 config :version_checker,
-  translate_repo: "fukuoka-ex/phoenix-guide-ja",
-  original_repo: "phoenixframework/phoenix",
+  our_repo: "fukuoka-ex/phoenix-guide-ja",
+  their_repo: "phoenixframework/phoenix",
   github_token: System.get_env("GITHUB_TOKEN"),
   # 開発中に気軽にissueが作られるとつらいので、デフォルトだとfalseにしている
   post_issue: false,
@@ -62,7 +62,7 @@ config :version_checker,
         "guides/directory_structure.md"
       ]
     }
-  
+
 
 if "#{Mix.env()}.secret.exs" |> Path.expand(__DIR__) |> File.exists?() do
   import_config "#{Mix.env()}.secret.exs"
