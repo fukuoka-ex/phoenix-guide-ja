@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Ecto
+nav_order: 7
+hash: 5f654692
+---
 # Ecto
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
@@ -369,7 +377,7 @@ iex> alias Hello.{Repo, User}
 
 iex> Repo.insert(%User{email: "user1@example.com"})
 [debug] QUERY OK db=4.6ms
-INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user1@example.com", {{2017, 5, 23}, {19, 6, 4, 822044}}, {{2017, 5, 23}, {19, 6, 4, 822055}}]
+{% raw %}INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user1@example.com", {{2017, 5, 23}, {19, 6, 4, 822044}}, {{2017, 5, 23}, {19, 6, 4, 822055}}]{% endraw %}
 {:ok,
  %Hello.User{__meta__: #Ecto.Schema.Metadata<:loaded, "users">,
   bio: nil, email: "user1@example.com", id: 3,
@@ -378,7 +386,7 @@ INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETUR
 
 iex> Repo.insert(%User{email: "user2@example.com"})
 [debug] QUERY OK db=5.1ms
-INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user2@example.com", {{2017, 5, 23}, {19, 6, 8, 452545}}, {{2017, 5, 23}, {19, 6, 8, 452556}}]
+{% raw %}INSERT INTO "users" ("email","inserted_at","updated_at") VALUES ($1,$2,$3) RETURNING "id" ["user2@example.com", {{2017, 5, 23}, {19, 6, 8, 452545}}, {{2017, 5, 23}, {19, 6, 8, 452556}}]{% endraw %}
 {:ok,
  %Hello.User{__meta__: #Ecto.Schema.Metadata<:loaded, "users">,
   bio: nil, email: "user2@example.com", id: 4,

@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: testing
+title: Testing Channels
+nav_order: 4
+hash: 3add48e8
+---
 # Testing Channels
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

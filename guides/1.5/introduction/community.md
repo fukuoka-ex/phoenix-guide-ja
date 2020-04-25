@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: introduction
+title: Community
+nav_order: 4
+hash: 32249cf2
+---
 # Community
 
 The Elixir and Phoenix communities are friendly and welcoming. All questions and comments are valuable, so please come join the discussion!

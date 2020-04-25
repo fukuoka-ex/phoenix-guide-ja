@@ -1,0 +1,71 @@
+<nav role="navigation" aria-label="Main navigation">
+
+    <div class="text-delta mb-2">Introduction</div>
+    {%- assign pages_list = site.html_pages | where: "version", "1.5" | sort:"nav_order" -%}
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "introduction" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+          <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+    <div class="text-delta mb-2 mt-6">Guides</div>
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "guides" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+        <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+ <div class="text-delta mb-2 mt-6">REAL-TIME COMPONENTS</div>
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "realtime" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+        <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+    <div class="text-delta mb-2 mt-6">Testing</div>
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "testing" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+        <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+    <div class="text-delta mb-2 mt-6">Deployment</div>
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "deployment" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+        <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+    <div class="text-delta mb-2 mt-6">HOW-TO's</div>
+    <ul class="navigation-list">
+    {%- for node in pages_list -%}
+      {%- if node.group == "howto" -%}
+        <li class="navigation-list-item{% if page.url == node.url %} active{% endif %}">
+        <a href="{{ node.url | absolute_url }}" class="navigation-list-link{% if page.url == node.url %} active{% endif %}">{{ node.title }}</a>
+      </li>
+      {%- endif -%}
+    {%- endfor -%}    
+    </ul>
+
+  </ul>
+</nav>

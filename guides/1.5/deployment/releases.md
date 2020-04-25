@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: deployment
+title: Deploying with Releases
+nav_order: 2
+hash: 126b2f16
+---
 # Deploying with Releases
 
 ## What we'll need

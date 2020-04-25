@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: howto
+title: Custom Error Pages
+nav_order: 1
+hash: e2de6e66
+---
 # Custom Error Pages
 
 Phoenix has a view called the `ErrorView` which lives in `lib/hello_web/views/error_view.ex`. The purpose of the `ErrorView` is to handle errors in a general way, from one centralized location.

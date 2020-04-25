@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Contexts
+nav_order: 8
+hash: 21b058d5
+---
 # Contexts
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

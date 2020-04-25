@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: introduction
+title: Installation
+nav_order: 2
+hash: 95545893
+---
 # Installation
 
 In order to build a Phoenix application, we will need a few dependencies installed in our Operating System:

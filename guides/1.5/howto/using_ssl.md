@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: howto
+title: Using SSL
+nav_order: 2
+hash: 908ace23
+---
 # Using SSL
 
 To prepare an application to serve requests over SSL, we need to add a little bit of configuration and two environment variables. In order for SSL to actually work, we'll need a key file and certificate file from a certificate authority. The environment variables that we'll need are paths to those two files.

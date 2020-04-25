@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: testing
+title: Testing Contexts
+nav_order: 2
+hash: f08d6839
+---
 # Testing Contexts
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

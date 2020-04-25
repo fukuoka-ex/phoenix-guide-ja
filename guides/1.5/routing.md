@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Routing
+nav_order: 4
+hash: 4f3a5fb6
+---
 # Routing
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

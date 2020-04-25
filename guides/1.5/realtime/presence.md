@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: realtime
+title: Presence
+nav_order: 2
+hash: 50b4e756
+---
 # Presence
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

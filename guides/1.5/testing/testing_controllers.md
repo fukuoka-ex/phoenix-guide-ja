@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: testing
+title: Testing Controllers
+nav_order: 3
+hash: f08d6839
+---
 # Testing Controllers
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

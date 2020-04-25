@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Directory structure
+nav_order: 1
+hash: cc6295ef
+---
 # Directory structure
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Plug
+nav_order: 3
+hash: a5edbc50
+---
 # Plug
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

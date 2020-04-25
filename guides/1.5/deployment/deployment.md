@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: deployment
+title: Introduction to Deployment
+nav_order: 1
+hash: aef1e2a6
+---
 # Introduction to Deployment
 
 Once we have a working application, we're ready to deploy it. If you're not quite finished with your own application, don't worry. Just follow the [Up and Running Guide](up_and_running.html) to create a basic application to work with.

@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: realtime
+title: Channels
+nav_order: 1
+hash: e2de6e66
+---
 # Channels
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

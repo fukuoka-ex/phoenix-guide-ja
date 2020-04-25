@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: guides
+title: Request life-cycle
+nav_order: 23
+hash: 3f8d0d05
+---
 # Request life-cycle
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.

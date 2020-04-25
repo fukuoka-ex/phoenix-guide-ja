@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: introduction
+title: Up and Running
+nav_order: 3
+hash: f2ced318
+---
 # Up and Running
 
 Let's get a Phoenix application up and running as quickly as possible.

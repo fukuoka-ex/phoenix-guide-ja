@@ -1,3 +1,11 @@
+---
+layout: 1.5/layout
+version: 1.5
+group: testing
+title: Introduction to Testing
+nav_order: 1
+hash: cb806f16
+---
 # Introduction to Testing
 
 > **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
