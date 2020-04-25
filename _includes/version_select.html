@@ -1,0 +1,9 @@
+<div class="version-select">
+  Version:
+  <select>
+    {% for version in site.phoenix_versions %}
+    {{ version }}
+    <option {% if page.version == version %}selected{% endif %} value="{{ site.baseurl }}/guides/{{ version }}/introduction/overview.html">v{{ version }}</option>
+    {% endfor %}
+  </select>
+</div>

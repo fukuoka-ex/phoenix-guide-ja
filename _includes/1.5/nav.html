@@ -1,5 +1,5 @@
 <nav role="navigation" aria-label="Main navigation">
-
+    {% include version_select.html %}
     <div class="text-delta mb-2">Introduction</div>
     {%- assign pages_list = site.html_pages | where: "version", "1.5" | sort:"nav_order" -%}
     <ul class="navigation-list">
