@@ -17,3 +17,7 @@ blockquote {
         margin: 0;
     }
 }
+
+h3, h3 code{
+    @include fs-5;
+}
