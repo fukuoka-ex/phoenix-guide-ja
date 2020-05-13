@@ -2,45 +2,43 @@
 layout: 1.4/layout
 version: 1.4
 group: guides
-title: Contexts
+title: コンテキスト
 nav_order: 12
 hash: a9334550d81c14ba656d49351af6d25f0a3a7587
 ---
-# Contexts
+# コンテキスト
+これまでに、ページを構築し、ルーターを介してコントローラーのアクションを接続し、Ectoがどのようにしてデータをバリデートし、永続化するかを学んできました。今度は、より大きなElixirアプリケーションと相互作用するWeb向けの機能を書くことで、すべてを結びつける時が来ました。
 
-So far, we've built pages, wired up controller actions through our routers, and learned how Ecto allows data to be validated and persisted. Now it's time to tie it all together by writing web-facing features that interact with our greater Elixir application.
+Phoenixプロジェクトを構築する際には、まず第一にElixirアプリケーションを構築します。Phoenixの仕事は、ElixirアプリケーションにWebインターフェイスを提供することです。当然、アプリケーションはモジュールと関数で構成されますが、アプリケーションを設計する際には、いくつかの関数を持つモジュールを定義するだけでは不十分です。コードを書くときにアプリケーションの設計を考えることが重要です。では、その方法を見てみましょう。
 
-When building a Phoenix project, we are first and foremost building an Elixir application. Phoenix's job is to provide a web interface into our Elixir application. Naturally, we compose our applications with modules and functions, but simply defining a module with a few functions isn't enough when designing an application. It's vital to think about your application design when writing code. Let's find out how.
+> このガイドの読み方:
+コンテキストジェネレーターを使用することは、初心者から中級者まで、Elixirのプログラマーがアプリケーションを思慮深く設計しながら、すぐに使いこなせるようになるための素晴らしい方法です。このガイドでは、このような読者に焦点を当てています。一方、経験豊富な開発者の方は、アプリケーション設計に関する特別で繊細な議論をすることで、より多くの成果を得ることができるかもしれません。このような読者のために、ガイドの最後によくある質問(FAQ)セクションを設けました。これらはガイド全体で行われたいくつかの設計上の決定に異なる視点をもたらします。初心者の方は、FAQセクションをスキップして、より深く掘り下げる準備ができたときに、あとで戻ってくることができます。
 
-> How to read this guide:
-Using the context generators is a great way for beginners and intermediate Elixir programmers alike to get up and running quickly while thoughtfully designing their applications. This guide focuses on those readers. On the other hand, experienced developers may get more mileage from nuanced discussions around application design. For those readers, we include a frequently asked questions (FAQ) section at the end of the guide which brings different perspectives to some design decisions made throughout the guide. Beginners can safely skip the FAQ sections and return later when they're ready to dig deeper.
+## 設計について考える
 
-## Thinking about design
+コンテキストは、関連する関数を公開したり、グループ化したりする専用モジュールです。たとえば、`Logger.info/1` や `Stream.map/2` など、Elixirの標準ライブラリを呼び出すときはいつでも、異なるコンテキストにアクセスしていることになります。内部的には、Elixirのロガーは複数のモジュールで構成されていますが、それらのモジュールと直接やりとりすることはありません。私たちは `Logger` モジュールをコンテキストと呼んでいますが、これは正確にはすべてのロギング機能を公開し、グループ化しているからです。
 
-Contexts are dedicated modules that expose and group related functionality. For example, anytime you call Elixir's standard library, be it `Logger.info/1` or `Stream.map/2`, you are accessing different contexts. Internally, Elixir's logger is made of multiple modules, but we never interact with those modules directly. We call the `Logger` module the context, exactly because it exposes and groups all of the logging functionality.
+PhoenixプロジェクトはElixirや他のElixirプロジェクトと同じように構造化されています。我々はコードをコンテキストに分割します。コンテキストは、投稿やコメントなどの関連機能をグループ化し、データアクセスやデータバリデーションなどのパターンをカプセル化します。コンテキストを使うことで、システムを管理しやすい独立した部分に分離できます。
 
-Phoenix projects are structured like Elixir and any other Elixir project – we split our code into contexts. A context will group related functionality, such as posts and comments, often encapsulating patterns such as data access and data validation. By using contexts, we decouple and isolate our systems into manageable, independent parts.
+これらのアイデアを使って、ウェブアプリケーションを構築してみましょう。私たちの目標は、ユーザーシステムと、ページコンテンツの追加や編集を行うための基本的なコンテンツ管理システムを構築することです。さあ、始めましょう。
 
-Let's use these ideas to build out our web application. Our goal is to build a user system as well as a basic content management system for adding and editing page content. Let's get started!
+### アカウントコンテキストを追加する
+ユーザーアカウントは、プラットフォーム全体で広範囲に及ぶことが多いので、明確に定義されたインターフェースを書くことを前もって考えることが重要です。このことを念頭に置いて、私たちの目標は、ユーザーアカウントの作成、更新、削除を処理し、ユーザーのクレデンシャルを認証するアカウントAPIを構築することです。最初は基本的な機能から始めますが、あとで認証を追加していくうちに、しっかりとした基礎から始めることで、機能を追加しながらアプリケーションを自然に成長させていくことができることがわかります。
 
-### Adding an Accounts Context
+Phoenixには `phx.gen.html`, `phx.gen.json`, `phx.gen.context` ジェネレーターが含まれており、アプリケーションの機能をコンテキストに分離するという考え方を適用します。これらのジェネレーターは、アプリケーションを成長させるためにPhoenixが適切な方向に誘導してくれる間に、最初の一歩を踏み出すのに最適な方法です。これらのツールを新しいユーザーアカウントのコンテキストで使用してみましょう。
 
-User accounts are often wide-reaching across a platform so it's important to think upfront about writing a well-defined interface. With that in mind, our goal is to build an accounts API that handles creating, updating, and deleting user accounts, as well as authenticating user credentials. We'll start off with basic features, but as we add authentication later, we'll see how starting with a solid foundation allows us to grow our application naturally as we add functionality.
+コンテキストジェネレーターを実行するためには、構築しようとしている関連した機能をグルーピングするモジュール名を考える必要があります。[Ectoガイド](ecto.html)では、ユーザースキーマをバリデートして永続化するためにChangesetsとReposを使う方法を見ましたが、これをアプリケーション全体に統合していませんでした。実際、アプリケーション内の「ユーザー」がどこに存在すべきかについてはまったく考えていませんでした。一歩下がって、システムのさまざまな部分について考えてみましょう。私たちのプロダクトにはユーザーがいることを知っています。ユーザーと一緒に、アカウントのログインクレデンシャルやユーザー登録のようなものもあります。システム内の `Accounts` コンテキストは、ユーザーの機能性を実現するための自然な場所です。
 
-Phoenix includes the `phx.gen.html`, `phx.gen.json`, and `phx.gen.context` generators that apply the ideas of isolating functionality in our applications into contexts. These generators are a great way to hit the ground running while Phoenix nudges you in the right direction to grow your application. Let's put these tools to use for our new user accounts context.
+> 物事のネーミングは難しいです。システム内でグループ化された機能がまだはっきりしていないときにコンテキスト名を考えようとしたときに行き詰った場合は、単に作成しているリソースの複数形を使うことができます。たとえば、ユーザーを管理するための `Users` コンテキストなどです。アプリケーションを成長させ、システムの各部分が明確になってきたら、後からコンテキストの名前をより洗練された名前に変更することができます。
 
-In order to run the context generators, we need to come up with a module name that groups the related functionality that we're building. In the [Ecto guide](ecto.html), we saw how we can use Changesets and Repos to validate and persist user schemas, but we didn't integrate this with our application at large. In fact, we didn't think about where a "user" in our application should live at all. Let's take a step back and think about the different parts of our system. We know that we'll have users of our product. Along with users comes things like account login credentials and user registration. An `Accounts` context in our system is a natural place for our user functionality to live.
-
-> Naming things is hard. If you're stuck when trying to come up with a context name when the grouped functionality in your system isn't yet clear, you can simply use the plural form of the resource you're creating. For example, a `Users` context for managing users. As you grow your application and the parts of your system become clear, you can simply rename the context to a more refined name at a later time.
-
-Before we use the generators, we need to undo the changes we made in the Ecto guide, so we can give our user schema a proper home. Run these commands to undo our previous work:
+ジェネレーターを使用する前に、Ectoガイドで行った変更を元に戻し、ユーザースキーマを適切な場所を与える必要があります。これらのコマンドを実行して、以前の作業を元に戻します。
 
 ```console
 $ rm lib/hello/user.ex
 $ rm priv/repo/migrations/*_create_users.exs
 ```
 
-Next, let's reset our database so we also discard the table we have just removed:
+次に、先ほど削除したテーブルも破棄するように、データベースをリセットしてみましょう。
 
 ```console
 $ mix ecto.reset
@@ -51,7 +49,7 @@ The database for Hello.Repo has been created
 14:38:37.418 [info]  Already up
 ```
 
-Now we're ready to create our accounts context. We'll use the `phx.gen.html` task which creates a context module that wraps up Ecto access for creating, updating, and deleting users, along with web files like controllers and templates for the web interface into our context. Run the following command at your project root:
+これでアカウントコンテキストを作成する準備が整いました。タスク `phx.gen.html` を使用します。これはユーザーの作成、更新、削除のためのEctoアクセスをまとめるコンテキストモジュールを作成するもので、コントローラーやWebインターフェイスのテンプレートなどのWebファイルをコンテキストに取り込みます。プロジェクトのルートで以下のコマンドを実行してください。
 
 ```console
 $ mix phx.gen.html Accounts User users name:string \
@@ -83,7 +81,7 @@ Remember to update your repository by running migrations:
 
 ```
 
-Phoenix generated the web files as expected in `lib/hello_web/`. We can also see our context files were generated inside a `lib/hello/accounts.ex` file and our user schema in the directory of the same name. Note the difference between `lib/hello` and `lib/hello_web`. We have an `Accounts` module to serve as the public API for account functionality, as well as an `Accounts.User` struct, which is an Ecto schema for casting and validating user account data. Phoenix also provided web and context tests for us, which we'll look at later. For now, let's follow the instructions and add the route according to the console instructions, in `lib/hello_web/router.ex`:
+Phoenixは期待通りに`lib/hello_web/`にWebファイルを生成しました。また、コンテキストファイルは `lib/hello/accounts.ex` ファイルの中に、ユーザースキーマは同じ名前のディレクトリに生成されていることがわかります。`lib/hello` と `lib/hello_web` の違いに注意してください。アカウント機能の公開APIとして機能する `Accounts` モジュールと、ユーザーアカウントデータをキャストしてバリデートするためのEctoスキーマである `Accounts.User` 構造体があります。PhoenixはWebテストとコンテキストテストも提供してくれました。これらは後ほど見ます。とりあえず、コンソールの指示にしたがって `lib/hello_web/router.ex` にルートを追加してみましょう。
 
 ```elixir
   scope "/", HelloWeb do
@@ -94,7 +92,7 @@ Phoenix generated the web files as expected in `lib/hello_web/`. We can also see
   end
 ```
 
-With the new route in place, Phoenix reminds us to update our repo by running `mix ecto.migrate`. Let's do that now:
+新しいルートができたので、Phoenixは `mix ecto.migrate` を実行してレポを更新するように促してくれます。これを実行してみましょう。
 
 ```console
 $ mix ecto.migrate
@@ -108,13 +106,13 @@ $ mix ecto.migrate
 [info]  == Migrated in 0.0s
 ```
 
-Before we jump into the generated code, let's start the server with `mix phx.server` and visit [http://localhost:4000/users](http://localhost:4000/users). Let's follow the "New User" link and click the "Submit" button without providing any input. We should be greeted with the following output:
+生成されたコードへ飛び込む前に、`mix phx.server`でサーバーを起動し、[http://localhost:4000/users](http://localhost:4000/users)へアクセスしてみましょう。"New User" リンクをたどって、何も入力せずに "Submit" ボタンをクリックしてみましょう。すると、以下のような出力が表示されるはずです。
 
 ```
 Oops, something went wrong! Please check the errors below.
 ```
 
-When we submit the form, we can see all the validation errors inline with the inputs. Nice! Out of the box, the context generator included the schema fields in our form template and we can see our default validations for required inputs are in effect. Let's enter some example user data and resubmit the form:
+フォームを送信すると、入力欄と並んですべてのバリデーションエラーが表示されます。いいですね！すぐに使えて、コンテキストジェネレーターがスキーマフィールドをフォームテンプレートにインクルードしたので、必須入力に対するデフォルトのバリデーションが有効になっていることがわかります。ユーザーデータの例を入力して、フォームを再送信してみましょう。
 
 ```
 User created successfully.
@@ -124,14 +122,12 @@ Name: Chris McCord
 Username: chrismccord
 ```
 
-If we follow the "Back" link, we get a list of all users, which should contain the one we just created. Likewise, we can update this record or delete it. Now that we've seen how it works in the browser, it's time to take a look at the generated code.
+"Back"リンクをたどると、すべてのユーザーのリストが表示され、その中に先ほど作成したものが含まれているはずです。同様に、このレコードを更新したり、削除したりできます。ブラウザ上での動作を確認したので、生成されたコードを見てみましょう。
 
-## Starting With Generators
+## ジェネレーターで始める
+この小さな `phx.gen.html` コマンドは、驚くべきパンチを持っています。ユーザーの作成、更新、削除のための多くの機能がすぐに使えるようになりました。これは完全な機能を備えたアプリではありませんが、ジェネレーターはまず第一に学習ツールであり、実際の機能を構築するための出発点であることを覚えておいてください。コード生成ですべての問題を解決することはできませんが、Phoenixのインとアウトを教えてくれますし、アプリケーションを設計する際の適切なマインドセットに向けて後押ししてくれます。
 
-That little `phx.gen.html` command packed a surprising punch. We got a lot of functionality out-of-the-box for creating, updating, and deleting users. This is far from a full-featured app, but remember, generators are first and foremost learning tools and a starting point for you to begin building real features. Code generation can't solve all your problems, but it will teach you the ins and outs of Phoenix and nudge you towards the proper mind-set when designing your application.
-
-Let's first check out the `UserController` that was generated in `lib/hello_web/controllers/user_controller.ex`:
-
+まず、`lib/hello_web/controllers/user_controller.ex` で生成された `UserController` を見てみましょう。
 
 ```elixir
 defmodule HelloWeb.UserController do
@@ -164,11 +160,11 @@ defmodule HelloWeb.UserController do
 end
 ```
 
-We've seen how controllers work in our [controller guide](controllers.html), so the code probably isn't too surprising. What is worth noticing is how our controller calls into the `Accounts` context. We can see that the `index` action fetches a list of users with `Accounts.list_users/0`, and how users are persisted in the `create` action with `Accounts.create_user/1`. We haven't yet looked at the accounts context, so we don't yet know how user fetching and creation is happening under the hood – *but that's the point*. Our Phoenix controller is the web interface into our greater application. It shouldn't be concerned with the details of how users are fetched from the database or persisted into storage. We only care about telling our application to perform some work for us. This is great because our business logic and storage details are decoupled from the web layer of our application. If we move to a full-text storage engine later for fetching users instead of a SQL query, our controller doesn't need to be changed. Likewise, we can reuse our context code from any other interface in our application, be it a channel, mix task, or long-running process importing CSV data.
+コントローラーがどのように動作するかは[controller guide](controllers.html)で見てきたので、このコードはそれほど驚くようなものではないでしょう。注目すべきは、コントローラーが `Accounts` コンテキストにどのように呼び出しているかということです。`index` アクションが `Accounts.list_users/0` でユーザーのリストを取得し、`create` アクションが `Accounts.create_user/1` でユーザーを保持していることがわかります。アカウントのコンテキストをまだ見ていないので、ユーザーの取得や作成がどのように行われているのかはまだわかりません - *ただし、ここがポイントです*。私たちのPhoenixコントローラーは、より大きなアプリケーションへのWebインターフェースです。ユーザーがどのようにしてデータベースからフェッチされたり、ストレージに保存されたりするかの詳細は気にするべきではありません。私たちが気にするのは、アプリケーションが私たちのために仕事をするように指示することだけです。ビジネスロジックやストレージの詳細は、アプリケーションのウェブ層から切り離されているので、これは素晴らしいことです。後日、SQLクエリの代わりに全文検索エンジンに移行してユーザーを取得したとしても、コントローラーを変更する必要はありません。同様に、チャンネルやMixタスク、CSVをインポートする実行時間の長いプロセスなど、アプリケーション内の他のインターフェイスからコンテキストコードを再利用できます。
 
-In the case of our `create` action, when we successfully create a user, we use `Phoenix.Controller.put_flash/3` to show a success message, and then we redirect to the `user_path`'s show page. Conversely, if `Accounts.create_user/1` fails, we render our `"new.html"` template and pass along the Ecto changeset for the template to lift error messages from.
+`create`アクションの場合、ユーザーの作成に成功したら、`Phoenix.Controller.put_flash/3`を使って成功メッセージを表示し、`user_path`のshowページにリダイレクトします。逆に、`Accounts.create_user/1`が失敗した場合は、`"new.html"`テンプレートをレンダリングし、エラーメッセージを出力するテンプレートへEctoのチェンジセットを渡します。
 
-Next, let's dig deeper and check out our `Accounts` context in `lib/hello/accounts.ex`:
+次に、`lib/hello/accounts.ex`にある `Accounts` のコンテキストを確認してみましょう。
 
 ```elixir
 defmodule Hello.Accounts do
@@ -197,9 +193,9 @@ defmodule Hello.Accounts do
 end
 ```
 
-This module will be the public API for all account functionality in our system. For example, in addition to user account management, we may also handle user login credentials, account preferences, and password reset generation. If we look at the `list_users/0` function, we can see the private details of user fetching. And it's super simple. We have a call to `Repo.all(User)`. We saw how Ecto repo queries worked in [the Ecto guide](ecto.html), so this call should look familiar. Our `list_users` function is a generalized function specifying the *intent* of our code – namely to list users. The details of that intent where we use our Repo to fetch the users from our PostgreSQL database is hidden from our callers. This is a common theme we'll see re-iterated as we use the Phoenix generators. Phoenix will push us to think about where we have different responsibilities in our application, and then to wrap up those different areas behind well-named modules and functions that make the intent of our code clear, while encapsulating the details.
+このモジュールは、システム内のすべてのアカウント機能のための公開APIとなります。たとえば、ユーザーのアカウント管理に加えて、ユーザーのログインクレデンシャル、アカウントの設定、パスワードリセットなどを扱うことがあります。関数 `list_users/0` を見てみると、ユーザー取得の詳細を見ることができます。そして、それは超単純です。`Repo.all(User)`を呼び出しています。Ectoのレポクエリがどのように動作するかは[Ectoガイド](ecto.html)で見たので、この呼び出しは見覚えがあるはずです。私たちの `list_users` 関数は、コードの *意図* - つまり、ユーザーをリストアップするため - を明示する一般化された関数です。PostgreSQLデータベースからユーザーを取得するためにレポを使用するという意図の詳細は、呼び出し元からは隠されています。これは、Phoenixジェネレーターを使用する際に繰り返し見られる共通のテーマです。Phoenixは、アプリケーションのどこに異なる責任があるのかを考え、それらの異なる領域を、詳細をカプセル化しながら、コードの意図を明確にする名前のついたモジュールや関数でまとめることを促します。
 
-Now we know how data is fetched, but how are users persisted? Let's take a look at the `Accounts.create_user/1` function:
+データがどのようにして取得されるかはわかりましたが、ユーザーはどのようにして永続化されるのでしょうか？関数 `Accounts.create_user/1` を見てみましょう。
 
 ```elixir
   @doc """
@@ -221,9 +217,9 @@ Now we know how data is fetched, but how are users persisted? Let's take a look 
   end
 ```
 
-There's more documentation than code here, but a couple of things are important to highlight. First, we can see again that our Ecto Repo is used under the hood for database access. You probably also noticed the call to `User.changeset/2`. We talked about changesets before, and now we see them in action in our context.
+ここではコードよりもドキュメントの方が多いですが、いくつかの強調すべき重要なことがあります。まず、Ectoレポがデータベースへのアクセスに使用されていることが再確認できます。おそらく、`User.changeset/2`への呼び出しにもお気づきでしょう。以前にチェンジセットについて話しましたが、今回はコンテキストの中で動作しているのを確認できます。
 
-If we open up the `User` schema in `lib/hello/accounts/user.ex`, it will look immediately familiar:
+`lib/hello/accounts/user.ex` の `User` スキーマを開くと、すぐに見覚えがあります。
 
 ```elixir
 defmodule Hello.Accounts.User do
@@ -248,16 +244,15 @@ defmodule Hello.Accounts.User do
   end
 end
 ```
+これは以前に `mix phx.gen.schema` タスクを実行したときに見たものと同じですが、ここでは `changeset/2` 関数の上に `@doc false` が表示されています。これは、この関数はパブリックで呼び出し可能ですが、パブリックコンテキストAPIの一部ではないことを示しています。チェンジセットを作成する呼び出し元はコンテキストAPIを介して行います。たとえば、`Accounts.create_user/1` は `User.changeset/2` を呼び出してユーザー入力からチェンジセットを構築します。コントローラーアクションなどの呼び出し元は `User.changeset/2` に直接アクセスしません。ユーザーチェンジセットとのやりとりはすべて、パブリックな `Accounts` コンテキストを介して行われます。
 
-This is just what we saw before when we ran the `mix phx.gen.schema` task, except here we see a `@doc false` above our `changeset/2` function. This tells us that while this function is publicly callable, it's not part of the public context API. Callers that build changesets do so via the context API. For example, `Accounts.create_user/1` calls into our `User.changeset/2` to build the changeset from user input. Callers, such as our controller actions, do not access `User.changeset/2` directly. All interaction with our user changesets is done through the public `Accounts` context.
+## コンテキスト内のリレーション
 
-## In-context Relationships
+私たちの基本的なユーザーアカウント機能は素晴らしいものですが、ユーザーのログインクレデンシャルをサポートすることで、さらにレベルアップしていきましょう。完全な認証システムを実装するわけではありませんが、そのようなシステムを成長させるための良いスタートを切ることができます。多くの認証ソリューションでは、ユーザーのクレデンシャルとアカウントを一対一の方法で結びつけていますが、これはしばしば問題を引き起こします。たとえば、ソーシャルログインやリカバリーメールアドレスなど、異なるログイン方法をサポートすると、大きなコード変更が発生します。アカウントごとに1つのクレデンシャルの追跡を開始し、後から簡単に多くの機能をサポートできるように、クレデンシャルの関連付けを設定してみましょう。
 
-Our basic user account features are nice, but let's take it up a notch by supporting user login credentials. We won't implement a complete authentication system, but we'll give ourselves a good start to grow such a system from. Many authentication solutions couple the user credentials to an account in a one-to-one fashion, but this often causes issues. For example, supporting different login methods, such as social login or recovery email addresses, will cause major code changes. Let's set up a credentials association that will allow us to start off tracking a single credential per account, but easily support more features later.
+今のところ、ユーザーのクレデンシャルには電子メールの情報のみが含まれています。私たちの最初の仕事は、アプリケーションの中でクレデンシャルをどこに置くかを決めることです。ユーザーアカウントを管理する `Accounts` コンテキストがあります。ここでは、ユーザークレデンシャルが自然に適合します。Phoenixはまた、既存のコンテキスト内にコードを生成することができるので、コンテキストに新しいリソースを追加するのも簡単です。プロジェクトのルートで以下のコマンドを実行してください。
 
-For now, user credentials will contain only email information. Our first order of business is to decide where credentials live in the application. We have our `Accounts` context, which manages user accounts. User credentials is a natural fit here. Phoenix is also smart enough to generate code inside an existing context, which makes adding new resources to a context a breeze. Run the following command at your project root:
-
-> Sometimes it may be tricky to determine if two resources belong to the same context or not. In those cases, prefer distinct contexts per resource and refactor later if necessary. Otherwise you can easily end-up with large contexts of loosely related entities. In other words: if you are unsure, you should prefer explicit modules (contexts) between resources.
+> 2つのリソースが同じコンテキストに属しているかどうかを判断するのが難しい場合があります。そのような場合には、リソースごとに異なるコンテキストを使用し、必要に応じてあとでリファクタリングしてください。そうしないと、関連性の低いエンティティの大規模なコンテキストが簡単にできてしまいます。言い換えれば、わからない場合は、リソース間の明示的なモジュール（コンテキスト）を選ぶべきです。
 
 ```console
 $ mix phx.gen.context Accounts Credential credentials \
@@ -273,11 +268,11 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-This time around, we used the `phx.gen.context` task, which is just like `phx.gen.html`, except it doesn't generate the web files for us. Since we already have controllers and templates for managing users, we can integrate the new credential features into our existing web form.
+今回は `phx.gen.context` タスクを利用しました。これは `phx.gen.html` と似ていますが、ウェブファイルを生成しません。すでにユーザーを管理するためのコントローラーとテンプレートがあるので、新しいクレデンシャル機能を既存のWebフォームに統合することができます。
 
-We can see from the output that Phoenix generated an `accounts/credential.ex` file for our `Accounts.Credential` schema, as well as a migration. Notably, phoenix said it was `* injecting` code into the existing `accounts.ex` context file and test file. Since our `Accounts` module already exists, Phoenix knows to inject our code here.
+出力から、Phoenixが `Accounts.Credential` スキーマ用の `accounts/credential.ex` ファイルとマイグレーションを生成したことがわかります。phoenixは、既存の `accounts.ex` コンテキストファイルとテストファイルにコードを注入していると述べています。私たちの `Accounts` モジュールはすでに存在しているので、Phoenixはここにコードを注入することを知っています。
 
-Before we run our migrations, we need to make one change to the generated migration to enforce data integrity of user account credentials. In our case, we want a user's credentials to be deleted when the parent user is removed. Make the following change to your `*_create_credentials.exs` migration file in `priv/repo/migrations/`:
+マイグレーションを実行する前に、ユーザーアカウントのクレデンシャルのデータの整合性を確保するために、生成されたマイグレーションに1つ変更を加える必要があります。この例では、親ユーザーが削除されたときにユーザーのクレデンシャルが削除されるようにしたいと考えています。`priv/repo/migrations/`にある `*_create_credentials.exs` マイグレーションファイルに以下の変更を加えてください。
 
 ```diff
   def change do
@@ -295,9 +290,9 @@ Before we run our migrations, we need to make one change to the generated migrat
   end
 ```
 
-We changed the `:on_delete` option from `:nothing` to `:delete_all`, which will generate a foreign key constraint that will delete all credentials for a given user when the user is removed from the database. Likewise, we also passed `null: false` to disallow creating credentials without an existing user. By using a database constraint, we enforce data integrity at the database level, rather than relying on ad-hoc and error-prone application logic.
+`on_delete` オプションを `:nothing` から `:delete_all` に変更しました。これにより、データベースからユーザーが削除されたときに、指定したユーザーのすべてのクレデンシャルを削除する外部キー制約を生成します。同様に、`null: false` を渡すことで、既存のユーザーなしでクレデンシャルを作成できないようにしています。データベース制約を使用することで、アドホックでエラーが発生しやすいアプリケーションロジックに頼るのではなく、データベースレベルでデータの整合性を強制することができます。
 
-Next, let's migrate up our database as Phoenix instructed:
+次に、Phoenixの指示通りにデータベースをマイグレートしてみましょう。
 
 ```console
 $ mix ecto.migrate
@@ -316,8 +311,7 @@ Generated hello app
 [info]  == Migrated in 0.0s
 ```
 
-Before we integrate credentials in the web layer, we need to let our context know how to associate users and credentials. First, open up `lib/hello/accounts/user.ex` and add the following association:
-
+Webレイヤーにクレデンシャルを統合する前に、コンテキストにユーザーとクレデンシャルの関連付け方を知らせる必要があります。まず、`lib/hello/accounts/user.ex`を開き、以下の関連付けを追加します。
 
 ```elixir
 + alias Hello.Accounts.Credential
@@ -334,7 +328,7 @@ Before we integrate credentials in the web layer, we need to let our context kno
 
 ```
 
-We used `Ecto.Schema`'s `has_one` macro to let Ecto know how to associate our parent User to a child Credential. Next, let's add the relationships in the opposite direction in `accounts/credential.ex`:
+`Ecto.Schema` の `has_one` マクロを使用して、親ユーザーと子クレデンシャルの関連付け方法をEctoに知らせました。次に、`accounts/credential.ex`に逆方向のリレーションを追加してみましょう。
 
 ```elixir
 + alias Hello.Accounts.User
@@ -350,7 +344,7 @@ We used `Ecto.Schema`'s `has_one` macro to let Ecto know how to associate our pa
 
 ```
 
-We used the `belongs_to` macro to map our child relationship to the parent `User`. With our schema associations set up, let's open up `accounts.ex` and make the following changes to the generated `list_users` and `get_user!`  functions:
+`belongs_to` マクロを使用して、子リレーションを親の `User` にマッピングしました。スキーマの関連付けを設定したので、`accounts.ex` を開き、生成された `list_users` と `get_user!`関数に次の変更を加えましょう。
 
 ```elixir
   def list_users do
@@ -366,9 +360,9 @@ We used the `belongs_to` macro to map our child relationship to the parent `User
   end
 ```
 
-We rewrote the `list_users/0` and `get_user!/1` to preload the credential association whenever we fetch users. The Repo preload functionality fetches a schema's association data from the database, then places it inside the schema. When operating on a collection, such as our query in `list_users`, Ecto can efficiently preload the associations in a single query. This allows us to represent our `%Accounts.User{}` structs as always containing credentials without the caller having to worry about fetching the extra data.
+`list_users/0` と `get_user!/1` を書き換えて、ユーザーを取得するたびにクレデンシャルアソシエーションをプリロードするようにしました。レポのプリロード機能はスキーマのアソシエーションデータをデータベースから取得し、スキーマ内に配置します。`list_users`のクエリのようにコレクションを操作する場合、Ectoは1つのクエリで効率的に関連付けをプリロードすることができます。これにより、`%Accounts.User{}` 構造体を常にクレデンシャルを含むように表現することができ、呼び出し元が余分なデータを取得することを気にする必要がありません。
 
-Next, let's expose our new feature to the web by adding the credentials input to our user form. Open up `lib/hello_web/templates/user/form.html.eex` and key in the new credential form group above the submit button:
+次に、ユーザーフォームにクレデンシャルの入力欄を追加して、新しい機能をウェブに公開してみましょう。`lib/hello_web/templates/user/form.html.eex` を開き、送信ボタンの上にある新しいクレデンシャルフォームグループを入力します。
 
 
 ```eex
@@ -384,9 +378,9 @@ Next, let's expose our new feature to the web by adding the credentials input to
   <%= submit "Submit" %>
 ```
 
-We used `Phoenix.HTML`'s `inputs_for` function to add an associations nested fields within the parent form. Within the nested inputs, we rendered our credential's email field and included the `label` and `error_tag` helpers just like our other inputs.
+`Phoenix.HTML` の `inputs_for` 関数を使って、親フォームに入れ子になったフィールドを追加しました。入れ子になったinputの中に、クレデンシャルのメールアドレスフィールドをレンダリングし、他のinputと同様に `label` と `error_tag` ヘルパーを含めました。
 
-Next, let's show the user's email address in the user show template. Add the following code to `lib/hello_web/templates/user/show.html.eex`:
+次に、ユーザーのメールアドレスをユーザーのshowテンプレートに表示してみましょう。以下のコードを `lib/hello_web/templates/user/show.html.eex` に追加します。
 
 ```eex
   ...
@@ -398,9 +392,9 @@ Next, let's show the user's email address in the user show template. Add the fol
 
 ```
 
-Now if we visit [http://localhost:4000/users/new](http://localhost:4000/users/new), we'll see the new email input, but if you try to save a user, you'll find that the email field is ignored. No validations are run telling you it was blank and the data was not saved, and at the end you'll get an exception `(UndefinedFunctionError) function nil.email/0 is undefined or private`. What gives?
+さて、[http://localhost:4000/users/new](http://localhost:4000/users/new)にアクセスすると、新しいemailのinputが表示されますが、ユーザーを保存しようとすると、メールフィールドが無視されていることがわかります。空白でデータが保存されていないことを伝えるバリデーションは実行されず、最後に例外 `(UndefinedFunctionError) function nil.email/0 is undefined or private` が発生します。何が原因なのでしょうか？
 
-We used Ecto's `belongs_to` and `has_one` associations to wire-up how our data is related at the context level, but remember this is decoupled from our web-facing user input. To associate user input to our schema associations, we need to handle it the way we've handled other user input so far – in changesets. Remove the alias for Credential added by the generator and modify your `alias Hello.Accounts.User`, `create_user/1` and `update_user/2` functions in your `Accounts` context to build a changeset which knows how to cast user input with nested credential information:
+Ectoの `belongs_to` と `has_one` のアソシエーションを使用して、コンテキストレベルでのデータの関連付けを行いましたが、これはウェブ上のユーザーによる入力から切り離されていることを覚えておいてください。ユーザーの入力をスキーマのアソシエーションに関連付けるには、これまでに他のユーザー入力を処理してきた方法（チェンジセット）で処理する必要があります。ジェネレーターによって追加されたCredentialのエイリアスを削除し、`Accounts` コンテキスト内の `alias Hello.Accounts.User`, `create_user/1`, `update_user/2` 関数を変更して、入れ子になったクレデンシャル情報を持つユーザー入力をキャストできるチェンジセットを構築します。
 
 ```elixir
 - alias Hello.Accounts.User
@@ -424,9 +418,10 @@ We used Ecto's `belongs_to` and `has_one` associations to wire-up how our data i
 
 - alias Hello.Accounts.Credential
 ```
-We updated the functions to pipe our user changeset into `Ecto.Changeset.cast_assoc/3`. Ecto's `cast_assoc/3` allows us to tell the changeset how to cast user input to a schema relation. We also used the `:with` option to tell Ecto to use our `Credential.changeset/2` function to cast the data. This way, any validations we perform in `Credential.changeset/2` will be applied when saving the `User` changeset.
 
-Finally, if you visit [http://localhost:4000/users/new](http://localhost:4000/users/new) and attempt to save an empty email address, you'll see the proper validation error message. If you enter valid information, the data will be casted and persisted properly.
+ユーザーチェンジセットを `Ecto.Changeset.cast_assoc/3` にパイプするように関数を更新しました。Ectoの `cast_assoc/3` は、ユーザーの入力をリレーションにキャストする方法をチェンジセットに伝えることができます。また、`:with` オプションを使って `Credential.changeset/2` 関数を使ってデータをキャストするようにEctoに指示しました。この方法では、`Credential.changeset/2` で行うバリデーションは `User` チェンジセットを保存する際に適用されます。
+
+最後に、[http://localhost:4000/users/new](http://localhost:4000/users/new)にアクセスして空のメールアドレスを保存しようとすると、適切な検証エラーメッセージが表示されます。有効な情報を入力した場合、データは適切にキャストされ、永続化されます。
 
 ```
 Show User
@@ -435,17 +430,18 @@ Username: chrismccord
 Email: chris@example.com
 ```
 
-It's not much to look at yet, but it works! We added relationships within our context complete with data integrity enforced by the database. Not bad. Let's keep building!
+まだあまり見ていませんが、動作しています。コンテキスト内にリレーションを追加し、データベースによってデータの整合性を強化しました。悪くないですね。引き続き構築を続けていきましょう。
 
-## Adding Account functions
+## アカウント関数を追加する
 
-As we've seen, your context modules are dedicated modules that expose and group related functionality. Phoenix generates generic functions, such as `list_users` and `update_user`, but they only serve as a basis for you to grow your business logic and application from. To begin extending our `Accounts` context with real features, let's address an obvious issue of our application – we can create users with credentials in our system, but they have no way of signing in with those credentials. Building a complete user authentication system is beyond the scope of this guide, but let's get started with a basic email-only sign-in page that allows us to track a current user's session. This will let us focus on extending our `Accounts` context while giving you a good start to grow a complete authentication solution from.
+これまで見てきたように、コンテキストモジュールは、関連する機能を公開したり、グループ化したりする専用モジュールです。Phoenixは `list_users` や `update_user` などの汎用的な関数を生成しますが、これらはビジネスロジックやアプリケーションを成長させるための基礎となるだけです。実際の機能を使って `Accounts` コンテキストを拡張するために、アプリケーションの明白な問題に取り組んでみましょう。システムでクレデンシャルを持つユーザーを作成することはできますが、そのユーザーはクレデンシャルを使ってサインインする方法がありません。完全なユーザー認証システムを構築することはこのガイドの範囲を超えていますが、現在のユーザーのセッションを追跡できる基本的な電子メールのみのサインインページから始めてみましょう。これにより、`Accounts` のコンテキストを拡張することに焦点を当てながら、完全な認証ソリューションを構築するための良いスタートを切ることができます。
 
-To start, let's think of a function name that describes what we want to accomplish. To authenticate a user by email address, we'll need a way to lookup that user and verify their entered credentials are valid. We can do this by exposing a single function on our `Accounts` context.
+まず、何を達成したいかを表す関数名を考えてみましょう。メールアドレスでユーザーを認証するためには、そのユーザーを検索し、入力されたクレデンシャルが有効であることを確認する方法が必要です。これは `Accounts` コンテキストで単一の関数を公開することで実現できます。
 
     > user = Accounts.authenticate_by_email_password(email, password)
 
-That looks nice. A descriptive name that exposes the intent of our code is best. This function makes it crystal clear what purpose it serves, while allowing our caller to remain blissfully unaware of the internal details. Make the following additions to your `lib/hello/accounts.ex` file:
+
+いい感じですね。コードの意図を明らかにする説明的な名前がベストです。この関数は、それがどのような目的を果たすのかを明確にし、呼び出し元が内部の詳細に気づかないようにしてくれます。次のように `lib/hello/accounts.ex` ファイルに追加してください。
 
 ```elixir
 def authenticate_by_email_password(email, _password) do
@@ -461,9 +457,9 @@ def authenticate_by_email_password(email, _password) do
 end
 ```
 
-We defined an `authenticate_by_email_password/2` function, which discards the password field for now, but you could integrate tools like [guardian](https://github.com/ueberauth/guardian) or [comeonin](https://github.com/riverrun/comeonin) as you continue building your application. All we need to do in our function is find the user with matching credentials and return the `%Accounts.User{}` struct in a `:ok` tuple, or an `{:error, :unauthorized}` value to let the caller know their authentication attempt has failed.
+ここでは `authenticate_by_email_password/2` 関数を定義しました。今のところパスワードフィールドを破棄しますが、アプリケーションの構築を続けると、[Guardian](https://github.com/ueberauth/guardian) や [comeonin](https://github.com/riverrun/comeonin) のようなツールを統合することができます。この関数で必要なのは、クレデンシャルに一致するユーザーを見つけ、`%Accounts.User{}` 構造体を `:ok` タプルで返すか、`{:error, :unauthorized}` 値を返して、呼び出し元に認証の試みが失敗したことを知らせることです。
 
-Now that we can authenticate a user from our context, let's add a login page to our web layer. First create a new controller in `lib/hello_web/controllers/session_controller.ex`:
+コンテキストからユーザーを認証できるようになったので、ログインページをウェブレイヤーに追加してみましょう。まず、`lib/hello_web/controllers/session_controller.ex` に新しいコントローラーを作成します。
 
 ```elixir
 defmodule HelloWeb.SessionController do
@@ -498,9 +494,9 @@ defmodule HelloWeb.SessionController do
 end
 ```
 
-We defined a `SessionController` to handle users signing in and out of the application. Our `new` action is responsible for simply rendering a "new session" form, which posts out to the create action of our controller. In `create`, we pattern match the form fields and call into our `Accounts.authenticate_by_email_password/2` that we just defined. If successful, we use `Plug.Conn.put_session/3` to place the authenticated user's ID in the session, and redirect to the home page with a successful welcome message. We also called `configure_session(conn, renew: true)` before redirecting to avoid [session fixation attacks](https://www.owasp.org/index.php/Session_fixation). If authentication fails, we add a flash error message, and redirect to the sign-in page for the user to try again. To finish the controller, we support a `delete` action which simply calls `Plug.Conn.configure_session/2` to drop the session and redirect to the home page.
+アプリケーションにサインイン・サインアウトしたユーザーを処理するために `SessionController` を定義しました。`new` アクションは単純に"new session"フォームをレンダリングし、コントローラーのcreateアクションにPOSTします。`create`では、フォームフィールドをパターンマッチし、先ほど定義した `Accounts.authenticate_by_email_password/2` を呼び出します。成功すれば、`Plug.Conn.put_session/3`を使って認証されたユーザーIDをセッションに入れ、ウェルカムメッセージを表示してホームページにリダイレクトします。また、リダイレクトの前に `configure_session(conn, renew: true)` を呼び出して、[セッション固定攻撃](https://www.owasp.org/index.php/Session_fixation)を避けるようにしています。認証に失敗した場合は、フラッシュエラーメッセージを追加し、サインインページにリダイレクトして再チャレンジしてもらうようにしています。コントローラーを完成させるために、`delete` アクションをサポートしています。これは単に `Plug.Conn.configure_session/2` を呼び出すだけで、セッションを削除してホームページにリダイレクトします。
 
-Next, let's wire up our session routes in `lib/hello_web/router.ex`:
+次に、`lib/hello_web/router.ex`にセッションルートを設定してみましょう。
 
 
 ```elixir
@@ -514,8 +510,7 @@ Next, let's wire up our session routes in `lib/hello_web/router.ex`:
   end
 ```
 
-We used `resources` to generate a set of routes under the `"/session"` path. This is what we've done for other routes, except this time we also passed the `:only` option to limit which routes are generated, since we only need to support `:new`, `:create`, and `:delete` actions. We also used the `singleton: true` option, which defines all the RESTful routes, but does not require a resource ID to be passed along in the URL. We don't need an ID in the URL because our actions are always scoped to the "current" user in the system. The ID is always in the session. Before we finish our router, let's add an authentication plug to the router that will allow us to lock down certain routes after a user has used our new session controller to sign-in. Add the following function to `lib/hello_web/router.ex`:
-
+`resources` を用いて `"/session"` パスの下に一連のルートを生成しました。今回は `:new`, `:create`, `:delete` アクションだけをサポートする必要があるので、生成するルートを制限するために `:only` オプションを渡したことを除いては、他のルートに対しても同様の処理を行っています。また、`singleton: true` オプションも使用しました。これはすべてのRESTfulルートを定義しますが、URLにリソースIDを渡す必要はありません。アクションは常にシステム内の「現在の」ユーザーにスコープされているため、URLにIDを渡す必要はありません。IDは常にセッション内にあります。ルータを完成させる前に、認証プラグをルータに追加してみましょう。これはユーザーが新しいセッションコントローラーを使ってサインインした後に、特定のルートをロックダウンできるようにするものです。以下の関数を `lib/hello_web/router.ex` に追加します。
 
 ```elixir
   defp authenticate_user(conn, _) do
@@ -531,9 +526,9 @@ We used `resources` to generate a set of routes under the `"/session"` path. Thi
   end
 ```
 
-We defined an `authenticate_user/2` plug in the router which simply uses `Plug.Conn.get_session/2` to check for a `:user_id` in the session. If we find one, it means a user has previously authenticated, and we call into `Hello.Accounts.get_user!/1` to place our `:current_user` into the connection assigns. If we don't have a session, we add a flash error message, redirect to the homepage, and we use `Plug.Conn.halt/1` to halt further plugs downstream from being invoked. We won't use this new plug quite yet, but it will be ready and waiting as we add authenticated routes in just a moment.
+ルータに `authenticate_user/2` プラグを定義しました。これは単に `Plug.Conn.get_session/2` を使ってセッションの `:user_id` をチェックします。見つかった場合は、ユーザーが認証済みであることを示していますので、`Hello.Accounts.get_user!/1` を呼び出して `:current_user` をconnectionのassignsに入れます。セッションを持っていない場合は、フラッシュエラーメッセージを追加してホームページにリダイレクトし、`Plug.Conn.halt/1`を使って下流のプラグを停止させます。この新しいプラグはまだ使いませんが、認証されたルートを追加するときにすぐに利用できます。
 
-Lastly, we need `SessionView` to render a template for our login form. Create a new file in `lib/hello_web/views/session_view.ex:`
+最後に、ログインフォームのテンプレートをレンダリングするための `SessionView` が必要です。新しいファイルを `lib/hello_web/views/session_view.ex:` に作成します。
 
 ```elixir
 defmodule HelloWeb.SessionView do
@@ -541,7 +536,7 @@ defmodule HelloWeb.SessionView do
 end
 ```
 
-Next, add a new template in `lib/hello_web/templates/session/new.html.eex:`
+次に、`lib/hello_web/templates/session/new.html.eex`に新しいテンプレートを追加します。
 
 ```eex
 <h1>Sign in</h1>
@@ -567,28 +562,27 @@ Next, add a new template in `lib/hello_web/templates/session/new.html.eex:`
 <% end %>
 ```
 
-To keep things simple, we added both our sign-in and sign-out forms in this template. For our sign-in form, we pass the `@conn` directly to `form_for`, pointing our form action at `session_path(@conn, :create)`. We also pass the `as: :user` option which tells Phoenix to wrap the form parameters inside a `"user"` key. Next, we used the `text_input` and `password_input` functions to send up an `"email"` and `"password"` parameter.
+シンプルにするために、このテンプレートにサインインフォームとサインアウトフォームの両方を追加しました。サインインフォームでは、`@conn` を直接 `form_for` に渡し、フォームアクションを `session_path(@conn, :create)` に指定します。また、`as: :user` オプションを渡すことで、フォームのパラメーターを `"user"` キーで囲むようにします。次に、`text_input` と `password_input` 関数を使って `"email"` と `"password"` パラメーターを送信します。
 
-For logging out, we simply defined a form that sends the `DELETE` HTTP method to server's session delete path. Now if you visit the sign-in page at [http://localhost:4000/sessions/new](http://localhost:4000/sessions/new) and enter a bad email address, you should be greeted with your flash message. Entering a valid email address will redirect to the home page with a success flash notice.
+ログアウトするためには、単に `DELETE` HTTPメソッドをサーバーのセッション削除パスに送信するフォームを定義しただけです。さて、[http://localhost:4000/sessions/new](http://localhost:4000/sessions/new)のサインインページにアクセスして、不正なメールアドレスを入力すると、フラッシュメッセージが表示されるはずです。有効なメールアドレスを入力すると、成功のフラッシュ通知とともにホームページにリダイレクトされます。
 
-With authentication in place, we're in good shape to begin building out our next features.
+これで認証が完了したので、次の機能の開発に向けての準備が整いました。
 
+## コンテキスト間の依存
 
-## Cross-context dependencies
+さて、ユーザーアカウントとクレデンシャルの機能の始まりができたので、アプリケーションの他の主な機能であるページコンテンツの管理に取り掛かりましょう。コンテンツ管理システム (CMS) をサポートして、作者がサイトのページを作成したり、編集したりできるようにしたいと考えています。CMSの機能を使って `Accounts` のコンテキストを拡張することもできますが、一歩下がってアプリケーションを分離して考えてみると、それがフィットしないことがわかります。アカウントシステムはCMSシステムをまったく気にするべきではありません。私たちの `Accounts` コンテキストの責任はユーザーとそのクレデンシャルを管理することであって、ページのコンテンツ変更を扱うことではありません。これらの責任を処理するために別のコンテキストが必要なのは明らかです。これを `CMS` と呼びましょう。
 
-Now that we have the beginnings of user account and credential features, let's begin to work on the other main features of our application – managing page content. We want to support a content management system (CMS) where authors can create and edit pages of the site. While we could extend our `Accounts` context with CMS features, if we step back and think about the isolation of our application, we can see it doesn't fit. An accounts system shouldn't care at all about a CMS system. The responsibilities of our `Accounts` context is to manage users and their credentials, not handle page content changes. There's a clear need here for a separate context to  handle these responsibilities. Let's call it `CMS`.
+CMSの基本的な業務を処理するための `CMS` コンテキストを作成してみましょう。コードを書く前に、以下のようなCMSの機能要件があると仮定してみましょう。
 
-Let's create a `CMS` context to handle basic CMS duties. Before we write code, let's imagine we have the following CMS feature requirements:
+1. ページの作成と更新
+2. ページは、変更を公開する責任のある著者に属する
+3. 著者情報はページと一緒に表示し、著者の経歴やCMS内での役割などの情報（`"編集者"`, `"執筆者"`, `"インターン"`など）を含める
 
-1. Page creation and updates
-2. Pages belong to Authors who are responsible for publishing changes
-3. Author information should appear with the page, and include information such as author bio and role within the CMS, such as `"editor"`, `"writer"`, or `"intern"`.
+説明から、ページ情報を保存するために `Page` リソースが必要であることは明らかです。著者情報はどうでしょうか？既存の `Accounts.User` スキーマを拡張して、経歴やロールなどの情報を含めることはできますが、コンテキストに設定した責任に違反することになります。なぜアカウントシステムが著者情報を認識しなければならないのでしょうか? さらに悪いことに、"role"のようなフィールドでは、システム内のCMSのロールがアプリケーションの他のアカウントロールと競合したり、混同されたりする可能性があります。もっと良い方法があります。
 
-From the description, it's clear we need a `Page` resource for storing page information. What about our author information? While we could extend our existing `Accounts.User` schema to include information such as bio and role, that would violate the responsibilities we've set up for our contexts. Why should our Account system now be aware of author information? Worse, with a field like "role", the CMS role in the system will likely conflict or be confused with other account roles for our application. There's a better way.
+「ユーザー」を持つアプリケーションは、当然のことながらユーザー駆動型のものが多いです。結局のところ、私たちのソフトウェアは通常、何らかの方法で人間のエンドユーザーによって使用されることを想定して設計されています。プラットフォーム全体のすべてのフィールドと責任を追跡するために `Accounts.User` 構造体を拡張するのではなく、その機能を所有するモジュールに責任を持たせた方が良いでしょう。この場合、`CMS.Author` 構造体を作成して、CMSに関連する著者固有のフィールドを保持することができます。これで、"role"や "bio"のようなフィールドをここに自然に配置することができます。同様に、私たちはアプリケーションの中で、すべての人にすべてを提供しなければならないシステム内の単一の `%User{}` ではなく、私たちが運用しているドメインに適した特化したデータ構造を手に入れることができます。
 
-Applications with "users" are naturally heavily user driven. After all, our software is typically designed to be used by human end-users one way or another. Instead of extending our `Accounts.User` struct to track every field and responsibility of our entire platform, it's better to keep those responsibilities with the modules who own that functionality. In our case, we can create a `CMS.Author` struct that holds author specific fields as it relates to a CMS. Now we can place fields like "role" and "bio" here, where they naturally live. Likewise, we also gain specialized datastructures in our application that are suited to the domain that we are operating in, rather than a single `%User{}` in the system that has to be everything to everyone.
-
-With our plan set, let's get to work. Run the following command to generate our new context:
+計画が決まったので、作業に取り掛かりましょう。次のコマンドを実行して、新しいコンテキストを生成します。
 
 ```
 $ mix phx.gen.html CMS Page pages title:string body:text \
@@ -624,7 +618,7 @@ Remember to update your repository by running migrations:
 
 ```
 
-The `views` attribute on the pages will not be updated directly by the user, so let's remove it from the generated form. Open `lib/hello_web/templates/cms/page/form.html.eex` and remove this part:
+ページの `views` 属性はユーザーが直接更新することはないので、生成されたフォームから削除してみましょう。`lib/hello_web/templates/cms/page/form.html.eex`を開き、この部分を削除します。
 
 ```eex
 -  <%= label f, :views %>
@@ -632,7 +626,7 @@ The `views` attribute on the pages will not be updated directly by the user, so 
 -  <%= error_tag f, :views %>
 ```
 
-Also, change `lib/hello/cms/page.ex` to remove `:views` from the permitted params:
+また、`lib/hello/cms/page.ex` を変更して、`:views` を許可されるパラメーターから削除します。
 
 ```elixir
   def changeset(%Page{} = page, attrs) do
@@ -644,7 +638,7 @@ Also, change `lib/hello/cms/page.ex` to remove `:views` from the permitted param
   end
 ```
 
-Finally, open up the new file in `priv/repo/migrations` to ensure the `views` attribute will have a default value:
+最後に、`priv/repo/migrations` で新しいファイルを開き、`views` 属性がデフォルト値を持つようにします。
 
 ```elixir
     create table(:pages) do
@@ -657,8 +651,7 @@ Finally, open up the new file in `priv/repo/migrations` to ensure the `views` at
     end
 ```
 
-This time we passed the `--web` option to the generator. This tells Phoenix what namespace to use for the web modules, such as controllers and views. This is useful when you have conflicting resources in the system, such as our existing `PageController`, as well as a way to naturally namespace paths and functionality of different features, like a CMS system. Phoenix instructed us to add a new `scope` to the router for a `"/cms"` path prefix. Let's copy paste the following into our `lib/hello_web/router.ex`, but we'll make one modification to the `pipe_through` macro:
-
+今回はジェネレーターに `--web` オプションを渡しました。これは、コントローラーやビューなどのWebモジュールに使用する名前空間をPhoenixに伝えます。これは、既存の `PageController` のようにシステム内でリソースが競合している場合に便利ですし、CMSシステムのように異なる機能のパスや機能を自然に名前空間化することもできます。Phoenixは、`"/cms"`パスプレフィックス用の新しい`scope`をルータに追加するように指示してくれました。以下を `lib/hello_web/router.ex` にコピーペーストしてみましょう（ただし、マクロの `pipe_through` を一箇所変更します）
 
 ```
   scope "/cms", HelloWeb.CMS, as: :cms do
@@ -669,7 +662,7 @@ This time we passed the `--web` option to the generator. This tells Phoenix what
 
 ```
 
-We added the `:authenticate_user` plug to require a signed-in user for all routes within this CMS scope. With our routes in place, we can migrate up the database:
+私たちは `:authenticate_user` プラグインを追加して、このCMSのスコープ内のすべてのルートにサインインしたユーザーを要求しました。これで、データベースをマイグレートすることができるようになりました。
 
 ```
 $ mix ecto.migrate
@@ -684,9 +677,9 @@ Generated hello app
 [info]  == Migrated in 0.0s
 ```
 
-Now, let's fire up the server with `mix phx.server` and visit [http://localhost:4000/cms/pages](http://localhost:4000/cms/pages). If we haven't logged in yet, we'll be redirected to the home page with a flash error message telling us to sign in. Let's sign in at [http://localhost:4000/sessions/new](http://localhost:4000/sessions/new), then re-visit [http://localhost:4000/cms/pages](http://localhost:4000/cms/pages). Now that we're authenticated, we should see a familiar resource listing for pages, with a `New Page` link.
+では、`mix phx.server`でサーバーを起動して、[http://localhost:4000/cms/pages](http://localhost:4000/cms/pages)にアクセスしてみましょう。まだログインしていない場合は、ログインするようにとのメッセージが表示されたホームページにリダイレクトされます。[http://localhost:4000/sessions/new](http://localhost:4000/sessions/new) でログインしてから、[http://localhost:4000/cms/pages](http://localhost:4000/cms/pages) に再アクセスしてみましょう。認証が完了したので、おなじみのページのリソース一覧と `New Page` のリンクが表示されているはずです。
 
-Before we create any pages, we need page authors. Let's run the `phx.gen.context` generator to generate an `Author` schema along with injected context functions:
+ページを作成する前に、ページ作成者が必要です。`phx.gen.context` ジェネレーターを実行して注入されたコンテキスト関数に加え、`Author`スキーマを生成してみましょう。
 
 ```
 $ mix phx.gen.context CMS Author authors bio:text role:string \
@@ -703,9 +696,9 @@ Remember to update your repository by running migrations:
 
 ```
 
-We used the context generator to inject code, just like when we generated our credentials code. We added fields for the author bio, their role in the content management system, the genre the author writes in, and lastly a foreign key to a user in our accounts system. Since our accounts context is still the authority on end-users in our application, we will depend on it for our CMS authors. That said, any information specific to authors will stay in the authors schema. We could also decorate our `Author` with user account information by using virtual fields and never expose the `User` structure. This would ensure consumers of the CMS API are protected from changes in the `User` context.
+認証のコードを生成したときと同じように、コンテキストジェネレーターを使用してコードを注入しました。著者の経歴、コンテンツ管理システムでの役割、著者が執筆するジャンル、そして最後にアカウントシステムのユーザーへの外部キーのフィールドを追加しました。アカウントのコンテキストは我々のアプリケーションにおけるエンドユーザーの出処であるため、我々はCMSの作者のためにそれに依存することになります。そうは言っても、著者に固有の情報はすべて著者スキーマに残ります。また、仮想フィールドを使用して `Author` をユーザーアカウント情報で装飾し、`User` 構造体を決して公開しないようにすることもできます。これにより、CMS APIの消費者が `User` コンテキストの変更から保護されることが保証されます。
 
-Before we migrate our database, we need to handle data integrity once again in the newly generated `*_create_authors.exs` migration. Open up the new file in `priv/repo/migrations` and make the following change to the foreign key constraint:
+データベースをマイグレートする前に、新しく生成された `*_create_authors.exs` マイグレーションでもう一度データの整合性を処理する必要があります。`priv/repo/migrations` の新しいファイルを開き、外部キー制約に以下の変更を加えます。
 
 ```elixir
   def change do
@@ -724,10 +717,9 @@ Before we migrate our database, we need to handle data integrity once again in t
   end
 ```
 
-We used the `:delete_all` strategy again to enforce data integrity. This way, when a user is deleted from the application through `Accounts.delete_user/1)`, we don't have to rely on application code in our `Accounts` context to worry about cleaning up the `CMS` author records. This keeps our application code decoupled and the data integrity enforcement where it belongs – in the database.
+データの整合性を確保するために再び `:delete_all` ストラテジーを使用しました。これにより、`Accounts.delete_user/1` を使ってアプリケーションからユーザーが削除されたときに、`Accounts` コンテキスト内のアプリケーションコードに依存して `CMS` の著者レコードのクリーンアップを心配する必要がなくなります。これにより、アプリケーションのコードは切り離され、データの整合性はデータベースの中で行われます。
 
-
-Before we continue, we have a final migration to generate. Now that we have an authors table, we can associate pages and authors. Let's add an `author_id` field to the pages table. Run the following command to generate a new migration:
+続ける前に、最終的なマイグレーションを生成する必要があります。著者テーブルができたので、ページと著者を関連付けることができます。ページテーブルに `author_id` フィールドを追加してみましょう。次のコマンドを実行して、新しいマイグレーションを生成します。
 
 ```
 $ mix ecto.gen.migration add_author_id_to_pages
@@ -736,7 +728,7 @@ $ mix ecto.gen.migration add_author_id_to_pages
 * creating priv/repo/migrations/20170629202117_add_author_id_to_pages.exs
 ```
 
-Now open up the new `*_add_author_id_to_pages.exs` file in `priv/repo/migrations` and key this in:
+ここで `priv/repo/migrations` にある新しい `*_add_author_id_to_pages.exs` ファイルを開き、これを入力します。
 
 ```elixir
   def change do
@@ -749,9 +741,9 @@ Now open up the new `*_add_author_id_to_pages.exs` file in `priv/repo/migrations
   end
 ```
 
-We used the `alter` macro to add a new `author_id` field to the pages table, with a foreign key to our authors table. We also used the `on_delete: :delete_all` option again to prune any pages when a parent author is deleted from the application.
+`alter`マクロを使用して、ページテーブルに著者テーブルへの外部キーである新しい `author_id` フィールドを追加しました。また、`on_delete: :delete_all` オプションを再び使用して、親著者がアプリケーションから削除された際にページを削除します。
 
-Now let's migrate up:
+では、マイグレートを実行しましょう。
 
 ```
 $ mix ecto.migrate
@@ -769,16 +761,15 @@ $ mix ecto.migrate
 [info]  == Migrated in 0.0s
 ```
 
-With our database ready, let's integrate authors and posts in the CMS system.
+データベースの準備ができたので、著者と投稿をCMSシステムに統合してみましょう。
 
-## Cross-context data
+## コンテキスト間のデータ
 
-Dependencies in your software are often unavoidable, but we can do our best to limit them where possible and lessen the maintenance burden when a dependency is necessary. So far, we've done a great job isolating the two main contexts of our application from each other, but now we have a necessary dependency to handle.
+ソフトウェアの依存関係はしばしば避けられないものですが、可能な限り制限し、依存関係が必要な場合のメンテナンスの負担を軽減するために最善を尽くすことができます。これまでのところ、アプリケーションの2つの主なコンテキストをお互いに分離することに成功しましたが、今度は必要な依存関係を処理しなければなりません。
 
-Our `Author` resource serves to keep the responsibilities of representing an author inside the CMS, but ultimately for an author to exist at all, an end-user represented by an `Accounts.User` must be present. Given this, our `CMS` context will have a data dependency on the `Accounts` context. With that in mind, we have two options. One is to expose APIs on the `Accounts` contexts that allows us to efficiently fetch user data for use in the CMS system, or we can use database joins to fetch the dependent data. Both are valid options given your tradeoffs and application size, but joining data from the database when you have a hard data dependency is just fine for a large class of applications. If you decide to break out coupled contexts into entirely separate applications and databases at a later time, you still gain the benefits of isolation. This is because your public context APIs will likely remain unchanged.
+私たちの `Author` リソースは、CMSの中で著者を表す責任を持ち続けますが、最終的に著者が存在するためには、`Accounts.User` によって表されるエンドユーザーが存在しなければなりません。このことを考えると、私たちの `CMS` コンテキストは `Accounts` コンテキストにデータの依存関係を持つことになります。このことを考慮すると、2つの選択肢があります。1つは `Accounts` コンテキストでAPIを公開し、CMSシステムで使用するためのユーザーデータを効率的に取得できるようにすることです。2つ目はデータベースの結合(join)を使用して従属データを取得することができます。どちらもトレードオフとアプリケーションのサイズを考えると有効なオプションですが、ハードデータの依存関係があるときにデータベースからデータを結合するのは、大規模なクラスのアプリケーションにはちょうど良いでしょう。結合されたコンテキストを後から完全に別のアプリケーションとデータベースに分割することを決めた場合でも、分離の利点を得ることができます。これは、パブリックコンテキストAPIが変更されない可能性が高いからです。
 
-Now that we know where our data dependencies exist, let's add our schema associations so we can tie pages to authors and authors to users. Make the following changes to `lib/hello/cms/page.ex`:
-
+データの依存関係がどこにあるかわかったので、スキーマの関連付けを追加して、ページと作者、作者とユーザーを結びつけることができるようにしましょう。以下の変更を `lib/hello/cms/page.ex` に行います。
 
 ```elixir
 + alias Hello.CMS.Author
@@ -794,9 +785,8 @@ Now that we know where our data dependencies exist, let's add our schema associa
   end
 ```
 
-We added a `belongs_to` relationships between pages and their authors.
-Next, let's add the association in the other direction in `lib/hello/cms/author.ex`:
-
+ページと著者の間に `belongs_to` の関係を追加しました。
+次に、`lib/hello/cms/author.ex`に逆方向の関連付けを追加してみましょう。
 
 ```elixir
 
@@ -816,9 +806,10 @@ Next, let's add the association in the other direction in `lib/hello/cms/author.
   end
 ```
 
-We added the `has_many` association for author pages, and then introduced our data dependency on the `Accounts` context by wiring up the `belongs_to` association to our `Accounts.User` schema.
+作者のページへ `has_many` アソシエーションを追加しました。そして、`belongs_to` アソシエーションを `Accounts.User` スキーマに繋げることで、`Accounts` コンテキストへのデータ依存性を導入しました。
 
-With our associations in place, let's update our `CMS` context to require an author when creating or updating a page. We'll start off with data fetching changes. Open up your `CMS` context in `lib/hello/cms.ex` and replace the `list_pages/0`, `get_page!/1`, and `get_author!/1` functions with the following definitions:
+アソシエーションが整ったので、ページの作成や更新の際に作者を要求するように `CMS` コンテキストを更新してみましょう。まずはデータ取得の変更から始めましょう。`lib/hello/cms.ex` で `CMS` コンテキストを開き、`list_pages/0`, `get_page!/1`, `get_author!/1` 関数を以下の定義に置き換えます。
+
 
 ```elixir
   alias Hello.CMS.{Page, Author}
@@ -843,9 +834,9 @@ With our associations in place, let's update our `CMS` context to require an aut
   end
 ```
 
-We started by rewriting the `list_pages/0` function to preload the associated author, user, and credential data from the database. Next, we rewrote `get_page!/1` and `get_author!/1` to also preload the necessary data.
+まず、`list_pages/0` 関数を書き換えて、関連する著者、ユーザー、クレデンシャルデータをデータベースからプリロードするようにしました。次に、必要なデータをプリロードするために `get_page!/1` と `get_author!/1` を書き換えました。
 
-With our data access functions in place, let's turn our focus towards persistence. We can fetch authors alongside pages, but we haven't yet allowed authors to be persisted when we create or edit pages. Let's fix that. Open up `lib/hello/cms.ex` and make the following changes:
+データアクセス関数ができたので、次は永続性に焦点を当ててみましょう。ページと並行して著者を取得することはできますが、ページを作成したり編集したりする際に著者を永続化することはできません。これを修正しましょう。`lib/hello/cms.ex` を開いて、以下の変更を行ってください。
 
 
 ```elixir
@@ -869,13 +860,13 @@ defp handle_existing_author({:error, changeset}) do
 end
 ```
 
-There's a bit of a code here, so let's break it down. First, we rewrote the `create_page` function to require a `CMS.Author` struct, which represents the author publishing the post. We then take our changeset and pass it to `Ecto.Changeset.put_change/2` to place the `author_id` association in the changeset. Next, we use `Repo.insert` to insert the new page into the database, containing our associated `author_id`.
+ちょっとしたコードがあるので、分解してみましょう。まず、`create_page` 関数を書き直して、記事を公開した著者を意味する `CMS.Author` 構造体を必要とするようにしました。次に、チェンジセットを取得して `Ecto.Changeset.put_change/2` に渡し、`author_id` の関連付けをチェンジセットに配置します。次に、`Repo.insert` を使ってデータベースに関連づけられた`author_id`を含む新しいページを挿入します。
 
-Our CMS system requires an author to exist for any end-user before they publish posts, so we added an `ensure_author_exists` function to programmatically allow authors to be created. Our new function accepts an `Accounts.User` struct and either finds the existing author in the application with that `user.id`, or creates a new author for the user. Our authors table has a unique constraint on the `user_id` foreign key, so we are protected from a race condition allowing duplicate authors. That said, we still need to protect ourselves from racing the insert of another user. To accomplish this, we use a purpose-built changeset with `Ecto.Changeset.change/1` which accepts a new `Author` struct with our `user_id`. The changeset's only purpose is to convert a unique constraint violation into an error we can handle. After attempting to insert the new author with `Repo.insert/1`, we pipe to `handle_existing_author/1` which matches on the success and error cases. For the success case, we are done and simply return the created author, otherwise we use `Repo.get_by!` to fetch the author for the `user_id` that already exists.
+私たちのCMSシステムでは、エンドユーザーが投稿を公開する前に著者が存在している必要があるので、プログラムで著者を作成できるように `ensure_author_exists` 関数を追加しました。この新しい関数は `Accounts.User` 構造体を受け取り、その `user.id` を持つアプリケーション内の既存の著者を見つけるか、そのユーザーのために新しい著者を作成します。作成者テーブルの外部キー `user_id` には一意の制約があるので、重複した作成者を許容する競合状態から保護されています。そうは言っても、別のユーザーが挿入された場合に競合状態にならないようにする必要があります。これを達成するために、`Ecto.Changeset.change/1` を使用して専用のチェンジセットを作成し、新しい `Author` 構造体の `user_id` を受け入れます。チェンジセットの唯一の目的は、一意の制約違反を処理可能なエラーに変換することです。新しい著者を `Repo.insert/1` で挿入しようとした後、成功と失敗のケースにマッチする `handle_existing_author/1` にパイプします。成功した場合はこれで完了で、作成された著者を返すだけです。そうでない場合は `Repo.get_by!` を用いて、すでに存在する `user_id` の著者を取得します。
 
-That wraps up our `CMS` changes. Now, let's update our web layer to support our additions. Before we update our individual CMS controller actions, we need to make a couple of additions to the `CMS.PageController` plug pipeline. First, we must ensure an author exists for end-users accessing the CMS, and we need to authorize access to page owners.
+これで `CMS` の変更は終わりです。それでは、追加した内容をサポートするためにウェブレイヤーを更新していきましょう。個々のCMSコントローラーアクションを更新する前に、`CMS.PageController` プラグパイプラインにいくつかの追加を行う必要があります。まず、CMSにアクセスするエンドユーザーのために著者が存在することを確認し、ページオーナーへのアクセスを許可する必要があります。
 
-Open up your generated `lib/hello_web/controllers/cms/page_controller.ex` and make the following additions:
+生成した `lib/hello_web/controllers/cms/page_controller.ex` を開き、以下の追加を行います。
 
 ```elixir
 
@@ -903,11 +894,11 @@ Open up your generated `lib/hello_web/controllers/cms/page_controller.ex` and ma
   end
 ```
 
-We added two new plugs to our `CMS.PageController`. The first plug, `:require_existing_author`, runs for every action in this controller. The `require_existing_author/2` plug calls into our `CMS.ensure_author_exists/1` and passes in the `current_user` from the connection assigns. After finding or creating the author, we use `Plug.Conn.assign/3` to place a `:current_author` key into the assigns for use downstream.
+`CMS.PageController`に2つのプラグを追加しました。最初のプラグ `:require_existing_author` は、このコントローラーのすべてのアクションに対して実行されます。`require_existing_author/2` プラグは `CMS.ensure_author_exists/1` を呼び出し、コネクションのassignから `current_user` を渡します。作者を見つけたり作成したりした後、`Plug.Conn.assign/3` を使って `:current_author` のキーをアサインし、後続の処理で使用するためにアサインします。
 
-Next, we added an `:authorize_page` plug that makes use of plug's guard clause feature where we can limit the plug to only certain actions. The definition for our `authorize_page/2` plug first fetches the page from the connection params, then does an authorization check against the `current_author`. If our current author's ID matches the fetched page ID, we have verified the page's owner is accessing the page and we simply assign the `page` into the connection assigns to be used in the controller action. If our authorization fails, we add a flash error message, redirect to the page index screen, and then call `Plug.Conn.halt/1` to prevent the plug pipeline from continuing and invoking the controller action.
+次に、`:authorize_page` プラグを追加しました。これはプラグのガード句の機能を利用したもので、プラグを特定のアクションのみに制限できます。`authorize_page/2` プラグの定義では、まずコネクションのパラメーターからページを取得し、次に `current_author` に対して認証チェックを行います。現在の著者のIDが取得したページのIDと一致すれば、ページの所有者がページにアクセスしていることが確認され、コントローラーのアクションで利用される`page`をコネクションのassignに割り当てます。認証に失敗した場合は、フラッシュエラーメッセージを追加し、ページインデックス画面にリダイレクトしてから `Plug.Conn.halt/1` を呼び出し、プラグパイプラインが継続してコントローラーアクションを呼び出すのを防ぎます。
 
-With our new plugs in place, we can now modify our `create`, `edit`, `update`, and `delete` actions to make use of the new values in the connection assigns:
+新しいプラグを導入したことで、`create`, `edit`, `update`, `delete` の各アクションを変更して、コネクションアサインの新しい値を利用できるようになりました。
 
 ```elixir
 - def edit(conn, %{"id" => id}) do
@@ -958,9 +949,9 @@ With our new plugs in place, we can now modify our `create`, `edit`, `update`, a
   end
 ```
 
-We modified the `create` action to grab our `current_author` from the connection assigns, which was placed there by our `require_existing_author` plug. We then passed our current author into `CMS.create_page` where it will be used to associate the author to the new page. Next, we changed the `update` action to pass the `conn.assigns.page` into `CMS.update_page/2`, rather than fetching it directly in the action. Since our `authorize_page` plug already fetched the page and placed it into the assigns, we can simply reference it here in the action. Similarly, we updated the `delete` action to pass the `conn.assigns.page` into the `CMS` rather than fetching the page in the action.
+`create`アクションを変更して、`require_existing_author` プラグインで指定したコネクションのassignから `current_author` を取得するようにしました。次に現在の著者を `CMS.create_page` に渡し、新しいページに著者を関連付けるために使用しています。次に、`update` アクションを変更して直接取得するのではなく、`conn.assigns.page` を`CMS.update_page/2` へ渡すようにしました。`authorize_page` プラグインはすでにページを取得してassignに設定しているので、アクションの中で単純に参照できます。同様に、`delete` アクションを更新して `conn.assigns.page` を `CMS` へ渡すようにしました。
 
-To complete the web changes, let's display the author when showing a page. First, open up `lib/hello_web/views/cms/page_view.ex` and add a helper function to handle formatting the author's name:
+ウェブの変更を完了させるために、ページを表示する際に作者を表示させてみましょう。まず、`lib/hello_web/views/cms/page_view.ex`を開き、著者名の書式設定を扱うヘルパー関数を追加します。
 
 ```elixir
 defmodule HelloWeb.CMS.PageView do
@@ -974,7 +965,7 @@ defmodule HelloWeb.CMS.PageView do
 end
 ```
 
-Next, let's open up `lib/hello_web/templates/cms/page/show.html.eex` and make use of our new function:
+次に、`lib/hello_web/templates/cms/page/show.html.eex`を開き、新しい関数を利用してみましょう。
 
 ```diff
 + <li>
@@ -984,7 +975,7 @@ Next, let's open up `lib/hello_web/templates/cms/page/show.html.eex` and make us
 </ul>
 ```
 
-Now, fire up your server with `mix phx.server` and try it out. Visit [http://localhost:4000/cms/pages/new](http://localhost:4000/cms/pages/new) and save a new page.
+それでは、`mix phx.server`でサーバーを起動して試してみましょう。[http://localhost:4000/cms/pages/new](http://localhost:4000/cms/pages/new)にアクセスして、新しいページを保存してください。
 
 ```
 Page created successfully.
@@ -995,35 +986,35 @@ Views: 0
 Author: Chris
 ```
 
-And it works! We now have two isolated contexts responsible for user accounts and content management. We coupled the content management system to accounts where necessary, while keeping each system isolated wherever possible. This gives us a great base to grow our application from.
+そして、それは機能します!。今では、ユーザーアカウントとコンテンツ管理を担当する2つの分離されたコンテキストを持っています。コンテンツ管理システムを必要に応じてアカウントに結合し、それぞれのシステムを可能な限り分離しています。これにより、アプリケーションを成長させるための素晴らしい基盤ができました。
 
-## Adding CMS functions
+## CMSの関数を追加する
 
-Just like we extended our `Accounts` context with new application-specific functions like `Accounts.authenticate_by_email_password/2`, let's extend our generated `CMS` context with new functionality. For any CMS system, the ability to track how many times a page has been viewed is essential for popularity ranks. While we could try to use the existing `CMS.update_page` function, along the lines of `CMS.update_page(user, page, %{views: page.views + 1})`, this would not only be prone to race conditions, but it would also require the caller to know too much about our CMS system. To see why the race condition exists, let's walk through the possible execution of events:
+アカウントのコンテキストを `Accounts.authenticate_by_email_password/2` のようなアプリケーション固有の関数で拡張したように、生成された `CMS` のコンテキストを新しい機能で拡張してみましょう。どんなCMSシステムにとっても、ページが何回閲覧されたかを追跡する機能は人気ランキングのために不可欠です。既存の `CMS.update_page` 関数を使って `CMS.update_page(user, page, %{views: page.views + 1})` のようにすることもできますが、これは競合が発生しやすいだけでなく、呼び出し元がCMSシステムについて知りすぎる必要があります。競合がなぜ存在するのかを確認するために、起こりうるイベントの実行例を見てみましょう。
 
-Intuitively, you would assume the following events:
+直感的には、次のような出来事を想定しているはずです。
 
-  1. User 1 loads the page with count of 13
-  2. User 1 saves the page with count of 14
-  3. User 2 loads the page with count of 14
-  4. User 2 loads the page with count of 15
+  1. ユーザー1は、13のカウントでページをロードします
+  2. ユーザー1は、14のカウントでページを保存します。
+  3. ユーザー2は、14のカウントでページをロードします
+  4. ユーザー2は、15のカウントでページをロードします
 
-While in practice this would happen:
+実際にはこうなるでしょう。
 
-  1. User 1 loads the page with count of 13
-  2. User 2 loads the page with count of 13
-  3. User 1 saves the page with count of 14
-  4. User 2 saves the page with count of 14
+  1. ユーザー1、は13のカウントでページをロードします
+  2. ユーザー2、は13のカウントでページをロードします
+  3. ユーザー1は、14のカウントでページを保存します。
+  4. ユーザー2は、14のカウントでページを保存します。
 
-The race conditions would make this an unreliable way to update the existing table since multiple callers may be updating out of date view values. There's a better way.
+競合条件によって複数の呼び出し元が日付の切れたビュー値を更新している可能性があるため、既存のテーブルを更新するには信頼性の低い方法になってしまいます。もっと良い方法があります。
 
-Again, let's think of a function name that describes what we want to accomplish.
+ここでも、何を達成したいかを表す関数名を考えてみましょう。
 
     > page = CMS.inc_page_views(page)
 
-That looks great. Our callers will have no confusion over what this function does and we can wrap up the increment in an atomic operation to prevent race conditions.
+これは素晴らしいですね。呼び出し側はこの関数が何をするのか混乱することはありませんし、競合状態を防ぐためにインクリメントをアトミックな操作でまとめることができます。
 
-Open up your CMS context (`lib/hello/cms.ex`), and add this new function:
+CMSコンテキスト（`lib/hello/cms.ex`）を開き、この新しい関数を追加します。
 
 
 ```elixir
@@ -1036,10 +1027,9 @@ def inc_page_views(%Page{} = page) do
 end
 ```
 
-We built a query for fetching the current page given its ID which we pass to `Repo.update_all`. Ecto's `Repo.update_all` allows us to perform batch updates against the database, and is perfect for atomically updating values, such as incrementing our views count. The result of the repo operation returns the number of updated records, along with the selected schema values specified by the `select` option. When we receive the new page views, we use `put_in(page.views, views)` to place the new view count within the page.
+現在のページのIDを指定して `Repo.update_all` に渡すクエリを作成しました。Ectoの `Repo.update_all` はデータベースに対してバッチ更新を行うことができ、ビュー数の増加などの値をアトミックに更新するのに最適です。レポ操作の結果は更新されたレコードの数と `select` オプションで指定したスキーマの値を返します。新しいページビューを受け取ったら、`put_in(page.views, views)` を使ってページ内に新しいビュー数を配置します。
 
-With our context function in place, let's make use of it in our CMS page controller. Update your `show` action in `lib/hello_web/controllers/cms/page_controller.ex` to call our new function:
-
+コンテキスト関数を用意したので、CMSのページコントローラーで利用してみましょう。新しい関数を呼び出すために `lib/hello_web/controllers/cms/page_controller.ex` の `show` アクションを更新してください。
 
 ```elixir
 def show(conn, %{"id" => id}) do
@@ -1052,9 +1042,9 @@ def show(conn, %{"id" => id}) do
 end
 ```
 
-We modified our `show` action to pipe our fetched page into `CMS.inc_page_views/1`, which will return the updated page. Then we rendered our template just as before. Let's try it out. Refresh one of your pages a few times and watch the view count increase.
+`show`アクションを変更して、取得したページを `CMS.inc_page_views/1` にパイプし、更新されたページを返すようにしました。そして、以前と同じようにテンプレートをレンダリングしました。それでは試してみましょう。何度かページをリフレッシュして、ビュー数が増えていくのを見てください。
 
-We can also see our atomic update in action in the ecto debug logs:
+また、アトミックアップデートの動作をectoのデバッグログで見ることができます。
 
 ```
 [debug] QUERY OK source="pages" db=3.1ms
@@ -1062,26 +1052,26 @@ UPDATE "pages" AS p0 SET "views" = p0."views" + $1 WHERE (p0."id" = $2)
 RETURNING p0."views" [1, 3]
 ```
 
-Good work!
+お疲れ様でした。
 
-As we've seen, designing with contexts gives you a solid foundation to grow your application from. Using discrete, well-defined APIs that expose the intent of your system allows you to write more maintainable applications with reusable code.
+これまで見てきたように、コンテキストを使って設計することで、アプリケーションを成長させるための強固な基盤が得られます。システムの意図を公開する個別の、よく定義されたAPIを使用することで、再利用可能なコードでより保守性の高いアプリケーションを書くことができます。
 
 ## FAQ
 
-### Returning Ecto structures from context APIs
+### コンテキストAPIからEcto構造体を返す
 
-As we explored the context API, you might have wondered:
+コンテキストAPIを探っていくうちに、疑問に思ったことがあるかもしれません。
 
-> If one of the goals of our context is to encapsulate Ecto Repo access, why does `create_user/1` return an `Ecto.Changeset` struct when we fail to create a user?
+> コンテキストの目的の1つがEctoレポアクセスをカプセル化することだとしたら、ユーザーの作成に失敗したときに `create_user/1` が `Ecto.Changeset` 構造体を返すのはなぜでしょうか?
 
-The answer is we've decided to expose `%Ecto.Changeset{}` as a public *data-structure* in our application. We saw before how changesets allow us to track field changes, perform validations, and generate error messages. Its use here is decoupled from the private Repo access and Ecto changeset API internals. We're exposing a data structure that the caller understands which contains the rich information like field errors. Conveniently for us, the `phoenix_ecto` project implements the necessary `Phoenix.Param` and [`Phoenix.HTML.FormData`](https://hexdocs.pm/phoenix_html/Phoenix.HTML.FormData.html) protocols which know how to handle `%Ecto.Changeset{}`'s for things like form generation and error messages. You can also think about it as being as if you had defined your own `%Accounts.Changes{}` struct for the same purpose and implemented the Phoenix protocols for the web-layer integration.
+答えは、`%Ecto.Changeset{}` をアプリケーションのパブリックな *data-structure* として公開することにしたことです。以前、チェンジセットによってフィールドの変更を追跡し、バリデーションを行い、エラーメッセージを生成することができることを見ました。ここでの使用は、プライベートのレポアクセスやEcto changeset API内部から切り離されています。呼び出し元が理解できるデータ構造を公開しており、フィールドエラーのような豊富な情報を含んでいます。便利なことに、`phoenix_ecto` プロジェクトは必要な `Phoenix.Param` と [`Phoenix.HTML.FormData`](https://hexdocs.pm/phoenix_html/Phoenix.HTML.FormData.html) プロトコルを実装しており、フォーム生成やエラーメッセージなどのために `%Ecto.Changeset{}` をどのように扱うかを知っています。また、同じ目的のために `%Accounts.Changes{}` 構造体を定義し、ウェブ層の統合のためにPhoenixプロトコルを実装したと考えることもできます。
 
+### クロスコンテキストワークフローの戦略
 
-### Strategies for cross-context workflows
+私たちのCMSコンテキストは、ユーザーがページコンテンツを公開することを決定したときに、システム内で著者を作成することをサポートしています。システムのすべてのユーザーがCMSの作者になるわけではないので、このユースケースは理にかなっています。しかし、アプリのすべてのユーザーが本当に著者である場合はどうでしょうか？
 
-Our CMS context supports lazily creating authors in the system when a user decides to publish page content. This makes sense for our use case because not all users of our system will be CMS authors. But what if our use case were for when all users of our app are indeed authors?
+`Accounts.User`が作成されるたびに `CMS.Author` が存在する必要がある場合、この依存関係をどこに置くかを注意深く考えなければなりません。私たちの `CMS` コンテキストが `Accounts` コンテキストに依存していることはわかっていますが、コンテキスト間の循環的な依存関係を避けることが重要です。たとえば、`Accounts.create_user` 関数を次のように変更したとします。
 
-If we require a `CMS.Author` to exist every time an `Accounts.User` is created, we have to think carefully where to place this dependency. We know our `CMS` context depends on the `Accounts` context, but it's important to avoid cyclic dependencies across our contexts. For example, imagine we changed our `Accounts.create_user` function to:
 
 ```elixir
 def create_user(attrs) do
@@ -1093,9 +1083,9 @@ def create_user(attrs) do
 end
 ```
 
-This may accomplish what we want, but now we need to wire up the schema relationships in the `Accounts` context to the `CMS` author. Worse, we have now taken our isolated `Accounts` context and required it to know about a content management system. This isn't what we want for isolated responsibilities in our application. There's a better way to handle these requirements.
+これで目的は達成されるかもしれませんが、`Accounts` コンテキストのスキーマ関係を `CMS` の著者につなぐ必要があります。さらに悪いことに、孤立した `Accounts` コンテキストを利用して、コンテンツ管理システムについて知ることを要求しています。これは、アプリケーション内で孤立した責任を持たせるのと異なります。これらの要件を処理するもっと良い方法があります。
 
-If you find yourself in similar situations where you feel your use case is requiring you to create circular dependencies across contexts, it's a sign you need a new context in the system to handle these application requirements. In our case, what we really want is an interface that handles all requirements when a user is created or registers in our application. To handle this, we could create a `UserRegistration` context, which calls into both the `Accounts` and `CMS` APIs to create a user, then associate a CMS author. Not only would this allow our Accounts to remain as isolated as possible, it gives us a clear, obvious API to handle `UserRegistration` needs in the system. If you take this approach, you can also use tools like `Ecto.Multi` to handle transactions across different context operations without deeply coupling the internal database calls. Part of our `UserRegistration` API could look something like this:
+もし、同じような状況で、ユースケースがコンテキスト間で循環する依存関係を作成する必要があると感じたら、それはアプリケーションの要件を処理するためにシステム内で新しいコンテキストが必要であることを示しています。本当に必要なのは、ユーザーが作成されたり、アプリケーションに登録されたりしたときに、すべての要件を処理するインターフェイスです。これを処理するために、`UserRegistration` コンテキストを作成し、`Accounts` と `CMS` APIの両方を呼び出してユーザーを作成し、CMSの著者を関連付けます。これにより、Accountsを可能な限り分離できるだけでなく、システム内の `UserRegistration` の必要性を処理するための明快で明白なAPIが得られます。このアプローチを採用すれば、`Ecto.Multi` のようなツールを使用して、内部のデータベース呼び出しを深くカップリングすることなく、異なるコンテキスト操作にまたがってトランザクションを処理することもできます。`UserRegistration`のAPIの一部は以下のようになります。
 
 ```elixir
 defmodule Hello.UserRegistration do
@@ -1105,13 +1095,14 @@ defmodule Hello.UserRegistration do
   def register_user(params) do
     Multi.new()
     |> Multi.run(:user, fn _repo, _ -> Accounts.create_user(params) end)
-    |> Multi.run(:author, fn _repo, %{user: user} ->
+    |> Multi.run(:author, fn_repo, %{user: user} ->
       {:ok, CMS.ensure_author_exists(user)}
     end)
     |> Repo.transaction()
   end
 end
 ```
-We can take advantage of `Ecto.Multi` to create a pipeline of operations that can be run inside a transaction of our `Repo`. If any given operation fails, the transaction will be rolled back and an error will be returned containing which operation failed, as well as the changes up to that point. In our `register_user/1` example, we specified two operations, one that calls into `Accounts.create_user/1` and another that passes the newly created user to `CMS.ensure_author_exists/1`. The final step of our function is to invoke the operations with `Repo.transaction/1`.
 
-The `UserRegistration` setup is likely simpler to implement than the dynamic author system we built – we decided to take the harder path exactly because those are decisions developers take on their applications every day.
+`Ecto.Multi` を利用して `Repo` のトランザクション内で実行できる処理のパイプラインを作成できます。指定した処理に失敗した場合、トランザクションはロールバックされ、どの操作に失敗したかとそれまでの変更内容を含むエラーが返されます。`register_user/1`の例では2つの処理を指定し、1つは `Accounts.create_user/1` を呼び出す処理で、もう1つは新しく作成されたユーザーを `CMS.ensure_author_exists/1` に渡す操作です。この関数の最後のステップは `Repo.transaction/1` で処理を呼び出すことです。
+
+`UserRegistration`の導入は、私たちが構築した動的なAuthorシステムよりも実装が簡単でしょう。私たちは、より困難な道を選ぶことにしました。それはまさに、開発者が毎日アプリケーションに対して下す決断だからです。
