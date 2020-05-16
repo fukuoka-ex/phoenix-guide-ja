@@ -567,10 +567,10 @@ Check your digested files at 'priv/static'.
 We can now do as the task suggests and inspect the contents of `priv/static` directory. We'll see that all files from `assets/` have been copied over to `priv/static` and also each file now has a couple of versions. Those versions are:
 タスクが示すように、`priv/static` ディレクトリの内容を検査できます。`assets/`のすべてのファイルが`priv/static`にコピーされ、各ファイルにはいくつかのバージョンがあることがわかります。それらのバージョンは以下の通りです。
 
-* the original file
-* a compressed file with gzip
-* a file containing the original file name and its digest
-* a compressed file containing the file name and its digest
+* 元ファイル
+* gzip圧縮されたファイル
+* 元のファイル名とそのダイジェストを含むファイル
+* ファイル名とそのダイジェストを含む圧縮ファイル
 
 オプションで、設定ファイルの `:gzippable_exts` オプションを使って、どのファイルを圧縮するかを決めることができます。
 
