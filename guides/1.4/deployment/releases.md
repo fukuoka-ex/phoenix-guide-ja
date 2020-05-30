@@ -2,34 +2,34 @@
 layout: 1.4/layout
 version: 1.4
 group: deployment
-title: Deploying with Releases
+title: リリースを使ったデプロイ
 nav_order: 2
 hash: 5bda94164d5e0d52c740f499d4cf7fcf449d82ab
 ---
-# Deploying with Releases
+# リリースを使ったデプロイ
 
-## What we'll need
+## 必要な作業
 
-The only thing we'll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the [Up and Running guide](https://hexdocs.pm/phoenix/up_and_running.html).
+このガイドに必要なのは、動作するPhoenixアプリケーションだけです。デプロイ用の簡単なアプリケーションが必要な方は、[起動ガイド](https://hexdocs.pm/phoenix/up_and_running.html)にしたがってください。
 
-## Goals
+## ゴール
 
-Our main goal for this guide is to package your Phoenix application into a self-contained directory that includes the Erlang VM, Elixir, all of your code and dependencies. This package can then be dropped into a production machine.
+このガイドの主な目的は、PhoenixアプリケーションをErlang VM、Elixir、すべてのコードと依存関係を含む自己完結型のディレクトリにパッケージ化することです。このパッケージは本番環境のマシンにドロップできます。
 
-## Releases, assemble!
+## リリースとアセンブル!
 
-To assemble a release, you will need Elixir v1.9 or later:
+リリースをアセンブルするには、Elixir v1.9以降が必要です。
 
 ```console
 $ elixir -v
 1.9.0
 ```
 
-If you are not familiar with Elixir releases yet, we recommend you to read [Elixir's excellent docs](https://hexdocs.pm/mix/Mix.Tasks.Release.html) before continuing.
+Elixirのリリースにまだ慣れていない場合は、先に進む前に[Elixirの優れたドキュメント](https://hexdocs.pm/mix/Mix.Tasks.Release.html)を読むことをお勧めします。
 
-Once that is done, you can assemble a release by going through all of the steps in our general [deployment guide](/deployment.html) with `mix release` at the end. Let's recap.
+これが終わったら、一般的な[デプロイメントガイド](/deployment.html)の最後に `mix release` をつけて、すべてのステップを踏んでリリースを組み立てることができます。まとめてみましょう。
 
-First set the environment variables:
+まず、環境変数を設定します。
 
 ```
 $ mix phx.gen.secret
@@ -38,7 +38,7 @@ $ export SECRET_KEY_BASE=REALLY_LONG_SECRET
 $ export DATABASE_URL=ecto://USER:PASS@HOST/database
 ```
 
-Then load dependencies to compile code and assets:
+そして依存関係をロードしてコードとアセットをコンパイルします。
 
 ```
 # Initial setup
@@ -50,7 +50,7 @@ $ npm run deploy --prefix ./assets
 $ mix phx.digest
 ```
 
-And now run `mix release`:
+そして、`mix release`を実行します。
 
 ```
 $ MIX_ENV=prod mix release
@@ -66,15 +66,15 @@ Release created at _build/prod/rel/my_app!
 ...
 ```
 
-You can start the release by calling `_build/prod/rel/my_app/bin/my_app start`, where you have to replace `my_app` by your current application name. If you do so, your application should start but you will notice your web server does not actually run! That's because we need to tell Phoenix to start the web servers. When using `mix phx.server`, the `phx.server` command does that for us, but in a release we don't have Mix (which is a *build* tool), so we have to do it ourselves.
+リリースを開始するには、`_build/prod/rel/my_app/bin/my_app start` を呼び出します（my_appは現在のアプリケーション名に置き換えてください）。そうすれば、アプリケーションは起動するはずですが、実際にはウェブサーバーが起動していないことに気づくでしょう。これは、Phoenixにウェブサーバーを起動するように指示する必要があるからです。`mix phx.server`を使っているときは、`phx.server`コマンドがそれを代行してくれますが、リリースではMix（*ビルド*ツール）がないので、自分たちでやらなければなりません。
 
-Open up `config/prod.secret.exs` and you should find a section about "Using releases" with a configuration to set. Go ahead and uncomment that line or manually add the line below, adapted to your application names:
+`config/prod.secret.exs` を開くと、"Using releases" というセクションがあるはずです。その行のコメントを外すか、アプリケーション名に合わせて以下の行を手動で追加してください。
 
 ```elixir
 config :my_app, MyApp.Endpoint, server: true
 ```
 
-Now assemble the release once again:
+もう一度リリースを組み立てます。
 
 ```
 $ MIX_ENV=prod mix release
@@ -88,23 +88,23 @@ Release created at _build/prod/rel/my_app!
     _build/prod/rel/my_app/bin/my_app start
 ```
 
-And starting the release now should also successfully start the web server! Now you can get all of the files under the `_build/prod/rel/my_app` directory, package it, and run it in any production machine with the same OS and archictecture as the one that assembled the release. For more details, check the [docs for `mix release`](https://hexdocs.pm/mix/Mix.Tasks.Release.html).
+リリースを開始すると、ウェブサーバーも正常に起動するはずです。これで、`_build/prod/rel/my_app` ディレクトリにあるすべてのファイルを取得し、パッケージ化して、リリースを組み立てたのと同じOSとアーキテクチャを持つプロダクションマシンで実行できます。詳細は [`mix release` のドキュメント](https://hexdocs.pm/mix/Mix.Tasks.Release.html) を参照してください。
 
-But before we finish this guide, there are two features from releases most Phoenix applications will use, so let's talk about those.
+しかし、このガイドを終える前に、ほとんどのPhoenixアプリケーションが使用するであろうリリースの機能が2つあります。それらについてお話ししましょう。
 
-## Runtime configuration
+## ランタイム設定
 
-You may have noticed that, in order to assemble our release, we had to set both `SECRET_KEY_BASE` and `DATABASE_URL`. That's because `config/config.exs`, `config/prod.exs`, and friends are executed when the release is assembled (or more generally speaking, whenever you run a `mix` command).
+リリースをアセンブルするためには、`SECRET_KEY_BASE` と `DATABASE_URL` の両方を設定しなければならないことに気づいたかもしれません。これは、`config/config.exs`, `config/prod.exs`, およびその仲間がリリースのアセンブル時に（一般的に言えば `mix` コマンドを実行した時に）実行されるからです。
 
-However, in many cases, we don't want to set the values for `SECRET_KEY_BASE` and `DATABASE_URL` when assembling the release but only when starting the system in production. In particular, you may not even have those values easily accessible, and you may have to reach out to another system to retrieve those. Luckily, for such use cases, `mix release` provides runtime configuration, which we can enable in three steps:
+しかし、多くの場合、`SECRET_KEY_BASE` と `DATABASE_URL` の値はリリースのアセンブル時には設定せず、本番環境でシステムを起動する時にのみ設定したいです。とくに、これらの値に簡単にアクセスできない場合があり、これらの値を取得するために別のシステムにアクセスしなければならない場合があります。幸いにも、このようなユースケースのために `mix release` はランタイム設定を提供しており、3つのステップでこれを有効にできます。
 
-1. Rename `config/prod.secret.exs` to `config/releases.exs`
+1. `config/prod.secret.exs` の名前を `config/releases.exs` に変更します。
 
-2. Change `use Mix.Config` inside the new `config/releases.exs` file to `import Config` (if you want, you can replace all uses of `use Mix.Config` by `import Config`, as the latter replaces the former)
+2. 新しい `config/releases.exs` ファイル内の `use Mix.Config` を `import Config` に変更します（必要であれば、`use Mix.Config` を使用している箇所をすべて `import Config` に置き換えても構いません。）
 
-3. Change `config/prod.exs` to no longer call `import_config "prod.secret.exs"` at the bottom
+3. `config/prod.exs` を変更し、下部の `import_config "prod.secret.exs"` を呼び出さないようにします。
 
-Now if you assemble another release, you should see this:
+さて、別のリリースを組み立てるとこのようになります。
 
 ```
 $ MIX_ENV=prod mix release
@@ -113,13 +113,13 @@ Generated my_app app
 * using config/releases.exs to configure the release at runtime
 ```
 
-Notice how it says you are using runtime configuration. Now you no longer need to set those environment variables when assembling the release, only when you run `_build/prod/rel/my_app/bin/my_app start` and friends.
+ランタイム設定を使用していることに注目してください。これで、リリースを組み立てる際に環境変数を設定する必要がなくなり、`_build/prod/rel/my_app/bin/my_app start` とその仲間を実行するときだけ環境変数を設定するようになりました。
 
-## Ecto migrations and custom commands
+## Ectoマイグレーションとカスタムコマンド
 
-Another common need in production systems is to execute custom commands required to set up the production environment. One of such commands is precisely migrating the database. Since we don't have `Mix`, a *build* tool, inside releases, which are a production artifact, we need to bring said commands directly into the release.
+また、本番環境の設定に必要なカスタムコマンドを実行することも、本番システムではよくあることです。そのようなコマンドの1つに、正確にはデータベースのマイグレーションがあります。本番環境の成果物であるリリースの中には、*ビルド*ツールである`Mix`がないので、これらのコマンドを直接リリースに持ち込む必要があります。
 
-Our recommendation is to create a new file in your application, such as `lib/my_app/release.ex`, with the following:
+私たちの推奨する方法は、アプリケーション内に `lib/my_app/release.ex` のような新しいファイルを作成し、次のように記述する方法です。
 
 ```elixir
 defmodule MyApp.Release do
@@ -142,23 +142,23 @@ defmodule MyApp.Release do
 end
 ```
 
-Where you replace the first two lines by your application names.
+最初の2行をアプリケーション名に置き換えてください。
 
-Now you can assemble a new release with `MIX_ENV=prod mix release` and you can invoke any code, including the functions in the module above, by calling the `eval` command:
+これで `MIX_ENV=prod mix release` で新しいリリースを組み立て、`eval`コマンドを呼び出すことで、上のモジュールの関数を含む任意のコードを呼び出すことができます。
 
 ```
 $ _build/prod/rel/my_app/bin/my_app eval "MyApp.Release.migrate"
 ```
 
-And that's it!
+これでおしまいです！
 
-## Containers
+## コンテナ
 
-Elixir releases work well with container technologies, such as Docker. The idea is that you assemble the release inside the Docker container and then build an image based on the release artifacts.
+Elixirのリリースは、Dockerなどのコンテナ技術とうまく連携します。この考え方は、Dockerコンテナ内でリリースをアセンブルし、リリースの成果物に基づいてイメージを構築するというものです。
 
-Here is an example Docker file to run at the root of your application covering all of the steps above:
+アプリケーションのルートで実行するDockerファイルの例を以下に示します。これはすべてのステップを含んでいます。
 
-```
+```dockerfile
 # FROM elixir:1.9.0-alpine as build
 
 # install build dependencies
@@ -209,4 +209,4 @@ USER nobody
 ENV HOME=/app
 ```
 
-At the end, you will have an application in `/app` ready to run as `bin/my_app start`.
+最後に、`/app` にアプリケーションを作成し、`bin/my_app start`として実行できるようにします。
