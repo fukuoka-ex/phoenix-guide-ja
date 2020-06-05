@@ -2,17 +2,17 @@
 layout: 1.4/layout
 version: 1.4
 group: testing
-title: Testing Schemas
+title: スキーマのテスト
 nav_order: 2
 hash: 5d132fdb587634ec2322586785b1408886481beb
 ---
-# Testing Schemas
+# スキーマのテスト
 
-In the [Ecto Guide](ecto.html) we generated an HTML resource for users. This gave us a number of modules for free, including a user schema and a user schema test case. In this guide, we'll use the schema and test case to work through the changes we made in the Ecto Guide in a test-driven way.
+[Ectoガイド](../ecto.html)では、ユーザーのためのHTMLリソースを生成しました。これにより、ユーザースキーマとユーザースキーマテストケースを含む多くのモジュールをただで提供してくれます。このガイドでは、スキーマとテストケースを使って、Ectoガイドで行った変更をテスト駆動型の方法で作業します。
 
-For those of us who haven't worked through the Ecto Guide, it's easy to catch up. Please see the "Generating an HTML Resource" section below.
+Ectoガイドをまだ作業していない人が、追いつくのは簡単です。下記の「HTMLリソースの生成」をご覧ください。
 
-Before we do anything else, let's run `mix test` to make sure our test suite runs cleanly.
+変更を加える前に、`mix test`を実行してテストスイートがきれいに動作することを確認しましょう。
 
 ```console
 $ mix test
@@ -24,11 +24,11 @@ Finished in 0.6 seconds
 Randomized with seed 638414
 ```
 
-Great. We've got nineteen tests and they are all passing!
+いいですね。19件のテストがあり、すべて成功しています!
 
-## Test Driving a Changeset
+## チェンジセットのテスト駆動
 
-We'll be adding additional validations to the schema module, so let's open the generated `test/hello/accounts/accounts_test.exs` and take a look:
+スキーマモジュールに追加のバリデーションを追加する予定なので、生成された `test/hello/accounts/accounts_test.exs` を開いて見てみましょう。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -62,23 +62,23 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-In the first line, we `use Hello.DataCase`, which is defined in `test/support/data_case.ex`. `Hello.DataCase` is responsible for importing and aliasing all the necessary modules for all of our schema cases. `Hello.DataCase` will also run all of our schema tests within the SQL sandbox, which will revert any changes to the database at the end of the test.
+最初の行では、`test/support/data_case.ex`で定義されている`Hello.DataCase`を使います。`Hello.DataCase`はスキーマケースに必要なモジュールのインポートとエイリアスを行います。`Hello.DataCase`はまた、すべてのスキーマテストをSQLサンドボックス内で実行し、テストの終わりにデータベースへの変更を元に戻します。
 
->  If you are using PostgreSQL, you can even run database tests asynchronously by setting `use Hello.DataCase, async: true`, although this option is not recommended for other databases.
+> PostgreSQLを使用している場合は、`use Hello.DataCase, async: true`を設定することで、データベースのテストを非同期に実行することもできますが、他のデータベースではこのオプションは推奨されません。
 
-`Hello.DataCase` is also a place to define any helper functions we might need to test our schemas. We get an example function `errors_on/1` for free, and we'll see how that works shortly.
+`Hello.DataCase`はスキーマをテストするために必要なヘルパー関数を定義する場所でもあります。たとえば、ただで手に入る関数`errors_on/1`があり、それがどのように動作するかをまもなく見てみましょう。
 
-We alias our `Hello.Accounts.User` module so that we can refer to its structs as `%User{}` instead of `%Hello.Accounts.User{}`.
+`Hello.Accounts.User`モジュールの構造体を`%Hello.Accounts.User{}`ではなく`%User{}`として参照できるように、`Hello.Accounts.User`モジュールのエイリアスを設定します。
 
-We also define module attributes for `@valid_attrs` and `@invalid_attrs` so they will be available to all our tests.
+また、`@valid_attrs`と`@invalid_attrs`のモジュール属性を定義し、すべてのテストで利用できるようにします。
 
-#### Number of Pets
+#### ペットの数
 
-While Phoenix generated our model with all of the fields required, the number of pets a user has is optional in our domain.
+Phoenixは必要なフィールドをすべて備えたモデルを生成しましたが、ユーザーが飼っているペットの数はここではオプションとします。
 
-Let's write a new test to verify that.
+それを検証するために新しいテストを書いてみましょう。
 
-To test this, we can delete the `:number_of_pets` key and value from the `@valid_attrs` map and make a `User` changeset from those new attributes. Then we can assert that the changeset is still valid.
+これをテストするには、`@valid_attrs`マップから`:number_of_pets`のキーと値を削除し、これらの新しい属性から `User`チェンジセットを作成します。そうすれば、そのチェンジセットがまだ有効であることが保証されます。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -91,7 +91,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-Now, let's run the tests again.
+では、もう一度テストを実行してみましょう。
 
 ```console
 $ mix test
@@ -111,7 +111,8 @@ Finished in 0.4 seconds
 Randomized with seed 780208
 ```
 
-It fails - which is exactly what it should do! We haven't written the code to make it pass yet. To do that, we need to remove the `:number_of_pets` attribute from our `validate_required/3` function in `lib/hello_web/accounts/user.ex`.
+`validate_required/3` function in `lib/hello_web/accounts/user.ex`.
+失敗しました。まさにその通り! これを成功させるコードはまだ書いていません。そのためには、`lib/hello_web/accounts/user.ex`の`validate_required/3`関数から`:number_of_pets`属性を削除する必要があります。
 
 ```elixir
 defmodule Hello.Accounts.User do
@@ -125,7 +126,7 @@ defmodule Hello.Accounts.User do
 end
 ```
 
-Now our tests are all passing again.
+これでテストはすべて成功しました。
 
 ```console
 $ mix test
@@ -137,11 +138,11 @@ Finished in 0.3 seconds
 Randomized with seed 963040
 ```
 
-#### The Bio Attribute
+#### 自己紹介属性
 
-In the Ecto Guide, we learned that the user's `:bio` attribute has two business requirements. The first is that it must be at least two characters long. Let's write a test for that using the same pattern we've just used.
+Ectoガイドでは、ユーザの`:bio`属性には2つのビジネス要件があることとして学びました。1つ目は、少なくとも2文字以上の長さでなければならないということです。先ほどと同じパターンを使ってテストを書いてみましょう。
 
-First, we change the `:bio` attribute to have a value of a single character. Then we create a changeset with the new attributes and test its validity.
+まず、`:bio`属性を一文字の値を持つように変更します。次に、新しい属性でチェンジセットを作成し、その妥当性をテストします。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -155,7 +156,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-When we run the test, it fails, as we would expect.
+テストを実行すると、予想通り失敗します。
 
 ```console
 $ mix test
@@ -176,11 +177,11 @@ Finished in 0.3 seconds
 Randomized with seed 327779
 ```
 
-Hmmm. Yes, this test behaved as we expected, but the error message doesn't seem to reflect our test. We're validating the length of the `:bio` attribute, and the message we get is "Expected false or nil, got true". There's no mention of our `:bio` attribute at all.
+うーん。はい、このテストは期待通りに動作しましたが、エラーメッセージはテストを反映していないようです。私たちは`:bio`属性の長さを検証していますが、得られるメッセージは"Expected false or nil, got true"です。これでは、`:bio`属性についてはちっとも言及されていません。
 
-We can do better.
+私たちはもっとうまくやれるはずです。
 
-Let's change our test to get a better message while still testing the same behavior. We can leave the code to set the new `:bio` value in place. In the `assert`, however, we'll use the `errors_on/1` function we get from `DataCase` to generate a map of errors, and check that the `:bio` attribute error is in that map.
+同じ動作をテストしながら、より良いメッセージを得るためにテストを変更してみましょう。新しい`:bio`の値を設定するコードはそのままにしておいても構いません。しかし、`assert`では `DataCase` から得た`errors_on/1` 関数を用いてエラーのマップを生成し、そのマップに `:bio` 属性のエラーがあることを確認します。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -194,7 +195,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-When we run the tests again, we get a different message entirely.
+再度テストを実行すると、全く異なるメッセージが表示されます。
 
 ```console
 $ mix test
@@ -216,21 +217,21 @@ Finished in 0.4 seconds
 Randomized with seed 435902
 ```
 
-This shows us the assertion we are testing - that our error is in the map of errors from the model's changeset.
+これは、私たちがテストしているアサーションを示しています。つまり、私たちのエラーがモデルのチェンジセットからのエラーのマップにあることを示しています。
 
 ```console
 code:  assert %{bio: ["should be at least 2 character(s)"]} = errors_on(changeset)
 ```
 
-And we see that the right hand side of the expression evaluates to an empty map.
+そして、式の右辺が空のマップに評価されることがわかります。
 
 ```console
 rhs:  %{}
 ```
 
-That map is empty because we don't yet validate the minimum length of the `:bio` attribute.
+まだ`:bio`属性の最小長さのバリデーションをしていないので、マップは空になっています。
 
-Our test has pointed the way. Now let's make it pass by adding that validation.
+私たちのテストは道を指し示しています。では、そのバリデーションを追加して成功させましょう。
 
 ```elixir
 defmodule Hello.Accounts.User do
@@ -245,7 +246,7 @@ defmodule Hello.Accounts.User do
 end
 ```
 
-When we run the tests again, they all pass.
+再度テストを実行すると、すべて成功します。
 
 ```console
 $ mix test
@@ -257,9 +258,9 @@ Finished in 0.2 seconds
 Randomized with seed 305958
 ```
 
-The other business requirement for the `:bio` field is that it be a maximum of one hundred and forty characters. Let's write a test for that using the `errors_on/1` function again.
+もう一つのビジネス要件は`:bio`フィールドの最大文字数が140文字であることです。もう一度`errors_on/1`関数を使ってテストを書いてみましょう。
 
-We'll use String.duplicate/2 to produce n-long "a" string here.
+ここではString.duplicate/2を使用して、長さが140の"a"文字列を生成します。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -273,7 +274,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-When we run the test, it fails as we want it to.
+テストを実行すると、予想通り失敗します。
 
 ```console
 $ mix test
@@ -295,7 +296,7 @@ Finished in 0.3 seconds
 Randomized with seed 593838
 ```
 
-To make this test pass, we need to add a maximum to the length validation of the `:bio` attribute.
+このテストを成功させるには、`:bio`属性の長さのバリデーションに最大値を追加する必要があります。
 
 ```elixir
 defmodule Hello.Accounts.User do
@@ -310,7 +311,7 @@ defmodule Hello.Accounts.User do
 end
 ```
 
-When we run the tests, they all pass.
+テストを実行すると、すべて成功します。
 
 ```console
 $ mix test
@@ -322,11 +323,11 @@ Finished in 0.4 seconds
 Randomized with seed 468975
 ```
 
-#### The Email Attribute
+#### Eメール属性
 
-We have one last attribute to validate. Currently, `:email` is just a string like any other. We'd like to make sure that it at least matches an "@". This is no substitute for an email confirmation, but it will weed out some invalid addresses before we even try.
+最後に検証すべき属性が一つあります。現在のところ、`:email`は他のものと同じようにただの文字列です。少なくとも"@"と一致することを確認したいと思います。これはEメールの確認の代わりにはなりませんが、試してみる前に無効なアドレスを除外することができます。
 
-This process will feel familiar by now. First, we change the value of the `:email` attribute to omit the "@". Then we write an assertion which uses `errors_on/1` to check for the correct validation error on the `:email` attribute.
+このプロセスはもうお馴染みのものになっているでしょう。まず、`:email`属性の値を変更して"@"を省略します。次に、`:email`属性の検証エラーが正しいかどうかを調べるために`errors_on/1`を使うアサーションを書きます。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -340,7 +341,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-When we run the tests, it fails. We see that we're getting an empty map of errors back from `errors_on/1`.
+テストを実行すると失敗します。エラーのマップが`errors_on/1`から空になって返ってきていることがわかります。
 
 ```console
 $ mix test
@@ -362,7 +363,7 @@ Finished in 0.4 seconds
 Randomized with seed 962127
 ```
 
-Then we add the new validation to generate the error our test is looking for.
+次に、テストが求めるエラーを生成するための新しいバリデーションを追加します。
 
 ```elixir
 defmodule Hello.Accounts.User do
@@ -378,7 +379,7 @@ defmodule Hello.Accounts.User do
 end
 ```
 
-Now the schema tests are passing again, but other tests are now failing, if you haven't touched the generated context & controller tests. Here's one failure (but because tests are run in random order, you might see a different failure first):
+スキーマのテストは再び成功していますが、生成されたコンテキストとコントローラーのテストに触れていない場合、他のテストは失敗しています。ここでは失敗の例を一つみてみます(ただし、テストはランダムな順番で実行されるので、最初に別の失敗を見ることになるかもしれません)。
 
 ```console
 $ mix test
@@ -399,7 +400,7 @@ Finished in 0.1 seconds
 Randomized with seed 825065
 ```
 
-We can fix these tests by editing the module attributes in the failing test files - first, in `test/hello_web/controllers/user_controller_test.exs`, add an "@" to the `:email` values in `@valid_attrs` and `@update_attrs`:
+失敗したテストファイルのモジュール属性を編集することで、これらのテストを修正することができます。まず、`test/hello_web/controllers/user_controller_test.exs`で、`@valid_attrs`と`@update_attrs`の`:email`の値に"@"を追加します。
 
 ```elixir
 defmodule HelloWeb.UserControllerTest do
@@ -410,9 +411,9 @@ defmodule HelloWeb.UserControllerTest do
   ...
 ```
 
-This will fix all of the HelloWeb.UserControllerTest failures.
+これでHelloWeb.UserControllerTestの失敗をすべて修正することができるでしょう。
 
-Make the same changes to the module attributes in `test/hello/accounts/accounts_test.exs`:
+`test/hello/accounts/accounts_test.exs`のモジュール属性を同じように変更します。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -423,7 +424,7 @@ defmodule Hello.AccountsTest do
     ...
 ```
 
-This will fix all but two of the failures - to fix those last two, we'll need to fix the values those tests are comparing:
+これにより、2つを除くすべての失敗が修正されます - 最後の2つを修正するには、テストで比較している値を修正する必要があります。
 
 ```elixir
 defmodule Hello.AccountsTest do
@@ -451,7 +452,7 @@ defmodule Hello.AccountsTest do
 end
 ```
 
-Now all the tests pass again:
+これですべてのテストが再び成功しました。
 
 ```console
 $ mix test
@@ -463,13 +464,13 @@ Finished in 0.2 seconds
 Randomized with seed 330955
 ```
 
-### Generating an HTML Resource
+### HTMLリソースの生成
 
-For this section, we're going to assume that we all have a PostgreSQL database installed on our system, and that we generated a default application - one in which Ecto and Postgrex are installed and configured automatically.
+このセクションでは、システムにPostgreSQLデータベースがインストールされていて、デフォルトのアプリケーション（EctoとPostgrexがインストールされ、自動的に設定されるもの）が生成されていることを前提に説明します。
 
-If this is not the case, please see the section on adding Ecto and Postgrex of the [Ecto Guide](ecto.html) and join us when that's done.
+そうではない場合は、[Ectoガイド](../ecto.html)のEctoとPostgrexの追加の項を見て、それが終わったら戻ってきてください。
 
-Ok, once we're all configured properly, we need to run the `phx.gen.html` task with the list of attributes we have here.
+OK、すべての設定が正しく行われたら、ここにある属性のリストを使って`phx.gen.html`タスクを実行する必要があります。
 
 ```console
 $ mix phx.gen.html Accounts User users name:string email:string \
@@ -498,7 +499,7 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-Then we need to follow the instructions the task gives us and insert the `resources "/users", UserController` line in the router `lib/hello_web/router.ex`.
+次に、タスクの指示に従って、`resources "/users", UserController` の行をルータ`lib/hello_web/router.ex`に挿入する必要があります。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -518,14 +519,14 @@ defmodule HelloWeb.Router do
 end
 ```
 
-With that done, we can create our database with `ecto.create`.
+それが済んだら、`ecto.create`でデータベースを作成します。
 
 ```console
 $ mix ecto.create
 The database for Hello.Repo has been created.
 ```
 
-Then we can migrate our database to create our `users` table with `ecto.migrate`.
+そして、`ecto.migrate`で`users`テーブルを作るようにデータベースをマイグレートします。
 
 ```console
 $ mix ecto.migrate
@@ -537,4 +538,4 @@ $ mix ecto.migrate
 [info]  == Migrated in 0.0s
 ```
 
-With that, we are ready to continue with the testing guide.
+これで、このテストガイドを進める準備が整いました。
