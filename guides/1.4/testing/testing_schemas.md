@@ -111,7 +111,6 @@ Finished in 0.4 seconds
 Randomized with seed 780208
 ```
 
-`validate_required/3` function in `lib/hello_web/accounts/user.ex`.
 失敗しました。まさにその通り! これを成功させるコードはまだ書いていません。そのためには、`lib/hello_web/accounts/user.ex`の`validate_required/3`関数から`:number_of_pets`属性を削除する必要があります。
 
 ```elixir
