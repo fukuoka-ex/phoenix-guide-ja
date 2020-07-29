@@ -2,57 +2,54 @@
 layout: 1.4/layout
 version: 1.4
 group: deployment
-title: Deploying on Heroku
+title: Herokuへのデプロイ
 nav_order: 3
 hash: ca2d5c412ad17743bd36b51f8aabc9b569ca1be7
 ---
-# Deploying on Heroku
+# Herokuへのデプロイ
 
-## What we'll need
+## 必要な作業
 
-The only thing we'll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the [Up and Running guide](https://hexdocs.pm/phoenix/up_and_running.html).
+このガイドに必要なのは、動作するPhoenixアプリケーションだけです。デプロイ用の簡単なアプリケーションが必要な方は、[起動ガイド](https://hexdocs.pm/phoenix/up_and_running.html)にしたがってください。
 
-## Goals
+## ゴール
 
-Our main goal for this guide is to get a Phoenix application running on Heroku.
+このガイドの主な目的は、Heroku上でPhoenixアプリケーションを実行することです。
 
-## Limitations
+## 制限事項
 
-Heroku is a great platform and Elixir performs well on it. However, you may run into limitations if you plan to leverage advanced features provided by Elixir and Phoenix, such as:
+Herokuは素晴らしいプラットフォームであり、Elixirはその上で十分なパフォーマンスを発揮します。しかし、ElixirやPhoenixが提供する高度な機能を活用することを計画している場合は、次のような制限にぶつかる可能性があります。
 
-- Connections are limited.
-  - Heroku [limits the number of simultaneous connections](https://devcenter.heroku.com/articles/http-routing#request-concurrency) as well as the [duration of each connection](https://devcenter.heroku.com/articles/limits#http-timeouts). It is common to use Elixir for real-time apps which need lots of concurrent, persistent connections, and Phoenix is capable of [handling over 2 million connections on a single server](https://www.phoenixframework.org/blog/the-road-to-2-million-websocket-connections).
+- コネクションに制限があります
+  - Herokuは[同時コネクション数の制限](https://devcenter.heroku.com/articles/http-routing#request-concurrency)と[各コネクションの持続時間](https://devcenter.heroku.com/articles/limits#http-timeouts)があります。Elixirは多くの同時接続や持続的な接続を必要とするリアルタイムアプリに使用するのが一般的で、Phoenixは[1つのサーバーで200万以上の接続を処理する](https://www.phoenixframework.org/blog/the-road-to-2-million-websocket-connections)ことができます。
+- 分散クラスタリングはできません
+  - Herokuは[dyno間の通信を遮断します](https://devcenter.heroku.com/articles/dynos#networking)。これは、[distributed Phoenix channels](https://dockyard.com/blog/2016/01/28/running-elixir-and-phoenix-projects-on-a-cluster-of-nodes) や [distributed tasks](https://elixir-lang.org/getting-started/mix-otp/distributed-tasks.html) のようなものは、Elixirの組み込みディストリビューションではなく、Redisのようなものに頼る必要があることを意味します。
+- [PlugAgent](https://elixir-lang.org/getting-started/mix-otp/agent.html)、[GenServers](https://elixir-lang.org/getting-started/mix-otp/genserver.html)、[ETS](https://elixir-lang.org/getting-started/mix-otp/ets.html)などのインメモリの状態は24時間ごとに失われます。
+  - Herokuは、ノードがhealthyかどうかに関わらず、24時間ごとに[dynosを再起動](https://devcenter.heroku.com/articles/dynos#restarting)します。
+- Herokuでは[ビルトインのオブザーバー](https://elixir-lang.org/getting-started/debugging.html#observer)は使用できません。
+  - Herokuではdynoへの接続は可能ですが、オブザーバーを使ってdynoの状態を見ることはできません。
 
-- Distributed clustering is not possible.
-  - Heroku [firewalls dynos off from one another](https://devcenter.heroku.com/articles/dynos#networking). This means things like [distributed Phoenix channels](https://dockyard.com/blog/2016/01/28/running-elixir-and-phoenix-projects-on-a-cluster-of-nodes) and [distributed tasks](https://elixir-lang.org/getting-started/mix-otp/distributed-tasks.html) will need to rely on something like Redis instead of Elixir's built-in distribution.
+まだ始めたばかりの方や、上記の機能を使用することを想定していない方は、Herokuで十分です。たとえば、Heroku上で動作している既存のアプリケーションをPhoenixに移行する場合、似たような機能を維持したままであれば、Elixirは現在のスタックと同等かそれ以上のパフォーマンスを発揮します。
 
-- In-memory state such as those in [Agents](https://elixir-lang.org/getting-started/mix-otp/agent.html), [GenServers](https://elixir-lang.org/getting-started/mix-otp/genserver.html), and [ETS](https://elixir-lang.org/getting-started/mix-otp/ets.html) will be lost every 24 hours.
-  - Heroku [restarts dynos](https://devcenter.heroku.com/articles/dynos#restarting) every 24 hours regardless of whether the node is healthy.
+このような制限のないプラットフォーム・アズ・ア・サービス(PaaS)が必要な場合は、[Gigalixir](http://gigalixir.readthedocs.io/)を試してみてください。EC2やGoogle Cloudなどのクラウドプラットフォームにデプロイしたい場合は、[Distillery](https://github.com/bitwalker/distillery)を検討してみてください。
 
-- [The built-in Observer](https://elixir-lang.org/getting-started/debugging.html#observer) can't be used with Heroku.
-  - Heroku does allow for connection into your dyno, but you won't be able to use the observer to watch the state of your dyno.
+## ステップ
 
-If you are just getting started or you don't expect to use the features above, Heroku should be enough for your needs. For instance, if you are migrating an existing application running on Heroku to Phoenix, keeping a similar set of features, Elixir will perform just as well or even better than your current stack.
+このプロセスをいくつかのステップに分けて、現在地を把握できるようにしておきましょう。
 
-If you want a platform-as-a-service without these limitations, try [Gigalixir](http://gigalixir.readthedocs.io/). If you would rather deploy to a cloud platform, such as EC2, Google Cloud, etc, consider [Distillery](https://github.com/bitwalker/distillery).
+- Gitリポジトリの初期化
+- Herokuにサインアップする
+- Herokuツールベルトのインストール
+- Herokuアプリケーションの作成と設定
+- プロジェクトをHerokuに対応させる
+- デプロイタイム!
+- 便利なHekokuコマンド
 
-## Steps
+## Gitリポジトリの初期化
 
-Let's separate this process into a few steps so we can keep track of where we are.
+[Git](https://git-scm.com/)は人気のある分散型リビジョン管理システムで、Herokuへのアプリのデプロイにも使われています。
 
-- Initialize Git repository
-- Sign up for Heroku
-- Install the Heroku Toolbelt
-- Create and setup Heroku application
-- Make our project ready for Heroku
-- Deploy time!
-- Useful Heroku commands
-
-## Initializing Git repository
-
-[Git](https://git-scm.com/) is a popular decentralized revision control system and is also used to deploy apps to Heroku.
-
-Before we can push to Heroku we'll need to initialize a local Git repository and commit our files to it. We can do so by running the following commands in our project directory:
+Herokuへプッシュする前に、ローカルのGitリポジトリを初期化してファイルをコミットする必要があります。プロジェクトディレクトリで以下のコマンドを実行します。
 
 ```console
 $ git init
@@ -60,31 +57,31 @@ $ git add .
 $ git commit -m "Initial commit"
 ```
 
-Heroku offers some great information on how it is using Git [here](https://devcenter.heroku.com/articles/git#tracking-your-app-in-git).
+HerokuはGitをどのように使っているのか、素晴らしい情報を[こちら](https://devcenter.heroku.com/articles/git#tracking-your-app-in-git)で提供しています。
 
-## Signing up for Heroku
+## Herokuにサインアップする
 
-Signing up to Heroku is very simple, just head over to [https://signup.heroku.com/](https://signup.heroku.com/) and fill in the form.
+Herokuへの登録は非常に簡単で、[https://signup.heroku.com/](https://signup.heroku.com/) に向かい、フォームに必要事項を記入するだけです。
 
-The Free plan will give us one web [dyno](https://devcenter.heroku.com/articles/dynos#dynos) and one worker dyno, as well as a PostgreSQL and Redis instance for free.
+無料プランでは、ウェブ[dyno](https://devcenter.heroku.com/articles/dynos#dynos)とワーカーdyno、PostgreSQLとRedisのインスタンスが無料で利用できます。
 
-These are meant to be used for testing and development, and come with some limitations. In order to run a production application, please consider upgrading to a paid plan.
+これらはテストや開発に使用することを目的としており、いくつかの制限があります。本番アプリケーションを実行するためには、有料プランへのアップグレードをご検討ください。
 
-## Installing the Heroku Toolbelt
+## Herokuツールベルトのインストール
 
-Once we have signed up, we can download the correct version of the Heroku Toolbelt for our system [here](https://toolbelt.heroku.com/).
+サインアップしたら、私たちのシステム用に正しいバージョンのHerokuツールベルトを[ここから](https://toolbelt.heroku.com/)ダウンロードできます。
 
-The Heroku CLI, part of the Toolbelt, is useful to create Heroku applications, list currently running dynos for an existing application, tail logs or run one-off commands (mix tasks for instance).
+ツールベルトの一部であるHeroku CLIは、Herokuアプリケーションを作成したり、既存のアプリケーションで現在実行中のdynoをリストアップしたり、ログを表示したり、Mixタスクなどの単発のコマンドを実行したりするのに便利です。
 
-## Create and Setup Heroku Application
+## Herokuアプリケーションの作成と設定
 
-There are two different ways to deploy a Phoenix app on Heroku. We could use Heroku buildpacks or their container stack. The difference between these two approaches is in how we tell Heroku to treat our build. In buildpack case, we need to update our apps configuration on Heroku to use Phoenix/Elixir specific buildpacks. On container approach, we have more control on how we want to setup our app and we can define our container image using `Dockerfile` and `heroku.yml`. This section will explore the buildpack approach. In order to use Dockerfile, it is often recommended to convert our app to use releases, which we will describe later on.
+Heroku上にPhoenixアプリをデプロイするには、2つの異なる方法があります。Herokuビルドパックまたはそれらのコンテナスタックを使用できます。これら2つのアプローチの違いは、Herokuにビルドを処理するように指示する方法にあります。ビルドパックの場合、Phoenix/Elixir固有のビルドパックを使用するために、Heroku上でアプリの設定を更新する必要があります。コンテナアプローチでは、アプリをどのように設定するかをよりコントロールでき、`Dockerfile` と `heroku.yml` を使ってコンテナイメージを定義できます。このセクションでは、ビルドパックのアプローチについて説明します。Dockerfileを使用するためには、後ほど説明するリリースを使用するようにアプリを変換することが推奨されます。
 
-### Create Application
+### アプリケーションを作成する
 
-A [buildpack](https://devcenter.heroku.com/articles/buildpacks) is a convenient way of packaging framework and/or runtime support. Phoenix requires 2 buildpacks to run on Heroku, the first adds basic Elixir support and the second adds Phoenix specific commands.
+[ビルドパック](https://devcenter.heroku.com/articles/buildpacks)は、フレームワークやランタイムのサポートをパッケージ化する便利な方法です。PhoenixをHeroku上で動かすには2つのビルドパックが必要で、1つ目のビルドパックは基本的なElixirのサポートを追加し、2つ目のビルドパックはPhoenix固有のコマンドを追加します。
 
-With the Toolbelt installed, let's create the Heroku application. We will do so using the latest available version of the [Elixir buildpack](https://github.com/HashNuke/heroku-buildpack-elixir):
+ツールベルトをインストールした状態で、Herokuアプリケーションを作成してみましょう。ここでは、[Elixirビルドパック](https://github.com/HashNuke/heroku-buildpack-elixir)の最新版を使用します。
 
 ```console
 $ heroku create --buildpack hashnuke/elixir
@@ -92,16 +89,15 @@ Creating app... done, ⬢ mysterious-meadow-6277
 Setting buildpack to hashnuke/elixir... done
 https://mysterious-meadow-6277.herokuapp.com/ | https://git.heroku.com/mysterious-meadow-6277.git
 ```
+> 注意：初めてHerokuコマンドを使うときに、ログインを促されることがあります。その場合は、サインアップ時に指定したメールアドレスとパスワードを入力してください。
 
-> Note: the first time we use a Heroku command, it may prompt us to log in. If this happens, just enter the email and password you specified during signup.
+> 注意：Herokuアプリケーションの名前は、上の出力の「作成」の後のランダムな文字列（mysterious-meadow-6277）になります。これは一意になりますので、「mysterious-meadow-6277」とは異なる名前が表示されることを期待してください。
 
-> Note: the name of the Heroku application is the random string after "Creating" in the output above (mysterious-meadow-6277). This will be unique, so expect to see a different name from "mysterious-meadow-6277".
+> 注意：出力されたURLはアプリケーションへのURLです。今ブラウザで開くと、デフォルトのHerokuウェルカムページが表示されます。
 
-> Note: the URL in the output is the URL to our application. If we open it in our browser now, we will get the default Heroku welcome page.
+> 注意: もし `heroku create` コマンドを実行する前にGitリポジトリを初期化していなかったら、この時点ではHerokuのリモートリポジトリは適切に設定されていません。これを手動で設定するには、`heroku git:remote -a [ our-app-name].` を実行します。
 
-> Note: if we hadn't initialized our Git repository before we ran the `heroku create` command, we wouldn't have our Heroku remote repository properly set up at this point. We can set that up manually by running: `heroku git:remote -a [our-app-name].`
-
-The buildpack uses a predefined Elixir and Erlang version but to avoid surprises when deploying, it is best to explicitly list the Elixir and Erlang version we want in production to be the same we are using during development or in your continuous integration servers. This is done by creating a config file named `elixir_buildpack.config` in the root directory of your project with your target version of Elixir and Erlang:
+ビルドパックは定義済みのElixirとErlangのバージョンを使用しますが、デプロイ時に驚かずに済むように、本番で使用するElixirとErlangのバージョンを明示的にリストアップして、開発中やCIサーバーで使用しているものと同じものにするのがベストです。これはプロジェクトのルートディレクトリに `elixir_buildpack.config` という名前のコンフィグファイルを作成して、ターゲットとするElixirとErlangのバージョンを指定します。
 
 ```
 # Elixir version
@@ -112,9 +108,9 @@ elixir_version=1.8.1
 erlang_version=21.2.5
 ```
 
-### Adding the Phoenix Server and Assets Buildpack
+### Phoenixサーバーとアセットのビルドパックの追加
 
-To successfully run Phoenix in production, we need to compile assets and start the Phoenix server. The [Phoenix Static buildpack](https://github.com/gjaldon/heroku-buildpack-phoenix-static) can take care of that for us, so let's add it now.
+本番環境でPhoenixをうまく動かすためには、アセットをコンパイルしてPhoenixサーバーを起動する必要があります。[Phoenix Staticビルドパック](https://github.com/gjaldon/heroku-buildpack-phoenix-static)がそれを代行してくれるので、早速追加してみましょう。
 
 ```console
 $ heroku buildpacks:add https://github.com/gjaldon/heroku-buildpack-phoenix-static.git
@@ -123,29 +119,29 @@ Buildpack added. Next release on mysterious-meadow-6277 will use:
   2. https://github.com/gjaldon/heroku-buildpack-phoenix-static.git
 ```
 
-This Phoenix Static buildpack pack can be configured to change the node version and the options for asset compilation. Please refer to the [configuration section](https://github.com/gjaldon/heroku-buildpack-phoenix-static#configuration) for full details. You can make your own custom build script, but for now we will use the [default one provided](https://github.com/gjaldon/heroku-buildpack-phoenix-static/blob/master/compile).
+このPhoenix Staticビルドパックは、ノードのバージョンやアセットコンパイルのオプションを変更できるように設定できます。詳細は[設定のセクション](https://github.com/gjaldon/heroku-buildpack-phoenix-static#configuration)を参照してください。独自のカスタムビルドスクリプトを作成することもできますが、今のところは[提供されているデフォルトのもの](https://github.com/gjaldon/heroku-buildpack-phoenix-static/blob/master/compile)を使用します。
 
-The Phoenix Static buildpack also configures Heroku to use the proper command to start your application. The Elixir Buildpack runs by default `mix run --no-halt`, which will not start your Phoenix server. The Phoenix Static buildpack changes it to the proper `mix phx.server`. If you don't want to use the Phoenix Static buildpack, then you must manually define a `Procfile` at the root of your application with the proper command:
+Phoenix Staticビルドパックは、アプリケーションを起動するために適切なコマンドを使用するようにHerokuを設定します。Elixirビルドパックはデフォルトで `mix run --no-halt` を実行しますが、これはPhoenixサーバーを起動しません。Phoenix Staticビルドパックでは、これを適切な `mix phx.server` に変更します。Phoenix Staticビルドパックを使用したくない場合は、アプリケーションのルートに適切なコマンドを記述した `Procfile` を手動で定義する必要があります。
 
 ```
 web: mix phx.server
 ```
 
-Heroku will recognize this file and use the command to start your application, ensuring that it also starts the Phoenix server.
+Herokuはこのファイルを認識し、アプリケーションを起動するコマンドを使用してPhoenixサーバーも起動するようにします。
 
-Finally, note that since we are using multiple buildpacks, you might run into an issue where the sequence is out of order (the Elixir buildpack needs to run before the Phoenix Static buildpack). [Heroku's docs](https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app) explain this better, but you will need to make sure the Phoenix Static buildpack comes last.
+最後に、複数のビルドパックを使用しているので、順番が狂っている問題に遭遇する可能性があることに注意してください (ElixirビルドパックはPhoenix Staticビルドパックの前に実行する必要があります)。これについては [Heroku's docs](https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app) がよりよく説明していますが、Phoenix Staticビルドパックが最後に来ることを確認する必要があります。
 
-## Making our Project ready for Heroku
+## プロジェクトをHerokuに対応させる
 
-Every new Phoenix project ships with a config file `config/prod.secret.exs` which loads configuration and secrets from [environment variables](https://devcenter.heroku.com/articles/config-vars). This aligns well with Heroku best practices, so most the only work left for us to do is to configure URLs and SSL.
+すべての新しいPhoenixプロジェクトには、設定ファイル `config/prod.secret.exs` が同梱されており、これは[環境変数](https://devcenter.heroku.com/articles/config-vars)から設定とシークレットをロードします。これはHerokuのベストプラクティスに沿ったものなので、私たちに残された作業はURLとSSLを設定することだけです。
 
-First let's tell Phoenix to use our Heroku URL and enforce we only use the SSL version of the website. Also, bind to the port requested by Heroku in the [`$PORT` environment variable](https://devcenter.heroku.com/articles/runtime-principles#web-servers). Find the url line in your `config/prod.exs`:
+まず、PhoenixにHerokuのURLを使用するように指示し、SSLバージョンのウェブサイトのみを使用するように強制します。また、Herokuが要求したポートを[`$PORT` 環境変数](https://devcenter.heroku.com/articles/runtime-principles#web-servers)にバインドします。`config/prod.exs`の中にあるURLの行を探してください。
 
 ```elixir
 url: [host: "example.com", port: 80],
 ```
 
-... and replace it with this (don't forget to replace `mysterious-meadow-6277` with your application name):
+そして次のように置き換えてください（`mysterious-meadow-6277`をアプリケーション名に置き換えることを忘れないでください）。
 
 ```elixir
 http: [port: {:system, "PORT"}],
@@ -153,7 +149,7 @@ url: [scheme: "https", host: "mysterious-meadow-6277.herokuapp.com", port: 443],
 force_ssl: [rewrite_on: [:x_forwarded_proto]],
 ```
 
-Then open up your `config/prod.secret.exs` and uncomment the `# ssl: true,` line in your repository configuration. It will look like this:
+次に `config/prod.secret.exs` を開き、リポジトリの設定で `# ssl: true,` の行のコメントを外してください。このようになります。
 
 ```elixir
 config :hello, Hello.Repo,
@@ -162,7 +158,7 @@ config :hello, Hello.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 ```
 
-Finally, if you plan on using websockets, then we will need to decrease the timeout for the websocket transport in `lib/hello_web/endpoint.ex`. If you do not plan on using websockets, then leaving it set to false is fine. You can find further explanation of the options available at the [documentation](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html#socket/3-websocket-configuration).
+最後に、もしWebSocketを使う予定があるならば、`lib/hello_web/endpoint.ex`でWebSocket接続のタイムアウトを減らす必要があります。WebSocketを使用する予定がない場合は、この設定をfalseにしておいても構いません。オプションの詳細な説明は [ドキュメント](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html#socket/3-websocket-configuration) にあります。
 
 ```elixir
 defmodule HelloWeb.Endpoint do
@@ -176,42 +172,42 @@ defmodule HelloWeb.Endpoint do
 end
 ```
 
-This ensures that any idle connections are closed by Phoenix before they reach Heroku's 55-second timeout window.
+これにより、idle状態の接続はHerokuの55秒のタイムアウト・ウィンドウに達する前にPhoenixによって閉じられます。
 
-## Creating Environment Variables in Heroku
+## Herokuで環境変数を作成する
 
-The `DATABASE_URL` config var is automatically created by Heroku when we add the [Heroku Postgres add-on](https://elements.heroku.com/addons/heroku-postgresql). We can create the database via the heroku toolbelt:
+[Heroku Postgresアドオン](https://elements.heroku.com/addons/heroku-postgresql)を追加すると、`DATABASE_URL` の設定ファイルが自動的に作成されます。Herokuのツールベルトを使ってデータベースを作成できます。
 
 ```console
 $ heroku addons:create heroku-postgresql:hobby-dev
 ```
 
-Now we set the `POOL_SIZE` config var:
+ここでは、`POOL_SIZE`を設定します。
 
 ```console
 $ heroku config:set POOL_SIZE=18
 ```
 
-This value should be just under the number of available connections, leaving a couple open for migrations and mix tasks. The hobby-dev database allows 20 connections, so we set this number to 18. If additional dynos will share the database, reduce the `POOL_SIZE` to give each dyno an equal share.
+この値は利用可能な接続数以下であるべきで、マイグレーションやMixタスクのためにいくつかの空きを残しておく必要があります。hobby-devデータベースでは20の接続が可能なので、この値を18に設定します。データベースを共有するdynoが増える場合は、`POOL_SIZE`の値を小さくして、各dynoが等しく共有できるようにします。
 
-When running a mix task later (after we have pushed the project to Heroku) you will also want to limit its pool size like so:
+後ほど(プロジェクトをHerokuにプッシュした後に)Mixタスクを実行する際には、プールサイズを以下のように制限したいでしょう。
 
 ```console
 $ heroku run "POOL_SIZE=2 mix hello.task"
 ```
 
-So that Ecto does not attempt to open more than the available connections.
+これにより、Ectoは利用可能な接続数以上の接続を開こうとしないようになります。
 
-We still have to create the `SECRET_KEY_BASE` config based on a random string. First, use `mix phx.gen.secret` to get a new secret:
+ランダムな文字列に基づいて `SECRET_KEY_BASE` を設定しなければなりません。まず、`mix phx.gen.secret` を使って新しいシークレットを取得します。
 
 ```console
 $ mix phx.gen.secret
 xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53
 ```
 
-Your random string will be different; don't use this example value.
+あなたのランダムな文字列は異なるものになります。
 
-Now set it in Heroku:
+これをHerokuに設定します。
 
 ```console
 $ heroku config:set SECRET_KEY_BASE="xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53"
@@ -219,11 +215,11 @@ Setting config vars and restarting mysterious-meadow-6277... done, v3
 SECRET_KEY_BASE: xvafzY4y01jYuzLm3ecJqo008dVnU3CN4f+MamNd1Zue4pXvfvUjbiXT8akaIF53
 ```
 
-## Deploy Time!
+## デプロイタイム!
 
-Our project is now ready to be deployed on Heroku.
+私たちのプロジェクトは、これでHerokuにデプロイする準備が整いました。
 
-Let's commit all our changes:
+すべての変更をコミットしてみましょう。
 
 ```console
 $ git add config/prod.exs
@@ -233,7 +229,7 @@ $ git add lib/hello_web/endpoint.ex
 $ git commit -m "Use production config from Heroku ENV variables and decrease socket timeout"
 ```
 
-And deploy:
+そしてデプロイを行います。
 
 ```console
 $ git push heroku master
@@ -317,19 +313,19 @@ To https://git.heroku.com/mysterious-meadow-6277.git
  * [new branch]      master -> master
 ```
 
-Typing `heroku open` in the terminal should launch a browser with the Phoenix welcome page opened. In the event that you are using Ecto to access a database, you will also need to run migrations after the first deploy:
+ターミナルで `heroku open` と入力すると、Phoenixのウェルカムページを開いたブラウザが起動するはずです。データベースにアクセスするためにEctoを使用している場合、最初のデプロイの後にマイグレーションを実行する必要があります。
 
 ```console
 $ heroku run "POOL_SIZE=2 mix ecto.migrate"
 ```
 
-And that's it!
+それだけです！
 
-## Deploying to Heroku using the container stack
+## コンテナスタックを使ったHerokuへのデプロイ
 
-### Create Heroku application
+### Herokuアプリを作成する
 
-Set the stack of your app to `container`, this allows us to use `Dockerfile` to define our app setup.
+アプリのスタックを `container` に設定すると、`Dockerfile` を使ってアプリのセットアップを定義できます。
 
 ```console
 $ heroku create
@@ -337,7 +333,7 @@ Creating app... done, ⬢ mysterious-meadow-6277
 $ heroku stack:set container
 ```
 
-Add a new `heroku.yml` file to your root folder. In this file you can define addons used by your app, how to build the image and what configs are passed to the image. You can learn more about Heroku's `heroku.yml` options [here](https://devcenter.heroku.com/articles/build-docker-images-heroku-yml). Here is a sample:
+新しい `heroku.yml` ファイルをルートフォルダに追加します。このファイルでは、アプリで使用するアドオン、イメージのビルド方法、イメージに渡すconfigを定義できます。Herokuの `heroku.yml` オプションの詳細については [こちら](https://devcenter.heroku.com/articles/build-docker-images-heroku-yml) を参照してください。以下はサンプルです。
 
 ```yaml
 setup:
@@ -353,51 +349,51 @@ build:
     DATABASE_URL: $DATABASE_URL
 ```
 
-### Setup releases and Dockerfile
+### リリースとDockerfileの設定
 
-Now we need to define a `Dockerfile` at the root folder of your project that contains your application. We recommend to use releases when doing so, as the release will allow us to build a container with only the parts of Erlang and Elixir we actually use. Follow [the releases docs](/releases.html). At the end of the guide, there is a sample Dockerfile file you can use.
+ここで、アプリケーションを含むプロジェクトのルートフォルダに `Dockerfile` を定義する必要があります。その際にはリリースを使うことをオススメします。リリースを使うことで、自分たちが実際に利用しているErlangとElixirの一部だけを使ってコンテナをビルドすることができるからです。[release docs](/releases.html)にしたがってください。ガイドの最後にはDockerfileのサンプルファイルがあります。
 
-Once you have the image definition setup, you can push your app to heroku and you can see it starts building the image and deploy it.
+イメージの定義を設定したら、アプリをherokuにプッシュすると、イメージのビルドとデプロイが開始されるのがわかります。
 
-## Useful Heroku Commands
+## 便利なHerokuコマンド
 
-We can look at the logs of our application by running the following command in our project directory:
+プロジェクトディレクトリで以下のコマンドを実行することで、アプリケーションのログを見ることができます。
 
 ```console
 $ heroku logs # use --tail if you want to tail them
 ```
 
-We can also start an IEx session attached to our terminal for experimenting in our app's environment:
+また、端末に接続されたIExセッションを起動して、アプリの環境で実験することもできます。
 
 ```console
 $ heroku run "POOL_SIZE=2 iex -S mix"
 ```
 
-In fact, we can run anything using the `heroku run` command, like the Ecto migration task from above:
+実際には、上のEctoマイグレーションタスクのように、`heroku run`コマンドを使って何でも実行できます。
 
 ```console
 $ heroku run "POOL_SIZE=2 mix ecto.migrate"
 ```
 
-## Connecting to your dyno
+## dynoへの接続
 
-Heroku gives you the ability to connect to your dyno with an IEx shell which allows running Elixir code such as database queries.
+Herokuでは、データベースクエリなどのElixirコードを実行できるように、IExシェルを使ってdynoに接続する機能を提供しています。
 
-- Modify the `web` process in your Procfile to run a named node:
+- Procfileの`web`プロセスを修正して、名前付きノードを実行するようにしてください。
   ```
-  web: elixir --sname server -S mix phx.server
+  web: elixir -sname server -S mix phx.server
   ```
-- Redeploy to Heroku
-- Connect to the dyno with `heroku ps:exec` (if you have several applications on the same repository you will need to specify the app name or the remote name with `--app APP_NAME` or `--remote REMOTE_NAME`)
-- Launch an iex session with `iex --sname console --remsh server`
+- Herokuに再度デプロイします
+- `heroku ps:exec` でdynoに接続します (同じリポジトリに複数のアプリケーションがある場合は、`--app APP_NAME` または `--remote REMOTE_NAME` でアプリ名またはリモート名を指定する必要があります)。
+- `iex -sname console --remsh server` でiexセッションを起動する。
 
-You have an iex session into your dyno!
+dynoにiexのセッションが入っていますね!
 
-## Troubleshooting
+## トラブルシューティング
 
-### Compilation Error
+### コンパイルエラー
 
-Occasionally, an application will compile locally, but not on Heroku. The compilation error on Heroku will look something like this:
+時々、アプリケーションがローカルでコンパイルされることがありますが、Heroku上ではコンパイルされません。Heroku上でのコンパイルエラーは以下のようになります。
 
 ```console
 remote: == Compilation error on file lib/postgrex/connection.ex ==
@@ -417,17 +413,17 @@ remote:
 To https://git.heroku.com/mysterious-meadow-6277.git
 ```
 
-This has to do with stale dependencies which are not getting recompiled properly. It's possible to force Heroku to recompile all dependencies on each deploy, which should fix this problem. The way to do it is to add a new file called `elixir_buildpack.config` at the root of the application. The file should contain this line:
+これは、適切に再コンパイルされない古い依存関係に関係しています。Herokuはデプロイのたびにすべての依存関係を再コンパイルするように強制できます。その方法は、アプリケーションのルートに `elixir_buildpack.config` という新しいファイルを追加することです。このファイルには以下の行が含まれていなければなりません。
 
 ```
 always_rebuild=true
 ```
 
-Commit this file to the repository and try to push again to Heroku.
+このファイルをリポジトリにコミットして、再度Herokuにプッシュしてみてください。
 
-### Connection Timeout Error
+### コネクションタイムアウトエラー
 
-If you are constantly getting connection timeouts while running `heroku run` this could mean that your internet provider has blocked port number 5000:
+`heroku run`を実行している間、常にコネクションのタイムアウトが発生する場合は、インターネットプロバイダがポート番号5000をブロックしている可能性があります。
 
 ```console
 heroku run "POOL_SIZE=2 mix myapp.task"
@@ -435,7 +431,7 @@ Running POOL_SIZE=2 mix myapp.task on mysterious-meadow-6277... !
 ETIMEDOUT: connect ETIMEDOUT 50.19.103.36:5000
 ```
 
-You can overcome this by adding `detached` option to run command:
+コマンドを実行する際に `detached` オプションを追加することで、この問題を解決できます。
 
 ```console
 heroku run:detached "POOL_SIZE=2 mix ecto.migrate"
