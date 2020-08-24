@@ -2,41 +2,41 @@
 layout: 1.4/layout
 version: 1.4
 group: testing
-title: Testing Controllers
+title: コントローラーのテスト
 nav_order: 3
 hash: 5d132fdb587634ec2322586785b1408886481beb
 ---
-# Testing Controllers
+# コントローラーのテスト
 
-We're going to take a look at how we might test drive a controller which has endpoints for a JSON api.
+JSON api 用のエンドポイントを持つコントローラーをテスト駆動で開発する方法をみて行きましょう。
 
-Phoenix has a generator for creating a JSON resource which looks like this:
+Phoenixには、以下のようなJSONリソースを作成するためのジェネレータがあります:
 
 ```console
 $ mix phx.gen.json  AllTheThings Thing things some_attr:string another_attr:string
 ```
 
-In this command, AllTheThings is the context; Thing is the schema; things is the plural name of the schema (which is used as the table name). Then `some_attr` and `another_attr` are the database columns on table `things` of type string.
+このコマンドにおいて、AllTheThingsはコンテキストです。Thingはスキーマです。thingsはスキーマの複数形の名前です。(そしてthingsはテーブル名として使われます)。`some_attr`と`another_attr`は`things`テーブルのデータベースカラムであり、型は文字列型です。
 
-However, *don't* actually run this command. Instead, we're going to explore test driving out a similar result to what a generator would give us.
+しかしながら、実際にはこのコマンドは実行*しないでください*。そのかわりに、ジェネレーターが自動的に作ってくれるものと同じような結果が得られるかどうかテスト駆動で詳しくみてみることにしましょう。
 
-### Set up
+### 準備
 
-If you haven't already done so, first create a blank project by running:
+もしまだ以下のようにphx.newをしていないなら、以下のコマンドを実行することで空のプロジェクトを最初に作っておきましょう。
 
 ```console
 $ mix phx.new hello
 ```
 
-Change into the newly-created `hello` directory, configure your database in `config/dev.exs` and then run:
+新しくつくられた`hello`ディレクトリに移動して、`config/dev.exs`でデータベースの設定を行ってから以下を実行してください。
 
 ```console
 $ mix ecto.create
 ```
 
-If you have any questions about this process, now is a good time to jump over to the [Up and Running Guide](up_and_running.html).
+もしこの手順について疑問があれば、[起動ガイド](../up_and_running.html)へジャンプすることをいつやるの？　今でしょ。
 
-Let's create an `Accounts` context for this example. Since context creation is not in scope of this guide, we will use the generator. If you aren't familiar, read [this section of the Mix guide](phoenix_mix_tasks.html#phoenix-specific-mix-tasks) and [the Contexts Guide](contexts.html#content).
+この例では`Accounts`コンテキストを作ってみましょう。コンテキスト作成はこのガイドのスコープの範疇を超えるため、ここではジェネレーターを使うことにします。もしコンテキストの詳細を知りたければ、[Mixタスク](../phoenix_mix_tasks.html#独自のmixタスクを作成する)や[コンテキスト](../contexts.html#content)を確認してみましょう。
 
 ```console
 $ mix phx.gen.context Accounts User users name:string email:string:unique password:string
@@ -53,7 +53,7 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-Ordinarily we would spend time tweaking the generated migration file (`priv/repo/migrations/<datetime>_create_users.exs`) to add things like non-null constraints and so on, but we don't need to make any changes for this example, so we can just run the migration:
+通常、生成されたマイグレーションファイル(`priv/repo/migrations/<datetime>_create_users.exs`)にNOT NULL制約などを追加するために微調整に時間を費やしますが、今回は何も変更は加えず、ただマイグレーションを実行します。
 
 ```console
 $ mix ecto.migrate
@@ -65,17 +65,17 @@ Generated hello app
 [info] == Migrated in 0.0s
 ```
 
-As a final check before we start developing, we can run `mix test` and make sure that all is well.
+開発を開始するまえの最終チェックとして、`mix test`を実行して、すべてのテストがパスしていることを確かめておきましょう。
 
 ```console
 $ mix test
 ```
 
-All of the tests should pass, but sometimes the database isn't configured properly in `config/test.exs`, or some other issue crops up. It is best to correct these issues now, *before* we complicate things with deliberately breaking tests!
+すべてのテストはパスするはずですが、まれにデータベースの設定が`config/test.exs`で適切にされていなかったり、別の問題が発生する場合があります。意図的にテストを壊して物事を複雑にする*前に*、今すぐこれらの問題を修正するのがベストです!
 
-### Test driving
+### テスト駆動開発
 
-What we are going for is a controller with the standard CRUD actions. We'll start with our test since we're TDDing this. Create a `user_controller_test.exs` file in `test/hello_web/controllers`
+これからやっていく題材は、標準的なCRUDアクションをもったコントローラーです。テスト駆動開発でやっていくのでテストの作成から始めます。`test/hello_web/controllers`内に`user_controller_test.exs`を作りましょう。
 
 ```elixir
 defmodule HelloWeb.UserControllerTest do
@@ -84,7 +84,7 @@ defmodule HelloWeb.UserControllerTest do
 end
 ```
 
-There are many ways to approach TDD. Here, we will think about each action we want to perform, and handle the "happy path" where things go as planned, and the error case where something goes wrong, if applicable.
+テスト駆動開発の進め方には様々な方法があります。ここでは、実行したいアクションを一つ一つ考え、期待通りに物事が進む「ハッピーパス」と、何かがうまくいかない場合の「エラーケース」（該当する場合）を扱っていきます。
 
 ```elixir
 defmodule HelloWeb.UserControllerTest do
@@ -112,21 +112,21 @@ defmodule HelloWeb.UserControllerTest do
 end
 ```
 
-Here we have tests around the 5 controller CRUD actions we need to implement for a typical JSON API. At the top of the module we are using the module `HelloWeb.ConnCase`, which provides connections to our test repository. Then we define the 8 tests. In 2 cases, index and delete, we are only testing the happy path, because in our case they generally won't fail because of domain rules (or lack thereof). In practical application, our delete could fail easily once we have associated resources that cannot leave orphaned resources behind, or number of other situations. On index, we could have filtering and searching to test. Also, both could require authorization.
+ここでは、典型的なJSON APIのために実装する必要がある5つのコントローラーのCRUDアクションを中心としたテストを行っています。モジュールのトップには`HelloWeb.ConnCase`というモジュールを使用しており、テストリポジトリへの接続を提供しています。次に、8つのテストを定義します。indexとdeleteの2つのケースでは、一般的にはドメインルール（またはその欠如）のために失敗することはないため、ハッピーパスのみをテストしています。現実的には、関連するリソースがあっても孤児になったリソースを残すことができない場合や、その他様々な状況で削除に失敗する可能性があります。インデックス上では、フィルタリングや検索などのテストが必要になるかもしれません。また、どちらも認証が必要になる場合があります。
 
-Create, show and update have more typical ways to fail because they need a way to find the resource, which could be non existent, or invalid data was supplied in the params. Since we have multiple tests for each of these endpoints, putting them in a `describe` block is good way to organize our tests.
+create、show、update は、リソースを見つける方法が必要なため、失敗する典型的な方法(リソースが存在しない場合であったり、パラメーターに無効なデータを提供すること)があります。これらのエンドポイントごとに複数のテストがあるので、それらを`describe`ブロックに入れることはテストを整理するのに良い方法です。
 
-Let's run the test:
+テストを実行してみましょう。
 
 ```console
 $ mix test test/hello_web/controllers/user_controller_test.exs
 ```
 
-We get 8 failures that say "Not implemented" which is good. Our tests don't have blocks yet.
+"Not implemented"と言われる8つの失敗が得られることでしょう。それでよいのです。テストはまだブロックを持っていないのですから。
 
-### The first test
+### 最初のテスト
 
-Let's add our first test. We'll start with `index/2`.
+最初のテストを追加してみましょう。`index/2`からはじめてみます。
 
 ```elixir
 defmodule HelloWeb.UserControllerTest do
@@ -158,15 +158,15 @@ defmodule HelloWeb.UserControllerTest do
   end
 ```
 
-Let's take a look at what's going on here. First we alias `Hello.Accounts`, the context module that provides us with our repository manipulation functions. When we use the `HelloWeb.ConnCase` module, it sets things up such that each connection is wrapped in a transaction, *and* all of the database interactions inside of the test use the same database connection and transaction. This module also sets up a `conn` attribute in our ExUnit context, using `Phoenix.ConnCase.build_conn/0`. We then pattern match this to use it in each test case. For details, take a look at the file `test/support/conn_case.ex`, as well as the [Ecto documentation for SQL.Sandbox](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html). We could put a `build_conn/0` call inside of each test, but it is cleaner to use a setup block to do it.
+ここでは行っていることをみてみましょう。まず`Hello.Accounts`をエイリアスしています。これはリポジトリ操作関数を提供するコンテキストモジュールです。`HelloWeb.ConnCase`モジュールをuseすると、各接続がトランザクションにラップされるように設定し、*なおかつ*、テスト内のすべてのデータベースのインタラクションが同じデータベース接続とトランザクションを使用します。このモジュールはExUnitコンテキストの中で`Phoenix.ConnCase.build_conn/0`使われ、`conn`属性もセットアップします。そして、これをパターンマッチして、各テストケースで使用します。詳細は、`test/support/conn_case.ex`や同様に[Ecto documentation for SQL.Sandbox](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html)をご参照ください。各テストの中に`build_conn/0`呼び出しを入れることもできますが、それを行うにはセットアップブロックを使った方がすっきりします。
 
-The index test then hooks into the context to extract the contents of the `:conn` key. We then create two users using the `Hello.Accounts.create_user/1` function. Again, note that this function accesses the test repo, but even though we don't pass the `conn` variable to the call, it still uses the same connection and puts these new users inside the same database transaction. Next the `conn` is piped to a `get` function to make a `GET` request to our `UserController` index action, which is in turn piped into `json_response/2` along with the expected HTTP status code. This will return the JSON from the response body, when everything is wired up properly. We represent the JSON we want the controller action to return with the variable `expected`, and assert that the `response` and `expected` are the same.
+indexのテストはその後、コンテキストにフックして`:conn`キーの内容を抽出します。`Hello.Accounts.create_user/1`関数を用いて2人のユーザーを作っています。もう一度言及しておくと、この関数はテスト用のレポにアクセスしていますが、呼び出し際して`conn`変数を渡していないにもかかわらず、同じ接続を使用し、これらの新しいユーザーを同じデータベーストランザクションの中に入れていることに注意してください。次に`conn`は`get`関数にパイプされ、`UserController` indexアクションへの`GET`リクエストを行います。それは期待されるHTTPステータスコードとともに`json_response/2`にパイプされ返されます。これは、すべてが適切に構築されているときにレスポンスボディからJSONを返します。コントローラーアクションが返したいJSONを変数`expected`で表現し、`response`と`expected`が同じであることをアサートしています。
 
-Our expected data is a JSON response with a top level key of `"data"` containing an array of users that have `"name"` and `"email"` properties that should match the users created before making the request. Also, we do not want the users' "password" properties to show up in our JSON response.
+期待するデータは、`"data"`というトップレベルのキーを持つ JSON レスポンスで、リクエストする前に作成したユーザーと一致する`"name"`と`"email"`プロパティを持つユーザーの配列を含みます。また、ユーザーの"password"プロパティがJSONレスポンスに表示されないようにします。
 
-When we run the test we get an error that we have no `user_path` function.
+テストを実行すると、`user_path`関数がないというエラーが出ます。
 
-In our router, we'll uncomment the `api` scope at the bottom of the auto-generated file, and then use the resources macro to generate the routes for the "/users" path. Because we aren't going to be generating forms to create and update users, we add the `except: [:new, :edit]` to skip those endpoints.
+ルーターでは、自動生成ファイルの下部にある`api`スコープのコメントを外し、リソースマクロを使って"/users"パスのルートを生成します。ユーザーを作成したり更新したりするためのフォームを生成するわけではないので、`except: [:new, :edit]`を追加して、これらのエンドポイントを省きます。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -198,7 +198,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Before running the test again, check out our new paths by running `mix phx.routes`. You should see six new "/api" routes in addition to the default page controller route:
+テストを再度実行する前に、`mix phx.routes`を実行して新しいパスを確認してください。デフォルトのページコントローラールートに加えて、6つの新しい"/api"ルートが表示されるはずです。
 
 ```console
 $ mix phx.routes
@@ -212,7 +212,7 @@ user_path  PATCH   /api/users/:id  HelloWeb.UserController :update
 user_path  DELETE  /api/users/:id  HelloWeb.UserController :delete
 ```
 
-We should get a new error now. Running the test informs us we don't have a `HelloWeb.UserController`. Let's create that controller by opening the file `lib/hello_web/controllers/user_controller.ex` and adding the `index/2` action we're testing. Our test description has us returning all users:
+これで新しいエラーが表示されるはずです。テストを実行すると、`HelloWeb.UserController`がないことがわかります。ファイル`lib/hello_web/controllers/user_controller.ex`を開いて、テスト対象の`index/2`アクションを追加して、そのコントローラーを作成してみましょう。テストの説明では、すべてのユーザを返すようになっています。
 
 ```elixir
 defmodule HelloWeb.UserController do
@@ -227,7 +227,7 @@ defmodule HelloWeb.UserController do
 end
 ```
 
-When we run the test again, our failing test tells us the module `HelloWeb.UserView` is not available. Let's add it by creating the file `lib/hello_web/views/user_view.ex`. Our test specifies a JSON format with a top key of `"data"`, containing an array of users with attributes `"name"` and `"email"`.
+再度テストを実行すると、失敗したテストではモジュール`HelloWeb.UserView`が利用できないことがわかります。ファイル`lib/hello_web/views/user_view.ex`を作成して追加してみましょう。テストでは、トップキーが`"data"`のJSON形式で、属性`"name"`と`"email"`を持つユーザーの配列を指定しています。
 
 ```elixir
 defmodule HelloWeb.UserView do
@@ -244,15 +244,15 @@ defmodule HelloWeb.UserView do
 end
 ```
 
-The view module for the index uses the `render_many/4` function. According to the [documentation](https://hexdocs.pm/phoenix/Phoenix.View.html#render_many/4), using `render_many/4` is "roughly equivalent" to using `Enum.map/2`, and in fact `Enum.map` is called under the hood. The main difference between `render_many/4` and directly calling `Enum.map/2` is that the former benefits from library-quality error checking, properly handling missing values, and so on. `render_many/4` also has an `:as` option that can used so that the key in the assigns map can be renamed. By default, this is inferred from the module name (`:user` in this case), but it can be changed if necessary to fit the render function being used.
+indexのためのビューモジュールは`render_many/4`関数を使っています。[documentation](https://hexdocs.pm/phoenix/Phoenix.View.html#render_many/4)によると、`Enum.map/2`を使うことと"大雑把には等価"であり、内部実装では`Enum.map/2`が直接呼ばれています。`render_many/4`と直接`Enum.map/2`を呼び出すことの大きな違いは、前者にはライブラリ品質のエラーチェックや欠落した値の適切なハンドリングなどの利点があります。また、`render_many/4`には`:as`オプションがあり、これを利用して割り当てマップのキーの名前を変更することができます。デフォルトでは、これはモジュール名(この場合は`:user`)から推測されますが、使用するレンダリング関数に合わせて必要に応じて変更することができます。
 
-And with that, our test passes when we run it.
+そして、テストを実行すると、indexのテストはパスします。
 
-### Testing the show action
+### showアクションのテスト
 
-We'll also cover the `show/2` action here so we can see how to handle an error case.
+ここでは`show/2`アクションもカバーしましょう。エラーケースのハンドリングの方法をみることができます。
 
-Our show tests currently look like this:
+showのテストは現在このようになっています。
 
 ```elixir
   describe "show/2" do
@@ -261,13 +261,13 @@ Our show tests currently look like this:
   end
 ```
 
-Run this test only by running the following command: (if your show tests don't start on line 34, change the line number accordingly)
+下記のコマンドを実行することでこのテストのみを実行させましょう: (もし該当のテストが34行目から始まっていない場合は適宜行数を変更してください)
 
 ```console
 $ mix test test/hello_web/controllers/user_controller_test.exs:34
 ```
 
-Our first `show/2` test result is, as expected, not implemented. Let's build a test around what we think a successful `show/2` should look like.
+`show/2`の結果は予想通り、not implementedになっています。成功した`show/2`がどのように見えるかを中心にテストを構築してみましょう。
 
 ```elixir
 test "Responds with user info if the user is found", %{conn: conn} do
@@ -284,7 +284,7 @@ test "Responds with user info if the user is found", %{conn: conn} do
 end
 ```
 
-This is fine, but it can be refactored slightly. Notice that both this test and the index test need users in the database. Instead of creating these users over and over again, we can instead call another `setup/1` function to populate the database with users on an as-needed basis. To do this, first create a private function at the bottom of the test module as follows:
+これは問題ありませんが、少しリファクタリングすることができます。このテストとindexテストの両方ともデータベースにユーザーが必要であることに注意してください。これらのユーザーを何度も何度も作成する代わりに、別の`setup/1`関数を呼び出して、必要に応じてデータベースにユーザーを追加することができます。これを行うには、まずテストモジュールの下部に以下のようなプライベート関数を作成します。
 
 ```elixir
 defp create_user(_) do
@@ -292,7 +292,7 @@ defp create_user(_) do
   {:ok, user: user}
 end
 ```
-Next define `@create_attrs` as a custom attribute for the module at the top, as follows.
+次に、カスタム属性として`@create_attrs`をモジュールの上部に下記のように宣言します。
 
 ```elixir
 alias Hello.Accounts
@@ -301,7 +301,7 @@ alias Hello.Accounts
 ```
 
 
-Finally, invoke the function using a second `setup/1` call inside of the `describe` block:
+最後に`describe`ブロックの2行目で`setup/1`を使って関数を実行します。
 
 ```elixir
 describe "show/2" do
@@ -321,9 +321,9 @@ describe "show/2" do
 end
 ```
 
-The functions called by `setup` take an ExUnit context (not to be confused with the contexts we are describing throughout this guide) and allow us to add additional fields when we return. In this case, `create_user` doesn't care about the existing context (hence the underscore parameter), and adds a new user to the ExUnit context under the key `user:`  by returning `{:ok, user: user}`. The test can then access both the database connection and this new user from the ExUnit context.
+`setup`で呼び出される関数は、ExUnitのコンテキスト(このガイドで説明しているコンテキストと混同しないようにしましょう)を受け取り、それを返すときにフィールドを追加することができます。この場合、`create_user`は既存のコンテキストを気にせず(つまりアンダースコアパラメータを指定しているのです)、新しいユーザーをExUnitのコンテキストに`{:ok, user: user}`を返すことによって`user:`というキーで追加します。これで、テストはデータベース接続とこの新しいユーザの両方にExUnitコンテキストからアクセスできるようになります。
 
-Finally, let's change our `index/2` test to also use the new `create_user` function. The index test doesn't *really* need two users, after all. The revised `index/2` test should look like this:
+最後に、新しい`create_user`関数を使うように`index/2`テストを変更してみましょう。indexのテストでは、*結局のところ*2人のユーザは必要ありません。改訂した`index/2`テストは次のようになります。
 
 ```elixir
   describe "index/2" do
@@ -342,9 +342,9 @@ Finally, let's change our `index/2` test to also use the new `create_user` funct
   end
 ```
 
-The biggest change here is that we now wrapped the old test inside of another `describe` block so that we have somewhere to put the `setup/2` call for the index test. We are now accessing the user from the ExUnit context, and expecting just a single user from the `index/2` test results, not two.
+ここでの最大の変更点は、古いテストを別の`describe`ブロックの中にまとめ、indexテストのための`setup/2`コールを置く場所を確保したことです。これで、ExUnitのコンテキストからユーザーにアクセスし、`index/2`のテスト結果からはユーザーが二人ではなく一人だけになることを期待できるようになりました。
 
-The `index/2` test should still pass, but the `show/2` test will error with a message that we need a `HelloWeb.UserController.show/2` action. Let's add that to the UserController module next.
+`index/2`テストはまだパスするはずですが、`show/2`テストは`HelloWeb.UserController.show/2`アクションが必要だというメッセージでエラーになります。次にこれをUserControllerモジュールに追加してみましょう。
 
 ```elixir
 defmodule HelloWeb.UserController do
@@ -364,9 +364,9 @@ defmodule HelloWeb.UserController do
 end
 ```
 
-You might notice the exclamation point in the `get_user!/1` function. This convention means that this function will throw an error if the requested user is not found. You'll also notice that we aren't properly handling the possibility of a thrown error here. When we TDD we only want to write enough code to make the test pass. We'll add more code when we get to the error handling test for `show/2`.
+`get_user!/1`関数の感嘆符に気づくかもしれません。この慣習は、要求されたユーザーが見つからなかった場合にこの関数がエラーをスローすることを意味しています。また、ここでは投げられたエラーの可能性を適切に処理していないことにも気づくでしょう。TDDでは、テストを通過させるのに十分なコードを書きたいだけです。`show/2`のエラー処理テストにたどり着いたら、さらにコードを追加します。
 
-Running the test tells us we need a `render/2` function that can pattern match on `"show.json"`:
+テストを実行すると、`"show.json"`にパターンマッチする`render/2`関数が必要だと言われるでしょう:
 
 ```elixir
 defmodule HelloWeb.UserView do
@@ -387,17 +387,17 @@ defmodule HelloWeb.UserView do
 end
 ```
 
-Notice the "show.json" rendering path uses `render_one/4` instead of `render_many/4` because it is only rendering a single user, not a list.
+"show.json"のレンダリングには`render_many/4`のかわりに`render_one/4`を使っていることに気づくでしょう。なぜならは、リストではなく単一のユーザーをレンダリングするのみだからです。
 
-When we run the test again, it passes.
+もう一度テストを実行すると、パスします。
 
-### Show when the user is not found
+### ユーザーが存在しない場合のshowアクションテスト
 
-The last item we'll cover is the case where we don't find a user in `show/2`.
+最後に、`show/2`でユーザーが見つからない場合のケースに取り組んでみましょう。
 
-Try this one on your own and see what you come up with. One possible solution will be given below.
+これを自分で試してみて、何を思いつくか考えてみてください。以下に一つの解決策を以下に示します。
 
-Walking through our TDD steps, we add a test that supplies a non-existent user id to `user_path` which returns a 404 status and an error message. One interesting problem here is how we might define a "non-existent" id. We could just pick a large integer, but who's to say some future test won't generate thousands of test users and break our test? Instead of going bigger, we can also go the other way. Database ids tend to start at 1 and increase forever. Negative numbers are perfectly valid integers, and yet never used for database ids. So we'll pick -1 as our "unobtainable" user id, which *should* always fail.
+テスト駆動開発のステップを進めて、存在しないユーザーIDを`user_path`に指定すると、ステータスコード404とエラーメッセージを返すテストを追加します。ここでの興味深い問題は存在しないIDをどのように定義するかです。大きな整数を指定してみることもできますが、将来のテストで何千人ものテストユーザが発生してテストが壊れることがないとは言い切れるでしょうか？　大きな整数を使うかわりに、他の方法も使うことができます。データベースのidは1から始まり無限に増加していく傾向があります。負の整数は完全に有効な整数ではありますが、データベースのIDとしては決して使われることはありません。それで"取得不可能な "ユーザIDとして-1を選択します。こうすることでいつもテストは*失敗するでしょう。*
 
 ```elixir
 test "Responds with a message indicating user not found", %{conn:  conn} do
@@ -407,9 +407,9 @@ test "Responds with a message indicating user not found", %{conn:  conn} do
 end
 ```
 
-We want a HTTP status code of 404 to notify the requester that this resource was not found, as well as an accompanying error message. Notice that we use [`text_response/2`](https://hexdocs.pm/phoenix/Phoenix.ConnTest.html#text_response/2) instead of [`json_response/2`](https://hexdocs.pm/phoenix/Phoenix.ConnTest.html#json_response/2) to assert that the status code is 404 and the response body matches the accompanying error message. You can run this test now to see what happens. You should see that an `Ecto.NoResultsError` is thrown, because there is no such user in the database.
+このリソースが見つからなかったことを要求元に通知するために、404というHTTPステータスコードと、それに付随するエラーメッセージが必要です。ステータスコードが404であり、レスポンスボディーが付随するエラーメッセージと一致することを保証するために、[`json_response/2`](https://hexdocs.pm/phoenix/Phoenix.ConnTest.html#json_response/2)の代わりに[`text_response/2`](https://hexdocs.pm/phoenix/Phoenix.ConnTest.html#text_response/2)を使用していることに注意してください。このテストを実行して、何が起こるかを確認することができます。データベースにそのようなユーザが存在しないため、`Ecto.NoResultsError`がスローされることがわかるはずです。
 
-Our controller action needs to handle the error thrown by Ecto. We have two choices here. By default, this will be handled by the [phoenix_ecto](https://github.com/phoenixframework/phoenix_ecto) library, returning a 404. However if we want to show a custom error message, we can create a new `get_user/1` function that does not throw an Ecto error. For this example, we'll take the second path and implement a new `get_user/1` function in the file `lib/hello/accounts.ex`, just before the `get_user!/1` function:
+コントローラーアクションはEctoによって投げられたエラーを処理する必要があります。ここでは2つの選択肢があります。デフォルトでは、これは[phoenix_ecto](https://github.com/phoenixframework/phoenix_ecto)ライブラリによって処理され、404を返します。しかし、カスタムのエラーメッセージを表示したい場合は、Ectoのエラーをスローしない新しい`get_user/1`関数を作成することができます。この例では、2番目のパスを取り、新しい`get_user/1`関数をちょうど`get_user!/1`関数の直前で`lib/hello/accounts.ex`ファイルに実装します。
 
 ```elixir
 @doc """
@@ -430,7 +430,7 @@ Returns `nil` if no result was found.
 def get_user(id), do: Repo.get(User, id)
 ```
 
-This function is just a thin wrapper around `Ecto.Repo.get/3`, and like that function will return either a `%User{}` if the user is found, or `nil` if not. Next change the `show/2` function to use the non-throwing version, and handle the two possible result cases.
+この関数は`Ecto.Repo.get/3`のまわりを薄くラップしたものであり、ユーザーが見つかれば`%User{}`を返し、ユーザーが見つからなければ`nil`を返します。次に`show/2`関数でスローしないバージョンを使うように変更して、2つの取りうる値をハンドリングします。
 
 ```elixir
 def show(conn, %{"id" => id}) do
@@ -446,12 +446,13 @@ def show(conn, %{"id" => id}) do
 end
 ```
 
-The first branch of the case statement handles the `nil` result case. First, we use the [`put_status/2`](https://hexdocs.pm/plug/Plug.Conn.html#put_status/2) function from `Plug.Conn` to set the desired error status. The complete list of allowed codes can be found in the [Plug.Conn.Status documentation](https://hexdocs.pm/plug/Plug.Conn.Status.html), where we can see that `:not_found` corresponds to our desired "404" status. We then return a text response using [`text/2`](https://hexdocs.pm/phoenix/Phoenix.Controller.html#text/2).
+case文の最初のブランチでは結果が`nil`のケースを扱います。まず、`Plug.Conn`から[`put_status/2`](https://hexdocs.pm/plug/Plug.Conn.html#put_status/2)関数を使い、希望するエラーステータスを設定します。[Plug.Conn.Status documentation](https://hexdocs.pm/plug/Plug.Conn.Status.html)に利用できるステータスコードの完全なリストを参照することができ、今回期待する"404"ステータスコードに対応する`:not_found`を設定しています。そうして、[`text/2`](https://hexdocs.pm/phoenix/Phoenix.Controller.html#text/2)を使うことでテキストレスポンスを返しています。
 
-The second branch of the case statement handles the "happy path" we've already covered. Phoenix also allows us to only implement the "happy path" in our action and use `Phoenix.Controller.action_fallback/1`. This is useful for centralizing your error handling code. You may wish to refactor the show action to use action_fallback as covered in the "Action Fallback" section of the [controllers guide](controllers.html#action-fallback).
+case文の2番目のブランチはすでに実装済みの"ハッピーパス"を処理します。Phoenixはまたアクションの中で"ハッピーパス"のみを実装する機能があり、`Phoenix.Controller.action_fallback/1`を使います。これはエラーハンドリングコードを共通化することに役立ちます。[コントローラー](../controllers.html#アクションフォールバック)の「アクションフォールバック」節で取り扱ったaction_fallbackを使ってshowアクションをリファクタすることが望ましいかもしれません。
 
-With those implemented, our tests pass. 
+これらを実装すると、テストはパスします。
 
-The rest of the controller is left for you to implement as practice. If you are not sure where to begin, it is worth using the Phoenix JSON generator and seeing what tests are automatically generated for you.
+コントローラーテストの残りの実装は練習としてあなたに残しておきます。どこから手をつけていいかわからない場合は、Phoenix JSON ジェネレータを使用して、どのようなテストが自動的に生成されるかを確認するとよいでしょう。
 
 Happy testing!
+テストに幸あれ!
