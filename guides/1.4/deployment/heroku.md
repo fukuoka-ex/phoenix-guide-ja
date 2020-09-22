@@ -39,7 +39,7 @@ Herokuは素晴らしいプラットフォームであり、Elixirはその上�
 
 - Gitリポジトリの初期化
 - Herokuにサインアップする
-- Herokuツールベルトのインストール
+- Heroku toolbeltのインストール
 - Herokuアプリケーションの作成と設定
 - プロジェクトをHerokuに対応させる
 - デプロイタイム!
@@ -67,11 +67,11 @@ Herokuへの登録は非常に簡単で、[https://signup.heroku.com/](https://s
 
 これらはテストや開発に使用することを目的としており、いくつかの制限があります。本番アプリケーションを実行するためには、有料プランへのアップグレードをご検討ください。
 
-## Herokuツールベルトのインストール
+## Heroku toolbeltのインストール
 
-サインアップしたら、私たちのシステム用に正しいバージョンのHerokuツールベルトを[ここから](https://toolbelt.heroku.com/)ダウンロードできます。
+サインアップしたら、私たちのシステム用に正しいバージョンのHeroku toolbeltを[ここから](https://toolbelt.heroku.com/)ダウンロードできます。
 
-ツールベルトの一部であるHeroku CLIは、Herokuアプリケーションを作成したり、既存のアプリケーションで現在実行中のdynoをリストアップしたり、ログを表示したり、Mixタスクなどの単発のコマンドを実行したりするのに便利です。
+toolbeltの一部であるHeroku CLIは、Herokuアプリケーションを作成したり、既存のアプリケーションで現在実行中のdynoをリストアップしたり、ログを表示したり、Mixタスクなどの単発のコマンドを実行したりするのに便利です。
 
 ## Herokuアプリケーションの作成と設定
 
@@ -81,7 +81,7 @@ Heroku上にPhoenixアプリをデプロイするには、2つの異なる方法
 
 [ビルドパック](https://devcenter.heroku.com/articles/buildpacks)は、フレームワークやランタイムのサポートをパッケージ化する便利な方法です。PhoenixをHeroku上で動かすには2つのビルドパックが必要で、1つ目のビルドパックは基本的なElixirのサポートを追加し、2つ目のビルドパックはPhoenix固有のコマンドを追加します。
 
-ツールベルトをインストールした状態で、Herokuアプリケーションを作成してみましょう。ここでは、[Elixirビルドパック](https://github.com/HashNuke/heroku-buildpack-elixir)の最新版を使用します。
+toolbeltをインストールした状態で、Herokuアプリケーションを作成してみましょう。ここでは、[Elixirビルドパック](https://github.com/HashNuke/heroku-buildpack-elixir)の最新版を使用します。
 
 ```console
 $ heroku create --buildpack hashnuke/elixir
@@ -176,7 +176,7 @@ end
 
 ## Herokuで環境変数を作成する
 
-[Heroku Postgresアドオン](https://elements.heroku.com/addons/heroku-postgresql)を追加すると、`DATABASE_URL` の設定ファイルが自動的に作成されます。Herokuのツールベルトを使ってデータベースを作成できます。
+[Heroku Postgresアドオン](https://elements.heroku.com/addons/heroku-postgresql)を追加すると、`DATABASE_URL` の設定ファイルが自動的に作成されます。Herokuのtoolbeltを使ってデータベースを作成できます。
 
 ```console
 $ heroku addons:create heroku-postgresql:hobby-dev
