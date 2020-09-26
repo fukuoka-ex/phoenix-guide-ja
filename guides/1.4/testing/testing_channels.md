@@ -2,33 +2,20 @@
 layout: 1.4/layout
 version: 1.4
 group: testing
-title: "Testing Channels"
+title: "チャネルのテスト"
 nav_order: 4
 hash: b51f968ec1eb42a96a23dd4bf04c4efafaab8a5c
 ---
 
-# Testing Channels
+# チャネルのテスト
 
-As developers we typically value tests since they help to 'future-proof' our applications by
-minimizing regression and provide updated documentation. Phoenix recognizes this and helps
-make it easier to write tests by providing conveniences for testing its different parts,
-including Channels.
+開発者として、私たちは一般的にテストを重視しています。なぜなら、テストは、リグレッション を最小限に抑え、更新されたドキュメントを提供することで、アプリケーションの「将来性」を保証するのに役立つからです。Phoenixはこのことを認識しており、チャネルを含むさまざまな部分をテストするための便利な機能を提供することで、テストの記述を容易にしています。
 
-In the Channels Guide, we saw that a "Channel" is a layered system with different
-components. Given this, there would be cases when writing unit tests for our Channel
-functions may not be enough. We may want to verify that its different moving parts
-are working together as we expect. This integration testing would assure us that we
-correctly defined our channel route, the channel module, and its callbacks; and that
-the lower-level layers such as the PubSub and Transport are configured correctly and
-are working as intended.
+チャネルガイドでは、「チャネル」は異なるコンポーネントを持つ層状のシステムであることを見てきました。このことを考えると、チャネル関数のための単体テストを書くだけでは十分ではない場合があるでしょう。異なる可動部分が期待通りに動作しているかどうかを検証したい場合もあるでしょう。この統合テストは、チャネルルート、チャネルモジュール、およびそのコールバックを正しく定義したこと、およびPubSubやTransportのような低レベルのレイヤーが正しく設定され、意図した通りに動作していることを保証します。
 
+#### チャネルジェネレーター
 
-#### The Channel Generator
-
-As we progress through this guide, it would help to have a concrete example we could
-work off of. Phoenix comes with a Mix task for generating a basic channel and tests.
-These generated files serve as a good reference for writing channels and their
-corresponding tests. Let's go ahead and generate our Channel:
+このガイドを進めていく中で、具体的な例があれば参考になるでしょう。Phoenixには、基本的なチャネルとテストを生成するMixタスクが付属しています。これらの生成されたファイルは、チャネルとそれに対応するテストを書く際の参考になります。それでは、チャネルを生成してみましょう。
 
 ```console
 $ mix phx.gen.channel Room
@@ -40,27 +27,16 @@ Add the channel to your `lib/hello_web/channels/user_socket.ex` handler, for exa
     channel "room:lobby", HelloWeb.RoomChannel
 ```
 
-This creates a channel, its test and instructs us to add a channel route in
-`lib/hello_web/channels/user_socket.ex`. It is important to add the channel route or our
-channel won't function at all!
+これはチャネルとそのテストを作成し、 `lib/hello_web/channels/user_socket.ex` にチャネルルートを追加するように指示します。チャネルルートを追加しないと、チャネルはまったく機能しません!
 
-#### The Channel Test Helpers Module
+#### チャネルテストのヘルパーモジュール
 
-Upon inspecting the file `test/hello_web/channels/room_channel_test.exs`, we see a line that looks like
-`use MyAppWeb.ChannelCase`. Note - we assume that our app is named `MyApp` throughout this guide.
-Where does this come from?
+`test/hello_web/channels/room_channel_test.exs` を調べると、`use MyAppWeb.ChannelCase` のような行があります。（注: このガイドでは、アプリの名前を `MyApp` としています。）これはどこから来ているのでしょうか？
+新しいPhoenixアプリケーションを生成すると、`test/support/channel_case.ex`ファイルも生成されます。このファイルには `MyAppWeb.ChannelCase` モジュールが含まれており、チャネルの統合テストに使用します。これはチャネルのテストに便利な機能を自動的にインポートします。
 
-When we generate a new Phoenix application, a `test/support/channel_case.ex` file is
-also generated for us. This file houses the `MyAppWeb.ChannelCase` module which we will
-use for all our integration tests for our channels. It automatically imports conveniences
-for testing channels.
+ここで提供されているヘルパー関数のいくつかは、チャネル内のコールバック関数をトリガーするためのものです。その他の関数は、チャネルにのみ適用される特別なアサーションを提供してくれます。
 
-Some of the helper functions provided there are for triggering callback functions in our
-channel. The others are there to provide us with special assertions that apply only to channels.
-
-If we need to add our own helper function that we would only use in channel tests, we
-would add it to `MyAppWeb.ChannelCase` by defining it there and ensuring `MyAppWeb.ChannelCase`
-is imported every time it is `use`d. For example:
+チャネルテストでのみ使用するヘルパー関数を追加する必要がある場合は、`MyAppWeb.ChannelCase` に追加して定義し、`MyAppWeb.ChannelCase` が `use`dされるたびに `MyAppWeb.ChannelCase` がインポートされるようにします。たとえば、以下のようになります。
 
 ```elixir
 defmodule MyAppWeb.ChannelCase do
@@ -80,12 +56,11 @@ end
 ```
 
 
-#### The Setup Block
+#### セットアップブロック
 
-Now that we know that Phoenix provides with a custom Test Case just for channels and what it
-provides, we can move on to understanding the rest of `test/hello_web/channels/room_channel_test.exs`.
+これで、Phoenixがチャネル用のカスタムテストケースを提供していることがわかったので、`test/hello_web/channels/room_channel_test.exs`の残りの部分を理解できます。
 
-First off, is the setup block:
+まず最初に、セットアップブロックです。
 
 ```elixir
 setup do
@@ -97,20 +72,15 @@ setup do
 end
 ```
 
-The `setup/2` macro comes with `ExUnit`which comes out of the box with Elixir. The `do` block
-passed to `setup/2` will get run for each of our tests. Note the line `{:ok, socket: socket}`.
-That line ensures that the `socket` from `subscribe_and_join/3` will be accessible to all
-our tests. In this way, we won't need to call `subscribe_and_join/3` for every test block we
-create.
+`setup/2` マクロはElixirに付属している `ExUnit` から提供されています。setup/2` に渡された `do` ブロックは、それぞれのテストに対して実行されます。このとき、`{{:ok, socket: socket}`という行に注目してください。
+この行は `subscribe_and_join/3` の `socket` がすべてのテストでアクセスできるようにしています。これで、作成するテストブロックごとに `subscribe_and_join/3` を呼び出す必要がなくなります。
 
-`subscribe_and_join/3` emulates the client joining a channel and subscribes the test process
-to the given topic. This is a necessary step since clients need to join a channel before they
-can send and receive events on that channel.
+`subscribe_and_join/3` は、クライアントがチャネルに参加し、テストプロセスを指定したトピックにサブスクライブすることをエミュレートします。クライアントがそのチャネルでイベントを送受信する前にチャネルに参加する必要があるので、これは必要なステップです。
 
 
-#### Testing a Synchronous Reply
+#### 同期応答のテスト
 
-The first test block in our generated channel test looks like:
+生成されたチャネルテストの最初のテストブロックは次のようになります。
 
 ```elixir
 test "ping replies with status ok", %{socket: socket} do
@@ -119,7 +89,7 @@ test "ping replies with status ok", %{socket: socket} do
 end
 ```
 
-This tests the following code in our `MyAppWeb.RoomChannel`:
+これは、`MyAppWeb.RoomChannel`の以下のコードをテストします。
 
 ```elixir
 # Channels can be used in a request/response fashion
@@ -129,29 +99,17 @@ def handle_in("ping", payload, socket) do
 end
 ```
 
-As is stated in the comment above, we see that a `reply` is synchronous since it mimics the request/
-response pattern we are familiar with in HTTP. This synchronous reply is best used when we only
-want to send an event back to the client when we are done processing the message on the server.
-For example, when we save something to the database and then send a message to the client only once
-that's done.
+上のコメントにあるように、`reply`はHTTPでおなじみのリクエスト/レスポンスパターンを模倣しているので、同期的であることがわかります。この同期応答は、サーバーでのメッセージの処理が終わった後にクライアントにイベントを送り返したい場合に最適です。
+たとえば、データベースに何かを保存して、それが終わってからクライアントにメッセージを送信する場合などです。
 
-In the `test "ping replies with status ok", %{socket: socket} do` line, we see that we have the
-map `%{socket: socket}`. This gives us access to the `socket` in the setup block.
+`test "ping replies with status ok", %{socket: socket} do` の行では、マップ `%{socket: socket}` があることがわかります。これにより、setupブロックの `socket` にアクセスできるようになります。
 
-We emulate the client pushing a message to the channel with `push/3`. In the line
-`ref = push(socket, "ping", %{"hello" => "there"})`, we push the event `"ping"` with the payload
-`%{"hello" => "there"}` to the channel. This triggers the `handle_in/3` callback we have for the
-`"ping"` event in our channel. Note that we store the `ref` since we need that on the next line for
-asserting the reply. With `assert_reply ref, :ok, %{"hello" => "there"}`, we assert that the
-server sends a synchronous reply `:ok, %{"hello" => "there"}`. This is how we check that the
-`handle_in/3` callback for the `"ping"` was triggered.
+クライアントが `push/3` でチャネルにメッセージをプッシュする様子をエミュレートします。`ref = push(socket, "ping", %{"hello" => "there"})` という行で、ペイロード `%{"hello" => "there"}` を含むイベント `"ping"` をチャネルにプッシュします。これにより、チャネル内の `"ping"` イベント用の `handle_in/3` コールバックが発生します。なお、`ref` は次の行で応答をアサートするために必要になるので、`ref` を格納しておきます。`assert_reply ref, :ok, %{"hello" => "there"}` を指定すると、サーバーからの同期応答 `:ok, %{"hello" => "there"}` が送信されることをアサートします。このようにして、`"ping"` のための `handle_in/3` コールバックがトリガされたことを確認します。
 
 
-#### Testing a Broadcast
+#### ブロードキャストのテスト
 
-It is common to receive messages from the client and broadcast to everyone subscribed to a
-current topic. This common pattern is simple to express in Phoenix and is one of the generated
-`handle_in/3` callbacks in our `MyAppWeb.RoomChannel`.
+クライアントからメッセージを受信して、現在のトピックを購読している全員にブロードキャストするのが一般的です。この一般的なパターンはPhoenixで表現するのは簡単で、`MyAppWeb.RoomChannel`で生成される `handle_in/3` コールバックの1つです。
 
 ```elixir
 def handle_in("shout", payload, socket) do
@@ -160,7 +118,7 @@ def handle_in("shout", payload, socket) do
 end
 ```
 
-Its corresponding test looks like:
+対応するテストは次のようになります。
 
 ```elixir
 test "shout broadcasts to room:lobby", %{socket: socket} do
@@ -169,22 +127,15 @@ test "shout broadcasts to room:lobby", %{socket: socket} do
 end
 ```
 
-We notice that we access the same `socket` that is from the setup block. How handy! We also do the
-same `push/3` as we did in the synchronous reply test. So we `push` the `"shout"` event with the
-payload `%{"hello" => "all"}`.
+setupブロックと同じ `socket` にアクセスしていることに気がつきました。なんて便利なんでしょう!同期応答テストで行ったのと同じ `push/3` を行います。そこで、`%{"hello" => "all"}` というペイロードを持つ `"shout"` イベントを `push` します。
 
-Since the `handle_in/3` callback for the `"shout"` event just broadcasts the same event and payload,
-all subscribers in the `"room:lobby"` should receive the message. To check that, we do
-`assert_broadcast "shout", %{"hello" => "all"}`.
+`shout"` イベントに対する `handle_in/3` コールバックは同じイベントとペイロードをブロードキャストするだけなので、`"room:lobby"` にいるすべての加入者がメッセージを受信すべきです。これを確認するには、`assert_broadcast "shout", %{"hello" => "all"}`を実行します。
 
-**NOTE:** `assert_broadcast/3` tests that the message was broadcast in the PubSub system.
-  For testing if a client receives a message, use `assert_push/3`
+**注:** `assert_broadcast/3` は、メッセージがPubSubシステムでブロードキャストされたかどうかをテストします。クライアントがメッセージを受信したかどうかを調べるには `assert_push/3` を使います。
 
-#### Testing an Asynchronous Push from the Server
+#### サーバーからの非同期プッシュのテスト
 
-The last test in our `MyAppWeb.RoomChannelTest` verifies that broadcasts from the server are pushed
-to the client. Unlike the previous tests discussed, we are indirectly testing that our channel's
-`handle_out/3` callback is triggered. This `handle_out/3` is defined in our `MyApp.RoomChannel` as:
+`MyAppWeb.RoomChannelTest`の最後のテストでは、サーバーからのブロードキャストがクライアントにプッシュされることを確認します。これまで説明したテストとは異なり、チャネルの `handle_out/3` コールバックがトリガーされるかどうかを間接的にテストしています。この `handle_out/3` は `MyApp.RoomChannel` で次のように定義されています。
 
 ```elixir
 def handle_out(event, payload, socket) do
@@ -193,22 +144,13 @@ def handle_out(event, payload, socket) do
 end
 ```
 
-Since the `handle_out/3` event is only triggered when we call `broadcast/3` from our channel,
-we will need to emulate that in our test. We do that by calling `broadcast_from` or
-`broadcast_from!`. Both serve the same purpose with the only difference of `broadcast_from!`
-raising an error when broadcast fails.
+`handle_out/3` イベントはチャネルから `broadcast/3` を呼び出したときにのみ発生するので、テストではそれをエミュレートする必要があります。これをエミュレートするには、`broadcast_from` または `broadcast_from!で可能です。両方とも同じ目的を果たしますが、唯一の違いは `broadcast_from!` がブロードキャストに失敗したときにエラーを発生させることです。
 
-The line `broadcast_from!(socket, "broadcast", %{"some" => "data"})` will trigger our `handle_out/3`
-callback above which pushes the same event and payload back to the client. To test this, we do
-`assert_push "broadcast", %{"some" => "data"}`.
+`broadcast_from! (socket, "broadcast", %{"some" => "data"})` 行は、上の `handle_out/3` コールバックをトリガして、同じイベントとペイロードをクライアントにプッシュします。これをテストするために、`assert_push "broadcast", %{"some" => "data"}` を実行します。
 
 
-#### Wrap-up
+#### まとめ
 
-In this guide we tackled all the special assertions that comes with `MyAppWeb.ConnCase` and some of
-the functions provided that help you test channels by triggering its callbacks. We found
-the API for testing channels is largely consistent with the API for Phoenix Channels which makes
-it easy to work with.
+このガイドでは、`MyAppWeb.ConnCase`に付属するすべての特別なアサーションと、コールバックをトリガーしてチャネルをテストするのに役立つ関数のいくつかを扱いました。チャネルをテストするためのAPIは、Phoenix ChannelsのAPIとほぼ一致しているので、作業が簡単になります。
 
-If interested in learning more about the helpers provided by `MyAppWeb.ChannelCase`, check out the
-documentation for [`Phoenix.ChannelTest`](https://hexdocs.pm/phoenix/Phoenix.ChannelTest.html) which is the module that defines those functions.
+`MyAppWeb.ChannelCase` が提供するヘルパーについて詳しく知りたい方は、これらの関数を定義するモジュールである [`Phoenix.ChannelTest`](https://hexdocs.pm/phoenix/Phoenix.ChannelTest.html) のドキュメントを参照してください。
