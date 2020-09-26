@@ -56,11 +56,11 @@ end
 ```
 
 
-#### セットアップブロック
+#### setupブロック
 
 これで、Phoenixがチャネル用のカスタムテストケースを提供していることがわかったので、`test/hello_web/channels/room_channel_test.exs`の残りの部分を理解できます。
 
-まず最初に、セットアップブロックです。
+まず最初に、setupブロックです。
 
 ```elixir
 setup do
