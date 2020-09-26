@@ -72,7 +72,7 @@ setup do
 end
 ```
 
-`setup/2` マクロはElixirに付属している `ExUnit` から提供されています。setup/2` に渡された `do` ブロックは、それぞれのテストに対して実行されます。このとき、`{{:ok, socket: socket}`という行に注目してください。
+`setup/2` マクロはElixirに付属している `ExUnit` から提供されています。`setup/2` に渡された `do` ブロックは、それぞれのテストに対して実行されます。このとき、`{{:ok, socket: socket}`という行に注目してください。
 この行は `subscribe_and_join/3` の `socket` がすべてのテストでアクセスできるようにしています。これで、作成するテストブロックごとに `subscribe_and_join/3` を呼び出す必要がなくなります。
 
 `subscribe_and_join/3` は、クライアントがチャネルに参加し、テストプロセスを指定したトピックにサブスクライブすることをエミュレートします。クライアントがそのチャネルでイベントを送受信する前にチャネルへ参加する必要があるので、これは必要なステップです。
@@ -144,7 +144,7 @@ def handle_out(event, payload, socket) do
 end
 ```
 
-`handle_out/3` イベントはチャネルから `broadcast/3` を呼び出したときにのみ発生するので、テストではそれをエミュレートする必要があります。これをエミュレートするには、`broadcast_from` または `broadcast_from!で可能です。両方とも同じ目的を果たしますが、唯一の違いは `broadcast_from!` がブロードキャストに失敗したときにエラーを発生させることです。
+`handle_out/3` イベントはチャネルから `broadcast/3` を呼び出したときにのみ発生するので、テストではそれをエミュレートする必要があります。これをエミュレートするには、`broadcast_from` または `broadcast_from!`で可能です。両方とも同じ目的を果たしますが、唯一の違いは `broadcast_from!` がブロードキャストに失敗したときにエラーを発生させることです。
 
 `broadcast_from! (socket, "broadcast", %{"some" => "data"})` 行は、上の `handle_out/3` コールバックをトリガーして、同じイベントとペイロードをクライアントにプッシュします。これをテストするために、`assert_push "broadcast", %{"some" => "data"}` を実行します。
 
