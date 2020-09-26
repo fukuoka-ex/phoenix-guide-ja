@@ -9,6 +9,9 @@ defmodule Mix.Tasks.VersionChecker.Run do
     client =
       Tentacat.Client.new(%{access_token: Application.get_env(:version_checker, :github_token)})
 
+    File.rm_rf("phoenix")
+    File.rm_rf("phoenix-guide-ja")
+
     our_repo = Application.get_env(:version_checker, :our_repo)
     their_repo = Application.get_env(:version_checker, :their_repo)
     our_repo_dir = Path.basename(our_repo)
@@ -23,9 +26,9 @@ defmodule Mix.Tasks.VersionChecker.Run do
     Application.get_env(:version_checker, :guide_files)
     |> Enum.each(fn {version, guide_files} ->
       Enum.each(guide_files, fn guide_file ->
-        our_file = String.replace(guide_file, "guides/", "guides/#{version}/")
+        our_file_path = String.replace(guide_file, "guides/", "guides/#{version}/")
 
-        our_file_hash = get_our_file_config(our_repo_dir, our_file)[:hash]
+        our_file_hash = get_our_file_config(our_repo_dir, our_file_path)[:hash]
         their_file_latest_hash = get_latest_hash(their_repo_dir, version, guide_file)
 
         # 翻訳ファイルのcommit hashがlong hashの場合でも動作するように、完全一致ではなく先頭の部分一致で判定している
@@ -37,11 +40,12 @@ defmodule Mix.Tasks.VersionChecker.Run do
             :ok
 
           false ->
-            Logger.debug("Hash does not match: #{our_file}")
+            Logger.debug("Hash does not match: #{our_file_path}")
             Logger.debug("our file hash: #{our_file_hash}")
             Logger.debug("their file hash: #{their_file_latest_hash}")
 
             post_issue(client, %{
+              our_file_path: our_file_path,
               guide_file: guide_file,
               our_file_hash: our_file_hash,
               their_file_latest_hash: their_file_latest_hash
@@ -112,6 +116,9 @@ defmodule Mix.Tasks.VersionChecker.Run do
         body: issue_body(attrs)
       })
     else
+      Logger.debug(issue_title(attrs))
+      Logger.debug(issue_body(attrs))
+
       :ok
     end
   end
@@ -123,13 +130,13 @@ defmodule Mix.Tasks.VersionChecker.Run do
     Enum.count(items) > 0
   end
 
-  defp issue_title(%{guide_file: guide_file}) do
-    "#{guide_file} の翻訳"
+  defp issue_title(%{our_file_path: our_file_path}) do
+    "#{our_file_path} の翻訳"
   end
 
   defp issue_body(%{
+         our_file_path: our_file_path,
          guide_file: guide_file,
-         our_file_hash: our_file_hash,
          their_file_latest_hash: their_file_latest_hash
        }) do
     """
@@ -138,14 +145,14 @@ defmodule Mix.Tasks.VersionChecker.Run do
       - ファイル: #{guide_file}
 
       ## commit log
-      - 翻訳元ファイルの最新commit: https://github.com/phoenixframework/phoenix/blob/#{
+      - 翻訳元ファイルの最新version: https://github.com/phoenixframework/phoenix/blob/#{
       their_file_latest_hash
     }/#{guide_file}
-      - 翻訳後ファイルのcommit hash: https://github.com/phoenixframework/phoenix/blob/#{
-      our_file_hash
-    }/#{guide_file}
-      - history: https://github.com/phoenixframework/phoenix/commits/#{their_file_latest_hash}/#{
+        - history: https://github.com/phoenixframework/phoenix/commits/#{their_file_latest_hash}/#{
       guide_file
+    }
+      - 翻訳後ファイルの最新version: https://github.com/fukuoka-ex/phoenix-guide-ja/blob/master/#{
+      our_file_path
     }
     """
   end
