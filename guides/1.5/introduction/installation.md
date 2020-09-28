@@ -12,13 +12,13 @@ hash: a9623ba8
 Phoenixアプリケーションを構築するためには、オペレーティング・システムにインストールされているいくつかの依存関係が必要です。
 
   * Erlang VMとElixirプログラミング言語
-  * データベース - PhoenixはPostgreSQLを推奨していますが、他のものを選ぶこともできますし、データベースを全く使わないこともできます。
-  * アセットのためのNode.JS - 特にAPIを構築している場合は、オプトアウトすることができます。
+  * データベース - PhoenixはPostgreSQLを推奨していますが、他のものを選ぶこともできますし、データベースをまったく使わないこともできます。
+  * アセットのためのNode.JS - とくにAPIを構築している場合は、オプトアウトできます。
   * その他、オプションパッケージ
 
 このリストを見て、システムに必要なものをインストールしてください。依存関係を事前にインストールしておくことで、後々のイライラした問題を防ぐことができます。
 
-## Elixir 1.6 以降
+## Elixir 1.6以降
 
 PhoenixはElixirで書かれており、私たちのアプリケーションコードもElixirで書かれます。ElixirなしではPhoenixアプリを作ることはできません！Elixirのサイトでは、素晴らしい[インストールページ](https://elixir-lang.org/install.html)が用意されています。
 
@@ -34,7 +34,7 @@ $ mix local.hex
 
 ElixirのコードはErlangのバイトコードにコンパイルしてErlang仮想マシン上で実行します。Erlangがなければ、Elixirのコードは仮想マシン上で実行することができないので、Erlangもインストールする必要があります。
 
-Elixirの[インストールページ](https://elixir-lang.org/install.html)の指示に従ってElixirをインストールすると、通常はErlangもインストールされます。もしErlangがElixirと一緒にインストールされていない場合は、インストールページの[Erlangのインストール](https://elixir-lang.org/install.html#installing-erlang)のセクションを見てください。
+Elixirの[インストールページ](https://elixir-lang.org/install.html)の指示にしたがってElixirをインストールすると、通常はErlangもインストールされます。もしErlangがElixirと一緒にインストールされていない場合は、インストールページの[Erlangのインストール](https://elixir-lang.org/install.html#installing-erlang)のセクションを見てください。
 
 ## Phoenix
 
@@ -47,7 +47,7 @@ Erlang/OTP 20 [erts-9.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [
 Elixir 1.6.3
 ```
 
-ElixirとErlangを手に入れたら、Phoenixアプリケーションジェネレータをインストールする準備ができました。
+ElixirとErlangを手に入れたら、Phoenixアプリケーションジェネレーターをインストールする準備ができました。
 
 ```console
 $ mix archive.install hex phx_new 1.5.1
@@ -59,7 +59,7 @@ $ mix archive.install hex phx_new 1.5.1
 
 Nodeは任意の依存関係です。Phoenixは、静的アセット（JavaScript、CSSなど）のコンパイルに[webpack](https://webpack.js.org/)をデフォルトで使用します。webpackはnodeパッケージマネージャ(npm)を使用して依存関係をインストールし、npmはnode.jsを必要とします。
 
-静的アセットがない場合や別のビルドツールを使いたい場合は、新しいアプリケーションを作成する際に `--no-webpack` フラグを指定すれば、node はまったく必要ありません。
+静的アセットがない場合や別のビルドツールを使いたい場合は、新しいアプリケーションを作成する際に `--no-webpack` フラグを指定すれば、nodeはまったく必要ありません。
 
 node.jsは[ダウンロードページ](https://nodejs.org/en/download/)から取得できます。ダウンロードするパッケージを選択する際に、Phoenixのバージョンが5.0.0以上を要求することに注意してください。
 
@@ -67,13 +67,13 @@ Mac OS Xの方は、[homebrew](https://brew.sh/)からnode.jsをインストー�
 
 ## PostgreSQL
 
-PostgreSQLはリレーショナルデータベースサーバです。PhoenixはデフォルトでPostgreSQLを使用するようにアプリケーションを設定しますが、新しいアプリケーションを作成する際に `--database` フラグを渡すことで、MySQLやMSSQLに切り替えることができます。
+PostgreSQLはリレーショナルデータベースサーバーです。PhoenixはデフォルトでPostgreSQLを使用するようにアプリケーションを設定しますが、新しいアプリケーションを作成する際に `--database` フラグを渡すことで、MySQLやMSSQLに切り替えることができます。
 
 データベースと通信するために、Phoenixアプリケーションは[Ecto](https://github.com/elixir-ecto/ecto)と呼ばれる別のElixirパッケージを使用します。アプリケーションでデータベースを使用する予定がない場合は、`--no-ecto` フラグを渡すことができます。
 
 しかし、Phoenixを使い始めたばかりの場合は、PostgreSQLをインストールして動作確認することをお勧めします。PostgreSQL wikiには、さまざまなシステムのための[インストールガイド](https://wiki.postgresql.org/wiki/Detailed_installation_guides)があります。
 
-## inotify-tools (linux ユーザ用)
+## inotify-tools (linuxユーザー用)
 
 Phoenixには、ライブリロードと呼ばれる非常に便利な機能があります。ビューやアセットを変更すると、ブラウザ上で自動的にページをリロードします。この機能を利用するには、ファイルシステムウォッチャーが必要です。
 
