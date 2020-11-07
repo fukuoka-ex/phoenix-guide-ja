@@ -4,7 +4,7 @@ version: 1.5
 group: guides
 title: Request life-cycle
 nav_order: 23
-hash: 3f8d0d05
+hash: 1328b063
 ---
 # Request life-cycle
 
@@ -16,7 +16,7 @@ Let's get on with our first new Phoenix page!
 
 ## Adding a new page
 
-When your browser accesses [http://localhost:4000/](http://localhost:4000/), it sends a HTTP request to whatever service is running on that address, in this our Phoenix application. The HTTP request is made of a verb and a path. For example, the following browser requests translate into:
+When your browser accesses [http://localhost:4000/](http://localhost:4000/), it sends a HTTP request to whatever service is running on that address, in this case our Phoenix application. The HTTP request is made of a verb and a path. For example, the following browser requests translate into:
 
 | Browser address bar                | Verb | Path          |
 |:-----------------------------------|:-----|:--------------|
@@ -155,7 +155,7 @@ which injects our template into the layout before the HTML is sent off to the br
 
 As we built our first page, we could start to understand how the request life-cycle is put together. Now let's take a more holistic look at it.
 
-All HTTP requests start in our application endpoint. You can find it as a module named `HelloWeb.Endpoint` in `lib/hello_web/endpoint.ex`. Once you open up the endpoint file, you will see that, similar to the router, the endpoint has many calls to `plug`. `Plug` is a library and specification for stiching web applications together. It is an essential part of how Phoenix handle requests and we will discuss it in detail [in the Plug guide](plug.html) coming next.
+All HTTP requests start in our application endpoint. You can find it as a module named `HelloWeb.Endpoint` in `lib/hello_web/endpoint.ex`. Once you open up the endpoint file, you will see that, similar to the router, the endpoint has many calls to `plug`. `Plug` is a library and specification for stitching web applications together. It is an essential part of how Phoenix handles requests and we will discuss it in detail [in the Plug guide](plug.html) coming next.
 
 For now, it suffices to say that each Plug defines a slice of request processing. In the endpoint you will find a skeleton roughly like this:
 
@@ -174,13 +174,13 @@ defmodule HelloWeb.Endpoint do
 end
 ```
 
-Each of these plugs have a specific responsibility that we will learn later. The last plug is precisely the `HelloWeb.Router` module. This allows the endpoint to delegate all further request processing to the router. As we now know, its main responsibility is to map verb/path pairs to controllers. The controllers then tells a view to render a template.
+Each of these plugs have a specific responsibility that we will learn later. The last plug is precisely the `HelloWeb.Router` module. This allows the endpoint to delegate all further request processing to the router. As we now know, its main responsibility is to map verb/path pairs to controllers. The controller then tells a view to render a template.
 
 At this moment, you may be thinking this can be a lot of steps to simply render a page. However, as our application grows in complexity, we will see that each layer serves a distinct purpose:
 
   * endpoint (`Phoenix.Endpoint`) - the endpoint contains the common and initial path that all requests go through. If you want something to happen on all requests, it goes to the endpoint
 
-  * router (`Phoenix.Router`) - the router is responsible for dispatching verb/patch to controllers. The router also allows us to scope functionality. For example, some pages in your application may require user authentication, others may not
+  * router (`Phoenix.Router`) - the router is responsible for dispatching verb/path to controllers. The router also allows us to scope functionality. For example, some pages in your application may require user authentication, others may not
 
   * controller (`Phoenix.Controller`) - the job of the controller is to retrieve request information, talk to your business domain, and prepare data for the presentation layer
 
