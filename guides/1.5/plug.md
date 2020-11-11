@@ -2,9 +2,9 @@
 layout: 1.5/layout
 version: 1.5
 group: guides
-title: Plug
+title: プラグ
 nav_order: 3
-hash: a5edbc50
+hash: 496e544b
 ---
 # Plug
 
@@ -46,7 +46,7 @@ Pretty simple, right? Let's see this function in action by adding it to our endp
 defmodule HelloWeb.Endpoint do
   ...
 
-  plug :instrospect
+  plug :introspect
   plug HelloWeb.Router
 
   def introspect(conn, _opts) do
@@ -126,7 +126,7 @@ To see the assign in action, go to the layout in "lib/hello_web/templates/layout
   <p>Locale: <%= @locale %></p>
 ```
 
-Go to "http://localhost:4000/" and you should see the locale exhibited. Visit "http://localhost:4000/?locale=fr" and you should see the assign changed to "fr". Someone can use this information alongside [Gettext](https://hexdocs.pm/gettext/Gettext) to provide a fully internationalized web application.
+Go to "http://localhost:4000/" and you should see the locale exhibited. Visit "http://localhost:4000/?locale=fr" and you should see the assign changed to "fr". Someone can use this information alongside [Gettext](https://hexdocs.pm/gettext/Gettext.html) to provide a fully internationalized web application.
 
 That's all there is to Plug. Phoenix embraces the plug design of composable transformations all the way up and down the stack. Let's see some examples!
 
@@ -142,7 +142,7 @@ Endpoints organize all the plugs common to every request, and apply them before 
 defmodule HelloWeb.Endpoint do
   ...
 
-  plug :instrospect
+  plug :introspect
   plug HelloWeb.Router
 ```
 
@@ -179,7 +179,7 @@ This block is only executed in development. It enables live reloading (if you ch
 
 ### Router plugs
 
-In the router, we can declare plugs insided pipelines:
+In the router, we can declare plugs inside pipelines:
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -236,17 +236,16 @@ defmodule HelloWeb.MessageController do
   use HelloWeb, :controller
 
   def show(conn, params) do
-    case authenticate(conn) do
+    case Authenticator.find_user(conn) do
       {:ok, user} ->
         case find_message(params["id"]) do
           nil ->
             conn |> put_flash(:info, "That message wasn't found") |> redirect(to: "/")
           message ->
-            case authorize_message(conn, params["id"]) do
-              :ok ->
-                render(conn, :show, page: find_message(params["id"]))
-              :error ->
-                conn |> put_flash(:info, "You can't access that page") |> redirect(to: "/")
+            if Authorizer.can_access?(user, message) do
+              render(conn, :show, page: message)
+            else
+              conn |> put_flash(:info, "You can't access that page") |> redirect(to: "/")
             end
         end
       :error ->
@@ -267,7 +266,7 @@ defmodule HelloWeb.MessageController do
   plug :authorize_message
 
   def show(conn, params) do
-    render(conn, :show, page: find_message(params["id"]))
+    render(conn, :show, page: conn.assigns[:message])
   end
 
   defp authenticate(conn, _) do
@@ -298,7 +297,7 @@ defmodule HelloWeb.MessageController do
 end
 ```
 
-To make this all work, we converted the nested blocks of code and used `halt(conn)` whenever we reached a failure path. The `halt(conn)` functionality is essential here: it tells Plug that the next plug should not invoked.
+To make this all work, we converted the nested blocks of code and used `halt(conn)` whenever we reached a failure path. The `halt(conn)` functionality is essential here: it tells Plug that the next plug should not be invoked.
 
 At the end of the day, by replacing the nested blocks of code with a flattened series of plug transformations, we are able to achieve the same functionality in a much more composable, clear, and reusable way.
 
