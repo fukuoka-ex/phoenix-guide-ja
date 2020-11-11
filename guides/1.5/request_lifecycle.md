@@ -117,7 +117,7 @@ end
 
 Phoenixのビューは、プレゼンテーションレイヤーとして機能します。たとえば、"index.html "をレンダリングしたときの出力は、完全なHTMLページになることを期待しています。実装を楽にするために、これらのHTMLページを作成するためにテンプレートを使用することがよくあります。
 
-新しいビューを作成してみましょう。lib/hello_web/views/hello_view.ex`を作成し、以下のようにします。
+新しいビューを作成してみましょう。`lib/hello_web/views/hello_view.ex` を作成し、以下のようにします。
 
 ```elixir
 defmodule HelloWeb.HelloView do
@@ -127,7 +127,7 @@ end
 
 このビューにテンプレートを追加するには、`lib/hello_web/templates/hello` ディレクトリにファイルを追加する必要があります。コントローラー名 (`HelloController`)、ビュー名 (`HelloView`)、テンプレートディレクトリ (`hello`) はすべて同じ命名規則に従っており、それぞれにちなんで命名されていることに注意してください。
 
-テンプレートファイルは `NAME.FORMAT.TEMPLATING_LANGUAGE` という構造になっています。ここでは、"lib/hello_web/templates/hello/index.html.eex "に "index.html.eex "というファイルを作成します。".eex "は`EEx`の略で、Elixir自体の一部として組み込まれている、Elixirを埋め込むためのライブラリです。Phoenixでは、値の自動エスケープを含むようにEExを強化しています。これにより、クロスサイトスクリプティングのようなセキュリティ上の脆弱性から、余計な作業をせずに保護することができます。
+テンプレートファイルは `NAME.FORMAT.TEMPLATING_LANGUAGE` という構造になっています。ここでは、 "lib/hello_web/templates/hello/index.html.eex" に "index.html.eex" というファイルを作成します。".eex "は `EEx` の略で、Elixir自体の一部として組み込まれている、Elixirを埋め込むためのライブラリです。Phoenixでは、値の自動エスケープを含むようにEExを強化しています。これにより、クロスサイトスクリプティングのようなセキュリティ上の脆弱性から、余計な作業をせずに保護することができます。
 
 `lib/hello_web/templates/hello/index.html.eex`を作成し、以下のようにします。
 
