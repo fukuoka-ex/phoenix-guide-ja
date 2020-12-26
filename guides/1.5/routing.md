@@ -4,7 +4,7 @@ version: 1.5
 group: guides
 title: Routing
 nav_order: 4
-hash: 4f3a5fb6
+hash: 464192b4
 ---
 # Routing
 
@@ -61,7 +61,7 @@ get "/", PageController, :index
 
 ## Examining Routes
 
-Phoenix provides a great tool for investigating routes in an application, the mix task `phx.routes`.
+Phoenix provides a great tool for investigating routes in an application: `mix phx.routes`.
 
 Let's see how this works. Go to the root of a newly-generated Phoenix application and run `mix phx.routes`. You should see something like the following, generated with all routes you currently have:
 
@@ -173,7 +173,7 @@ Using path helpers makes it easy to ensure our controllers, views and templates 
 
 ### More on Path Helpers
 
-When we ran the `phx.routes` task for our user resource, it listed the `user_path` as the path helper function for each line of output. Here is what that translates to for each action:
+When we ran `mix phx.routes` for our user resource, it listed the `user_path` as the path helper function for each line of output. Here is what that translates to for each action:
 
 ```elixir
 iex> alias HelloWeb.Router.Helpers, as: Routes
@@ -299,7 +299,7 @@ scope "/admin", HelloWeb.Admin do
 end
 ```
 
-We define a new scope where all routes a prefixed with "/admin" and all controllers are under the `HelloWeb.Admin` namespace.
+We define a new scope where all routes are prefixed with "/admin" and all controllers are under the `HelloWeb.Admin` namespace.
 
 Running `mix phx.routes` again, in addition to the previous set of routes we get the following:
 
@@ -326,6 +326,8 @@ scope "/", HelloWeb do
 end
 
 scope "/admin", HelloWeb.Admin do
+  pipe_through :browser
+
   resources "/reviews", ReviewController
 end
 ```
@@ -360,6 +362,8 @@ We can fix this problem by adding an `as: :admin` option to our admin scope:
 ```elixir
 
 scope "/admin", HelloWeb.Admin, as: :admin do
+  pipe_through :browser
+
   resources "/reviews", ReviewController
 end
 ```
@@ -545,7 +549,7 @@ Let's say that the request matches our first route: a GET to `/`. The router wil
 
 Conversely, if the request matches any of the routes defined by the `resources/2` macro, the router will pipe it through the `:api` pipeline - which currently does nothing - before it dispatches further to the correct action of the `HelloWeb.ReviewController`.
 
-If no route matches, no pipeline is invoked and a 404 error is rasied.
+If no route matches, no pipeline is invoked and a 404 error is raised.
 
 Let's stretch these ideas out a little bit more. What if we need to pipe requests through both `:browser` and one or more custom pipelines? We simply `pipe_through` a list of pipelines, and Phoenix will invoke them in order.
 
