@@ -2,27 +2,27 @@
 layout: 1.5/layout
 version: 1.5
 group: introduction
-title: Up and Running
+title: 起動
 nav_order: 3
-hash: f2ced318
+hash: daa02353
 ---
-# Up and Running
+# 起動
 
-Let's get a Phoenix application up and running as quickly as possible.
+Phoenixのアプリケーションをできるだけ早く起動させましょう。
 
-Before we begin, please take a minute to read the [Installation Guide](installation.html). By installing any necessary dependencies beforehand, we'll be able to get our application up and running smoothly.
+始める前に、[インストールガイド](install.html)を少しだけお読みください。必要な依存関係を事前にインストールしておくことで、スムーズにアプリケーションを立ち上げることができます。
 
-We can run `mix phx.new` from any directory in order to bootstrap our Phoenix application. Phoenix will accept either an absolute or relative path for the directory of our new project. Assuming that the name of our application is `hello`, let's run the following command:
+Phoenixアプリケーションを起動するために、どのディレクトリからでも `mix phx.new` を実行することができます。Phoenixは、新しいプロジェクトのディレクトリに絶対パスか相対パスのどちらかを受け入れます。アプリケーションの名前が `hello` であると仮定して、以下のコマンドを実行してみましょう。
 
 ```console
 $ mix phx.new hello
 ```
 
-> A note about [webpack](https://webpack.js.org/) before we begin: Phoenix will use webpack for asset management by default. Webpack's dependencies are installed via the node package manager, not mix. Phoenix will prompt us to install them at the end of the `mix phx.new` task. If we say "no" at that point, and if we don't install those dependencies later with `npm install`, our application will raise errors when we try to start it, and our assets may not load properly. If we don't want to use webpack at all, we can simply pass `--no-webpack` to `mix phx.new`.
+> 始める前の[webpack](https://webpack.js.org/)についての注意。Phoenixはデフォルトでアセット管理にwebpackを使用します。Webpackの依存関係は、ノードのパッケージマネージャを介してインストールされます。Phoenixは `mix phx.new` タスクの最後にそれらをインストールするように促します。この時点で「いいえ」と答え、後で `npm install` で依存関係をインストールしないと、アプリケーションを起動しようとしたときにエラーが発生し、アセットが正しくロードされない可能性があります。webpackを全く使いたくない場合は、単に `--no-webpack` を `mix phx.new` に渡せばよいのです。
 
-> A note about [Ecto](ecto.html): Ecto allows our Phoenix application to communicate with a data store, such as PostgreSQL, MySQL, and others. If our application will not require this component we can skip this dependency by passing the `--no-ecto` flag to `mix phx.new`. This flag may also be combined with `--no-webpack` to create a skeleton application.
+> [Ecto](ecto.html)についての注意点。Ectoは、PhoenixアプリケーションがPostgreSQLやMySQLなどのデータストアと通信することを可能にします。アプリケーションがこのコンポーネントを必要としない場合は、 `--no-ecto` フラグを `mix phx.new` に渡すことで、この依存関係をスキップすることができます。このフラグは `--no-webpack` と組み合わせてスケルトンアプリケーションを作成することもできます。
 
-> To learn more about `mix phx.new` you can read the [Mix Tasks Guide](mix_tasks.html#phoenix-specific-mix-tasks).
+> `mix phx.new` の詳細については、[Mixタスクガイド](mix_tasks.html#phoenix-specific-mix-tasks)を参照してください。
 
 ```console
 mix phx.new hello
@@ -36,11 +36,11 @@ mix phx.new hello
 Fetch and install dependencies? [Yn]
 ```
 
-Phoenix generates the directory structure and all the files we will need for our application. 
+Phoenixは、ディレクトリ構造とアプリケーションに必要なすべてのファイルを生成します。
 
-> Phoenix promotes the usage of git as version control software: among the generated files we find a `.gitignore`. We can `git init` our repository, and immediately add and commit all that hasn't been marked ignored. 
+> Phoenixはバージョン管理ソフトウェアとして gitを使うことを推奨しています。生成されたファイルの中には `.gitignore` というファイルがあります。リポジトリを `git init` して、無視されていないものをすぐに追加してコミットすることができます。
 
-When it's done, it will ask us if we want it to install our dependencies for us. Let's say yes to that.
+それが終わると、依存関係をインストールするかどうかを尋ねてきます。これにイエスと答えましょう。
 
 ```console
 Fetch and install dependencies? [Yn] Y
@@ -65,17 +65,19 @@ You can also run your app inside IEx (Interactive Elixir) as:
     $ iex -S mix phx.server
 ```
 
-Once our dependencies are installed, the task will prompt us to change into our project directory and start our application.
+依存関係がインストールされると、タスクはプロジェクトディレクトリに変更してアプリケーションを起動するように促します。
 
-Phoenix assumes that our PostgreSQL database will have a `postgres` user account with the correct permissions and a password of "postgres". If that isn't the case, please see the [Mix Tasks Guide](mix_tasks.html#ecto-specific-mix-tasks) to learn more about the `mix ecto.create` task.
+Phoenixは、PostgreSQLデータベースが正しいパーミッションとパスワード"postgres"を持つ`postgres`ユーザーアカウントを持っていることを前提としています。そうでない場合は、`mix ecto.create`タスクの詳細について[Mixタスクガイド](mix_tasks.html#ecto-specific-mix-tasks)を参照してください。
 
-Ok, let's give it a try. First, we'll `cd` into the `hello/` directory we've just created:
+それでは、試してみましょう。まず、先ほど作成した `hello/` ディレクトリに `cd` します。
 
 ```console
 $ cd hello
 ```
 
-Now we'll create our database:
+> [インストールガイド](installation.html)に従って、`{:cowboy, "~> 2.7.0"}`をmix.exsに追加することを選択した場合は、`mix deps.get`を実行してください。
+
+では、データベースを作成します。
 
 ```console
 $ mix ecto.create
@@ -84,11 +86,11 @@ Generated hello app
 The database for Hello.Repo has been created
 ```
 
-In case the database could not be created, see the guides for the [`mix ecto.create`](mix_tasks.html#mix-ecto-create) for general trouble-shooting.
+データベースが作成できなかった場合、一般的なトラブルシューティングについては、[`mix ecto.create`](mix_tasks.html#mix-ecto-create)のガイドを参照してください。
 
-> Note: if this is the first time you are running this command, Phoenix may also ask to install Rebar. Go ahead with the installation as Rebar is used to build Erlang packages.
+> 注意: このコマンドを初めて実行する場合、PhoenixはRebarのインストールを要求してくるかもしれません。RebarはErlangパッケージのビルドに使われるので、インストールを進めてください。
 
-And finally, we'll start the Phoenix server:
+そして最後にPhoenixサーバーを起動します。
 
 ```console
 $ mix phx.server
@@ -98,7 +100,7 @@ Webpack is watching the files…
 ...
 ```
 
-If we choose not to have Phoenix install our dependencies when we generate a new application, the `mix phx.new` task will prompt us to take the necessary steps when we do want to install them.
+新しいアプリケーションを生成するときに依存関係をインストールしないように選択した場合、`mix phx.new`タスクは、依存関係をインストールしたいときに必要なステップを踏むように促してくれます。
 
 ```console
 Fetch and install dependencies? [Yn] n
@@ -122,15 +124,14 @@ You can also run your app inside IEx (Interactive Elixir) as:
     $ iex -S mix phx.server
 ```
 
-By default Phoenix accepts requests on port 4000. If we point our favorite web browser at [http://localhost:4000](http://localhost:4000), we should see the Phoenix Framework welcome page.
+デフォルトでは、Phoenixは4000番ポートでリクエストを受け付けます。お気に入りのウェブブラウザを[http://localhost:4000](http://localhost:4000)に向けると、Phoenix Frameworkのウェルカムページが表示されるはずです。
 
-![Phoenix Welcome Page](assets/images/welcome-to-phoenix.png)
+![Phoenixウェルカムページ](assets/images/welcome-to-phoenix.png)
 
-If your screen looks like the image above, congratulations! You now have a working Phoenix application. In case you can't see the page above, try accessing it via [http://127.0.0.1:4000](http://127.0.0.1:4000) and later make sure your OS has defined "localhost" as "127.0.0.1".
+上の画像のような画面が表示されたら、おめでとうございます。これでPhoenixアプリケーションが動作します。上のページが表示されない場合は、[http://127.0.0.1:4000](http://127.0.0.1:4000)からアクセスしてみてください。
 
-To stop it, we hit `ctrl-c` twice.
+これを止めるには、`ctrl-c`を2回入力します。
 
-Now you are ready to explore the world provided by Phoenix! See [our community page](community.html) for books, screencasts, courses, and more.
+これで、Phoenixが提供する世界を探検する準備が整いました!書籍、スクリーンキャスト、コースなどについては、[コミュニティページ](community.html)をご覧ください。
 
-Alternatively, you can continue reading these guides to have a quick introduction into all the parts that make your Phoenix application. The guides can be read in any order If that's the case, you can start with our guide that explains [Phoenix directory structure](directory_structure.html).
-
+あるいは、これらのガイドを読み続けることで、Phoenixアプリケーションを構成するすべての部分に関する簡単な紹介を得ることができます。その場合は、任意の順番でガイドを読むこともできますし、[Phoenixディレクトリ構造](directory_structure.html)について説明しているガイドから始めることもできます。
