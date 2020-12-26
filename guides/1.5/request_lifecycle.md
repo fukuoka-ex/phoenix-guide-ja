@@ -2,49 +2,49 @@
 layout: 1.5/layout
 version: 1.5
 group: guides
-title: Request life-cycle
-nav_order: 23
-hash: 3f8d0d05
+title: リクエストライフサイクル
+nav_order: 2
+hash: 1328b063
 ---
-# Request life-cycle
+# リクエストライフサイクル
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**: このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-The goal of this guide is to talk about Phoenix's request life-cycle. This guide will take a practical approach where we will learn by doing: we will add two new pages to our Phoenix project and comment on how the pieces fit together along the way.
+このガイドの目的は、Phoenixのリクエストのライフサイクルについて話すことです。このガイドでは、Phoenixプロジェクトに2つの新しいページを追加し、その過程でどのようにしてピースが組み合わされていくのかをコメントするという、実践的なアプローチで学びます。
 
-Let's get on with our first new Phoenix page!
+それでは、最初の新しいPhoenixのページから始めていきましょう！
 
-## Adding a new page
+## 新しいページを追加する
 
-When your browser accesses [http://localhost:4000/](http://localhost:4000/), it sends a HTTP request to whatever service is running on that address, in this our Phoenix application. The HTTP request is made of a verb and a path. For example, the following browser requests translate into:
+ブラウザが [http://localhost:4000/](http://localhost:4000/) にアクセスすると、そのアドレス上で動作しているサービス、この場合は私たちのPhoenixアプリケーションにHTTPリクエストを送信します。HTTPリクエストは動詞とパスで構成されています。たとえば、以下のブラウザのリクエストは次のように変換されます。
 
-| Browser address bar                | Verb | Path          |
+| ブラウザのアドレスバー                | 動詞 | パス          |
 |:-----------------------------------|:-----|:--------------|
 | http://localhost:4000/             | GET  | /             |
 | http://localhost:4000/hello        | GET  | /hello        |
 | http://localhost:4000/hello/world  | GET  | /hello/world  |
 
-There are other HTTP verbs. For example, submitting a form typically uses the POST verb.
+他にもHTTP動詞があります。たとえば、フォームを送信する際には通常POST動詞を使用します。
 
-Web applications typically handle requests by mapping each verb/path pair into a specific part of your application. This matching in Phoenix is done by the router. For example, we may map "/articles" to a portion of our application that shows all articles. Therefore, to add a new page, our first task is to add new route.
+Webアプリケーションは通常、各動詞/パスのペアをアプリケーションの特定の部分にマッピングすることでリクエストを処理します。Phoenixのこのマッチングはルーターによって行われます。たとえば、"/articles" をすべての記事を表示するアプリケーションの一部にマッピングすることができます。したがって、新しいページを追加するために、最初のタスクは新しいルートを追加することです。
 
-### A new route
+### 新しいルート
 
-The router maps unique HTTP verb/path pairs to controller/action pairs which will handle them. Controllers in Phoenix are simply Elixir modules. Actions are functions that are defined within these controllers.
+ルーターは、固有のHTTP動詞/パスのペアを、それらを処理するコントローラー/アクションのペアにマッピングします。Phoenixのコントローラーは単純にElixirモジュールです。アクションは、これらのコントローラー内で定義された関数です。
 
-Phoenix generates a router file for us in new applications at `lib/hello_web/router.ex`. This is where we will be working for this section.
+Phoenixは新しいアプリケーションでは、`lib/hello_web/router.ex`にルーターファイルを生成してくれます。このセクションではここで作業を行います。
 
-The route for our "Welcome to Phoenix!" page from the previous Up And Running Guide looks like this.
+前回の起動ガイドの"Welcome to Phoenix!"のページのルートはこんな感じです。
 
 ```elixir
 get "/", PageController, :index
 ```
 
-Let's digest what this route is telling us. Visiting [http://localhost:4000/](http://localhost:4000/) issues an HTTP `GET` request to the root path. All requests like this will be handled by the `index` function in the `HelloWeb.PageController` module defined in `lib/hello_web/controllers/page_controller.ex`.
+このルートが伝えていることを順に理解していきましょう。[http://localhost:4000/](http://localhost:4000/)にアクセスすると、ルートパスへのHTTP `GET` リクエストが発行されます。このようなリクエストはすべて、`lib/hello_web/controllers/page_controller.ex` で定義されている `HelloWeb.PageController` モジュールの `index` 関数で処理されます。
 
-The page we are going to build will simply say "Hello World, from Phoenix!" when we point our browser to [http://localhost:4000/hello](http://localhost:4000/hello).
+これから作成するページは、ブラウザを [http://localhost:4000/hello](http://localhost:4000/hello) に向けると、"Hello World, from Phoenix!" を返します。
 
-The first thing we need to do to create that page is define a route for it. Let's open up `lib/hello_web/router.ex` in a text editor. For a brand new application, it looks like this:
+そのページを作成するために、最初にそのページのルートを定義する必要があります。テキストエディターで `lib/hello_web/router.ex` を開いてみましょう。新しいアプリケーションの場合、次のようになります。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -76,9 +76,9 @@ end
 
 ```
 
-For now, we'll ignore the pipelines and the use of `scope` here and just focus on adding a route. We will discuss those in [the Routing guide](routing.html).
+今のところ、ここではパイプラインと `scope` の使用は無視して、ルートを追加することに焦点を当てることにします。これらについては [ルーティングガイド](routing.html) で説明します。
 
-Let's add a new route to the router that maps a `GET` request for `/hello` to the `index` action of a soon-to-be-created `HelloWeb.HelloController` inside the `scope "/" do` block of the router:
+`/hello` への `GET` リクエストを、ルーターの `scope "/" do` ブロック内にあり、じきに作成する `HelloWeb.HelloController` の `index` アクションにマップする新しいルートをルーターに追加してみましょう。
 
 ```elixir
 scope "/", HelloWeb do
@@ -89,11 +89,11 @@ scope "/", HelloWeb do
 end
 ```
 
-### A new Controller
+### 新しいコントローラー
 
-Controllers are Elixir modules, and actions are Elixir functions defined in them. The purpose of actions is to gather any data and perform any tasks needed for rendering. Our route specifies that we need a `HelloWeb.HelloController` module with an `index/2` action.
+コントローラーはElixirのモジュールで、アクションはその中で定義されたElixirの関数です。アクションの目的は、データを収集し、レンダリングに必要なタスクを実行することです。設定したルートでは、`index/2` アクションを持つ `HelloWeb.HelloController` モジュールが必要だと指定しています。
 
-To make that happen, let's create a new `lib/hello_web/controllers/hello_controller.ex` file, and make it look like the following:
+これを実現するために、`lib/hello_web/controllers/hello_controller.ex`というファイルを新規に作成して、次のようにしてみましょう。
 
 ```elixir
 defmodule HelloWeb.HelloController do
@@ -105,19 +105,19 @@ defmodule HelloWeb.HelloController do
 end
 ```
 
-We'll save a discussion of `use HelloWeb, :controller` for the [Controllers Guide](controllers.html). For now, let's focus on the `index/2` action.
+`use HelloWeb, :controller`についての議論は、[コントローラーガイド](controllers.html)のために取っておくことにします。とりあえず、`index/2`のアクションに注目してみましょう。
 
-All controller actions take two arguments. The first is `conn`, a struct which holds a ton of data about the request. The second is `params`, which are the request parameters. Here, we are not using `params`, and we avoid compiler warnings by adding the leading `_`.
+すべてのコントローラーのアクションは2つの引数をとります。1つ目は `conn` で、リクエストに関する大量のデータを保持する構造体です。2つ目は `params` で、これはリクエストのパラメーターです。ここでは `params` を使用しておらず、先頭の `_` を追加することでコンパイラの警告を回避しています。
 
-The core of this action is `render(conn, "index.html")`. It tells Phoenix to render "index.html". The modules responsible for rendering are views. By default, Phoenix views are named after the controller, so Phoenix is expecting a `HelloWeb.HelloView` to exist and handle "index.html" for us.
+このアクションの中核は `render(conn, "index.html")` です。これはPhoenixに "index.html "をレンダリングするように指示します。レンダリングを担当するモジュールはビューです。デフォルトでは、Phoenixのビューはコントローラーの名前が付けられているので、Phoenixは `HelloWeb.HelloView` が存在し、"index.html" を処理してくれることを期待しています。
 
-> Note: Using an atom as the template name also works `render(conn, :index)`. In these cases, the template will be chosen based off the Accept headers, e.g. `"index.html"` or `"index.json"`.
+> 注意: アトムをテンプレート名として使用すると、`render(conn, :index)`も動作します。これらの場合、テンプレートはAcceptヘッダに基づいて選択されます。
 
-### A new View
+### 新しいビュー
 
-Phoenix views act as the presentation layer. For example, we expect the output of rendering "index.html" to be a complete HTML page. To make our lives easier, we often use templates for creating those HTML pages.
+Phoenixのビューは、プレゼンテーションレイヤーとして機能します。たとえば、"index.html "をレンダリングしたときの出力は、完全なHTMLページになることを期待しています。実装を楽にするために、これらのHTMLページを作成するためにテンプレートを使用することがよくあります。
 
-Let's create a new view. Create `lib/hello_web/views/hello_view.ex` and make it look like this:
+新しいビューを作成してみましょう。`lib/hello_web/views/hello_view.ex` を作成し、以下のようにします。
 
 ```elixir
 defmodule HelloWeb.HelloView do
@@ -125,11 +125,11 @@ defmodule HelloWeb.HelloView do
 end
 ```
 
-Now in order to add templates to this view, we simply need to add files to the `lib/hello_web/templates/hello` directory. Note the controller name (`HelloController`), the view name (`HelloView`), and the template directory (`hello`) all follow the same naming convention and are named after each other.
+このビューにテンプレートを追加するには、`lib/hello_web/templates/hello` ディレクトリにファイルを追加する必要があります。コントローラー名 (`HelloController`)、ビュー名 (`HelloView`)、テンプレートディレクトリ (`hello`) はすべて同じ命名規則に従っており、それぞれにちなんで命名されていることに注意してください。
 
-A template file has the following structure: `NAME.FORMAT.TEMPLATING_LANGUAGE`. In our case, we will create a "index.html.eex" file at "lib/hello_web/templates/hello/index.html.eex". ".eex" stands for `EEx`, which is a library for embedding Elixir that ships as part of Elixir itself. Phoenix enhances EEx to include automatic escaping of values. This protects you from security vulnerabilities like Cross-Site-Scripting with no extra work on your part.
+テンプレートファイルは `NAME.FORMAT.TEMPLATING_LANGUAGE` という構造になっています。ここでは、 "lib/hello_web/templates/hello/index.html.eex" に "index.html.eex" というファイルを作成します。".eex "は `EEx` の略で、Elixir自体の一部として組み込まれている、Elixirを埋め込むためのライブラリです。Phoenixでは、値の自動エスケープを含むようにEExを強化しています。これにより、クロスサイトスクリプティングのようなセキュリティ上の脆弱性から、余計な作業をせずに保護することができます。
 
-Create `lib/hello_web/templates/hello/index.html.eex` and make it look like this:
+`lib/hello_web/templates/hello/index.html.eex`を作成し、以下のようにします。
 
 ```html
 <div class="phx-hero">
@@ -137,27 +137,26 @@ Create `lib/hello_web/templates/hello/index.html.eex` and make it look like this
 </div>
 ```
 
-Now that we've got the route, controller, view, and template, we should be able to point our browsers at [http://localhost:4000/hello](http://localhost:4000/hello) and see our greeting from Phoenix! (In case you stopped the server along the way, the task to restart it is `mix phx.server`.)
+これで、ルート、コントローラー、ビュー、テンプレートができたので、ブラウザを [http://localhost:4000/hello](http://localhost:4000/hello) に向けて、Phoenixからの挨拶を見ることができるはずです！(途中でサーバーを停止してしまった場合、サーバーを再起動するタスクは `mix phx.server` です。)
 
-![Phoenix Greets Us](assets/images/hello-from-phoenix.png)
 
-There are a couple of interesting things to notice about what we just did. We didn't need to stop and re-start the server while we made these changes. Yes, Phoenix has hot code reloading! Also, even though our `index.html.eex` file consisted of only a single `div` tag, the page we get is a full HTML document. Our index template is rendered into the application layout - `lib/hello_web/templates/layout/app.html.eex`. If you open it, you'll see a line that looks like this:
+今行ったことについて、いくつか興味深いことがあります。これらの変更を行っている間、サーバーを停止したり再起動したりする必要はありませんでした。そう、Phoenixにはホットコードのリロード機能があります！また、`index.html.eex` ファイルは単一の `div` タグだけで構成されていましたが、得られるページは完全なHTMLドキュメントです。インデックステンプレートはアプリケーションのレイアウト `lib/hello_web/templates/layout/app.html.eex` にレンダリングされます。これを開くと、次のような行が表示されます。
 
 ```html
 <%= @inner_content %>
 ```
 
-which injects our template into the layout before the HTML is sent off to the browser.
+これは、HTMLがブラウザへ送信される前にレイアウトにテンプレートを注入します。
 
-> A note on hot code reloading: Some editors with their automatic linters may prevent hot code reloading from working. If it's not working for you, please see the discussion in [this issue](https://github.com/phoenixframework/phoenix/issues/1165).
+> ホットコードのリロードについての注意点: 自動リンターを搭載しているエディタによっては、ホットコードのリロードが動作しない場合があります。それがうまくいかない場合は、[この問題](https://github.com/phoenixframework/phoenix/issues/1165)の議論を参照してください。
 
-## From endpoint to views
+## エンドポイントからビューへ
 
-As we built our first page, we could start to understand how the request life-cycle is put together. Now let's take a more holistic look at it.
+最初のページを構築していくうちに、リクエストのライフサイクルがどのようにまとめられているかを理解することができました。では、より全体的に見てみましょう。
 
-All HTTP requests start in our application endpoint. You can find it as a module named `HelloWeb.Endpoint` in `lib/hello_web/endpoint.ex`. Once you open up the endpoint file, you will see that, similar to the router, the endpoint has many calls to `plug`. `Plug` is a library and specification for stiching web applications together. It is an essential part of how Phoenix handle requests and we will discuss it in detail [in the Plug guide](plug.html) coming next.
+すべてのHTTPリクエストはアプリケーションのエンドポイントから始まります。エンドポイントは `lib/hello_web/endpoint.ex` の中にある `HelloWeb.Endpoint` というモジュールで見つけることができます。エンドポイントファイルを開くと、ルーターと同じように、エンドポイントが `plug` をたくさん呼び出していることがわかるでしょう。`Plug`はウェブアプリケーションをつなぎ合わせるためのライブラリであり仕様です。これはPhoenixがどのようにリクエストを処理するかの重要な部分であり、詳細については[プラグガイド](plug.html)を参照してください。
 
-For now, it suffices to say that each Plug defines a slice of request processing. In the endpoint you will find a skeleton roughly like this:
+今のところ、各Plugはリクエスト処理の断片を定義しているだけと言えば十分です。エンドポイントの中には、およそこのようなスケルトンがあります。
 
 ```elixir
 defmodule HelloWeb.Endpoint do
@@ -174,29 +173,29 @@ defmodule HelloWeb.Endpoint do
 end
 ```
 
-Each of these plugs have a specific responsibility that we will learn later. The last plug is precisely the `HelloWeb.Router` module. This allows the endpoint to delegate all further request processing to the router. As we now know, its main responsibility is to map verb/path pairs to controllers. The controllers then tells a view to render a template.
+これらのプラグのそれぞれには、後ほど説明する特定の責務があります。最後のプラグは `HelloWeb.Router` モジュールです。これにより、エンドポイントはさらに先のすべてのリクエスト処理をルーターに委譲できます。今知っているように、このモジュールの主な役割は、動詞とパスのペアをコントローラーにマッピングすることです。コントローラーはビューにテンプレートをレンダリングするように指示します。
 
-At this moment, you may be thinking this can be a lot of steps to simply render a page. However, as our application grows in complexity, we will see that each layer serves a distinct purpose:
+この時点では、単にページをレンダリングするために多くのステップが必要だと思うかもしれません。しかし、アプリケーションが複雑になるにつれて、それぞれのレイヤーが異なる目的を果たすことがわかります。
 
-  * endpoint (`Phoenix.Endpoint`) - the endpoint contains the common and initial path that all requests go through. If you want something to happen on all requests, it goes to the endpoint
+  * エンドポイント (`Phoenix.Endpoint`) - エンドポイントには、すべてのリクエストが通過する共通の初期パスが含まれます。すべてのリクエストに何かを実行させたい場合は、エンドポイントに記述します
 
-  * router (`Phoenix.Router`) - the router is responsible for dispatching verb/patch to controllers. The router also allows us to scope functionality. For example, some pages in your application may require user authentication, others may not
+  * ルーター (`Phoenix.Router`) - ルーターはコントローラーへの動詞/パスのディスパッチを担当します。ルーターは機能をスコープすることもできます。たとえば、アプリケーションの中にはユーザー認証が必要なページもあれば、そうでないページもあります。
 
-  * controller (`Phoenix.Controller`) - the job of the controller is to retrieve request information, talk to your business domain, and prepare data for the presentation layer
+  * コントローラー (`Phoenix.Controller`) - コントローラーの仕事は、リクエスト情報を取得し、ビジネスドメインと対話し、プレゼンテーション層のデータを準備することです。
 
-  * view  (`Phoenix.View`) - the view handles the structured data from the controller and converts it to a presentation to be shown to users
+  * ビュー (`Phoenix.View`) - ビューはコントローラーからの構造化データを処理し、それをユーザーに表示するためのプレゼンテーションに変換します。
 
-Let's do a quick recap and how the last three components work together by adding another page.
+最後の3つのコンポーネントがどのように機能するのか、別のページを追加して簡単に復習してみましょう。
 
-## Another New Page
+## 別の新しいページ
 
-Let's add just a little complexity to our application. We're going to add a new page that will recognize a piece of the URL, label it as a "messenger" and pass it through the controller into the template so our messenger can say hello.
+アプリケーションに少し複雑さを加えてみましょう。新しいページを追加して、URLの一部を認識し、それを "messenger" としてラベルを付け、コントローラーを介してテンプレートに渡し、メッセンジャーがこんにちはと言えるようにします。
 
-As we did last time, the first thing we'll do is create a new route.
+前回と同じく、まずは新しいルートを作成します。
 
-### Another new Route
+### 別の新しいルート
 
-For this exercise, we're going to re-use the `HelloController` we just created and just add a new `show` action. We'll add a line just below our last route, like this:
+今回は、先ほど作成した `HelloController` を再利用して、新しい `show` アクションを追加します。最後のルートのすぐ下に次のような行を追加します。
 
 ```elixir
 scope "/", HelloWeb do
@@ -208,11 +207,11 @@ scope "/", HelloWeb do
 end
 ```
 
-Notice that we use the `:messenger` syntax in the path. Phoenix will take whatever value that appears in that position in the URL and convert it into a parameter. For example, if we point the browser at: [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank), the value of "messenger" will be "Frank".
+パスの中で `:messenger` 構文を使用していることに注意してください。PhoenixはURLのその位置にある値をすべて受け取り、それをパラメーターに変換します。たとえば、ブラウザで [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank) を指すと、"messenger" の値は "Frank" になります。
 
-### Another new Action
+### 別の新しいアクション
 
-Requests to our new route will be handled by the `HelloWeb.HelloController` `show` action. We already have the controller at `lib/hello_web/controllers/hello_controller.ex`, so all we need to do is edit that file and add a `show` action to it. This time, we'll need to extract the messenger from the parameters so that we can pass it (the messenger) to the template. To do that, we add this show function to the controller:
+新しいルートへのリクエストは `HelloWeb.HelloController` の `show` アクションで処理されます。すでに `lib/hello_web/controllers/hello_controller.ex` にコントローラーがあるので、このファイルを編集して `show` アクションを追加するだけです。今回は、パラメーターからメッセンジャーを抽出してテンプレートに渡す必要があります。そのために、このshow関数をコントローラーに追加します。
 
 ```elixir
 def show(conn, %{"messenger" => messenger}) do
@@ -220,9 +219,9 @@ def show(conn, %{"messenger" => messenger}) do
 end
 ```
 
-Within the body of the `show` action, we also pass a third argument into the render function, a key/value pair where `:messenger` is the key, and the `messenger` variable is passed as the value.
+`show` アクションのボディ内では、レンダー関数に第3引数を渡します。ここでは `:messenger` がキーで、変数 `messenger` が値として渡されます。
 
-If the body of the action needs access to the full map of parameters bound to the params variable in addition to the bound messenger variable, we could define `show/2` like this:
+アクションの本体が、バインドされたメッセンジャー変数に加えてparams変数にバインドされたパラメーターのフルマップにアクセスする必要がある場合、次のように `show/2` を定義できます。
 
 ```elixir
 def show(conn, %{"messenger" => messenger} = params) do
@@ -230,15 +229,15 @@ def show(conn, %{"messenger" => messenger} = params) do
 end
 ```
 
-It's good to remember that the keys to the `params` map will always be strings, and that the equals sign does not represent assignment, but is instead a [pattern match](https://elixir-lang.org/getting-started/pattern-matching.html) assertion.
+`params` マップのキーは常に文字列であり、等号は代入を表すものではなく、代わりに [パターンマッチ](https://elixir-lang.org/getting-started/pattern-matching.html) のアサーションであることを覚えておくと良いでしょう。
 
-### Another new Template
+### 別の新しいテンプレート
 
-For the last piece of this puzzle, we'll need a new template. Since it is for the `show` action of the `HelloController`, it will go into the `lib/hello_web/templates/hello` directory and be called `show.html.eex`. It will look surprisingly like our `index.html.eex` template, except that we will need to display the name of our messenger.
+このパズルの最後のピースとして、新しいテンプレートが必要です。これは `HelloController` の `show` アクション用なので、`lib/hello_web/templates/hello` ディレクトリにある `show.html.eex` という名前になります。メッセンジャーの名前を表示する必要があることを除けば、見た目は驚くほど `index.html.eex` テンプレートと似ています。
 
-To do that, we'll use the special EEx tags for executing Elixir expressions - `<%=  %>`. Notice that the initial tag has an equals sign like this: `<%=` . That means that any Elixir code that goes between those tags will be executed, and the resulting value will replace the tag. If the equals sign were missing, the code would still be executed, but the value would not appear on the page.
+そのために、Elixir式を実行するための特別なEExタグ `<%= %>` を使用します。最初のタグには、`<%=` のような等号が付いていることに注意してください。 これは、これらのタグの間を通過するElixirコードはすべて実行され、結果として得られる値がタグを置き換えることを意味します。等号がない場合でも、コードは実行されますが、その値はページに表示されません。
 
-And this is what the template should look like:
+そして、テンプレートは次のようになります。
 
 ```html
 <div class="phx-hero">
@@ -246,10 +245,10 @@ And this is what the template should look like:
 </div>
 ```
 
-Our messenger appears as `@messenger`. We call "assigns" the values passed from the controller to views. It is a special bit of metaprogrammed syntax which stands in for `assigns.messenger`. The result is much nicer on the eyes and much easier to work with in a template.
+メッセンジャーは `@messenger` という名前で表示されます。コントローラーからビューに渡された値を "assigns" と呼びます。これは、`assigns.messenger` の略で、メタプログラムされた特殊な構文です。その結果、見栄えが良くなり、テンプレートでの作業が格段に楽になりました。
 
-We're done. If you point your browser here: [http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank), you should see a page that looks like this:
+これで終わりです。ブラウザを[http://localhost:4000/hello/Frank](http://localhost:4000/hello/Frank)に向けると、このようなページが表示されるはずです。
 
 ![Frank Greets Us from Phoenix](assets/images/hello-world-from-frank.png)
 
-Play around a bit. Whatever you put after `/hello/` will appear on the page as your messenger.
+少し遊んでみてください。`/hello/`の後につけたものが、あなたのメッセンジャーとしてページに表示されます。
