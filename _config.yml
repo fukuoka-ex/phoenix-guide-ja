@@ -1,8 +1,8 @@
 title: Phoenix Guide
-description: ElixirのWebフレームワークPhoenixのガイド
 url: "https://fukuoka-ex.github.io"
 baseurl: "/phoenix-guide-ja"
 theme: just-the-docs
+lang: ja
 exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile", "version_checker", "docs", "vendor/"]
 search_enabled: true
 plugins:
