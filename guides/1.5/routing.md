@@ -2,19 +2,19 @@
 layout: 1.5/layout
 version: 1.5
 group: guides
-title: Routing
+title: ルーティング
 nav_order: 4
-hash: 4f3a5fb6
+hash: 464192b4
 ---
-# Routing
+# ルーティング
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**:  このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Request life-cycle guide](request_lifecycle.html).
+> **前提**: [リクエストのライフサイクルガイド](request_lifecycle.html)を理解していることを前提としています
 
-Routers are the main hubs of Phoenix applications. They match HTTP requests to controller actions, wire up real-time channel handlers, and define a series of pipeline transformations scoped to a set of routes.
+ルーターは、Phoenixアプリケーションのメインハブです。ルーターは、HTTPリクエストをコントローラーアクションにマッチさせ、リアルタイムチャネルハンドラをつなぎ、一連のパイプライン変換を一連のルートにスコープして定義します。
 
-The router file that Phoenix generates, `lib/hello_web/router.ex`, will look something like this one:
+Phoenixが生成するルーターファイル `lib/hello_web/router.ex` は以下のようになります。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -45,38 +45,38 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Both the router and controller module names will be prefixed with the name you gave your application instead of `HelloWeb`.
+ルーター名とコントローラーモジュール名の両方とも、`HelloWeb`ではなく、アプリケーションに与えた名前がプレフィックスになります。
 
-The first line of this module, `use HelloWeb, :router`, simply makes Phoenix router functions available in our particular router.
+このモジュールの最初の行である `use HelloWeb, :router` は、Phoenixルーターの関数をルーターで利用できるようにするだけです。
 
-Scopes have their own section in this guide, so we won't spend time on the `scope "/", HelloWeb do` block here. The `pipe_through :browser` line will get a full treatment in the Pipeline section of this guide. For now, you only need to know that pipelines allow a set of plugs to be applied to different sets of routes.
+スコープはこのガイドでは独自のセクションを持っているので、ここでは `scope "/", HelloWeb do` のブロックの説明は割愛します。`pipe_through :browser` 行については、このガイドのパイプラインのセクションで詳しく説明します。今のところ、パイプラインでは一連のプラグを異なるルートのセットに適用することができるということだけは知っておく必要があります。
 
-Inside the scope block, however, we have our first actual route:
+スコープブロックの中には、最初の実際のルートがあります。
 
 ```elixir
 get "/", PageController, :index
 ```
 
-`get` is a Phoenix macro that corresponds to the HTTP verb GET. Similar macros exist for other HTTP verbs including POST, PUT, PATCH, DELETE, OPTIONS, CONNECT, TRACE and HEAD.
+`get`はHTTP動詞のGETに対応するPhoenixマクロです。同様のマクロは、POST、PUT、PATCH、DELETE、OPTIONS、CONNECT、TRACE、HEADなどの他のHTTP動詞にも存在します。
 
-## Examining Routes
+## ルートを調べる
 
-Phoenix provides a great tool for investigating routes in an application, the mix task `phx.routes`.
+Phoenixはアプリケーション内のルートを調査するための素晴らしいツールを提供しています: `mix phx.routes`.
 
-Let's see how this works. Go to the root of a newly-generated Phoenix application and run `mix phx.routes`. You should see something like the following, generated with all routes you currently have:
+これがどのように動作するか見てみましょう。新しく生成されたPhoenixアプリケーションのルートに行き、`mix phx.routes` を実行してください。次のような、生成されたすべてのルートが確認できます。
 
 ```console
 $ mix phx.routes
 page_path  GET  /  HelloWeb.PageController :index
 ```
 
-The route above tells us that any HTTP GET request for the root of the application will be handled by the `index` action of the `HelloWeb.PageController`.
+上のルートは、アプリケーションのルートに対するHTTP GETリクエストが `HelloWeb.PageController` の `index` アクションによって処理されることを示しています。
 
-`page_path` is an example of what Phoenix calls a path helper, and we'll talk about those very soon.
+`page_path`はPhoenixがパスヘルパーと呼ぶものの例です。これらは後ほど説明します。
 
-## Resources
+## リソース
 
-The router supports other macros besides those for HTTP verbs like `get`, `post`, and `put`. The most important among them is `resources`. Let's add a resource to our `lib/hello_web/router.ex` file like this:
+ルーターは `get`, `post`, `put` などのHTTP動詞以外にもマクロをサポートしています。その中でもとくに重要なのは `resources` です。次のように`lib/hello_web/router.ex` ファイルにリソースを追加してみましょう。
 
 ```elixir
 scope "/", HelloWeb do
@@ -87,9 +87,9 @@ scope "/", HelloWeb do
 end
 ```
 
-For now it doesn't matter that we don't actually have a `HelloWeb.UserController`.
+今のところ、実際に `HelloWeb.UserController` を持っていないことは問題ではありません。
 
-Run `mix phx.routes` once again at the root of your project. You should see something like the following:
+プロジェクトのルートでもう一度 `mix phx.routes` を実行してください。以下のようなものが表示されるはずです。
 
 ```elixir
 user_path  GET     /users           HelloWeb.UserController :index
@@ -102,39 +102,39 @@ user_path  PATCH   /users/:id       HelloWeb.UserController :update
 user_path  DELETE  /users/:id       HelloWeb.UserController :delete
 ```
 
-This is the standard matrix of HTTP verbs, paths, and controller actions. For a while, this was known as RESTful routes, but most consider this a misnomer nowadays. Let's look at them individually, in a slightly different order.
+これは、HTTP動詞、パス、コントローラーのアクションの標準的な行列です。しばらくの間、これはRESTful routesとして知られていましたが、現在ではほとんどの人がこれを誤記と考えています。少し順番を変えて、個別に見ていきましょう。
 
-- A GET request to `/users` will invoke the `index` action to show all the users.
-- A GET request to `/users/new` will invoke the `new` action to present a form for creating a new user.
-- A GET request to `/users/:id` will invoke the `show` action with an id to show an individual user identified by that ID.
-- A POST request to `/users` will invoke the `create` action to save a new user to the data store.
-- A GET request to `/users/:id/edit` will invoke the `edit` action with an ID to retrieve an individual user from the data store and present the information in a form for editing.
-- A PATCH request to `/users/:id` will invoke the `update` action with an ID to save the updated user to the data store.
-- A PUT request to `/users/:id` will also invoke the `update` action with an ID to save the updated user to the data store.
-- A DELETE request to `/users/:id` will invoke the `delete` action with an ID to remove the individual user from the data store.
+- `/users` へのGETリクエストは `index` アクションを呼び出し、すべてのユーザーを表示します。
+- `/users/new` へのGETリクエストは `new` アクションを呼び出し、新しいユーザーを作成するためのフォームを表示します。
+- `/users/:id` へのGETリクエストは、idを指定して `show` アクションを呼び出し、そのIDで識別される個々のユーザーを表示します。
+- `/user` へのPOSTリクエストは `create` アクションを呼び出し、新しいユーザーをデータストアに保存します。
+- `/users/:id/edit` へのGETリクエストは、IDを指定して `edit` アクションを呼び出し、データストアから個々のユーザーを取得して編集用のフォームで情報を表示します。
+- `/users/:id` へのPATCHリクエストは、IDを指定して `update` アクションを呼び出し、更新されたユーザーをデータストアに保存します。
+- `/users/:id` へのPUTリクエストもまた `update` アクションを呼び出し、IDを指定して更新されたユーザーをデータストアに保存する。
+- `/users/:id` へのDELETEリクエストは、IDを指定して `delete` アクションを呼び出し、個々のユーザーをデータストアから削除します。
 
-If we don't feel that we need all of these routes, we can be selective using the `:only` and `:except` options to filter certain actions.
+これらのルートをすべて必要としない場合は、`:only` と `:except` オプションを使って特定のアクションをフィルタリングできます。
 
-Let's say we have a read-only posts resource. We could define it like this:
+読み取り専用の投稿リソースがあるとしましょう。このように定義できます。
 
 ```elixir
 resources "/posts", PostController, only: [:index, :show]
 ```
 
-Running `mix phx.routes` shows that we now only have the routes to the index and show actions defined.
+`mix phx.routes` を実行すると、indexとshowアクションへのルートだけが定義されていることがわかります。
 
 ```elixir
 post_path  GET     /posts      HelloWeb.PostController :index
 post_path  GET     /posts/:id  HelloWeb.PostController :show
 ```
 
-Similarly, if we have a comments resource, and we don't want to provide a route to delete one, we could define a route like this.
+同様に、コメントリソースがあり、そのリソースを削除するためのルートを提供したくない場合、次のように定義できます。
 
 ```elixir
 resources "/comments", CommentController, except: [:delete]
 ```
 
-Running `mix phx.routes` now shows that we have all the routes except the DELETE request to the delete action.
+これで `mix phx.routes` を実行すると、削除アクションへのDELETEリクエストを除くすべてのルートがあることがわかります。
 
 ```elixir
 comment_path  GET    /comments           HelloWeb.CommentController :index
@@ -146,34 +146,34 @@ comment_path  PATCH  /comments/:id       HelloWeb.CommentController :update
               PUT    /comments/:id       HelloWeb.CommentController :update
 ```
 
-The `Phoenix.Router.resources/4` macro describes additional options for customizing resource routes.
+`Phoenix.Router.resources/4` マクロは、リソースルートをカスタマイズするための追加オプションを記述します。
 
-## Path Helpers
+## パスヘルパー
 
-Path helpers are functions which are dynamically defined on the `Router.Helpers` module for an individual application. For us, that is `HelloWeb.Router.Helpers`. Their name of each path helper is derived from the name of the controller used in the route definition. Our controller is `HelloWeb.PageController`, and `page_path` is the function which will return the path to the root of our application.
+パスヘルパーは、個々のアプリケーションのために `Router.Helpers` モジュール上で動的に定義される関数です。私たちの場合、それは `HelloWeb.Router.Helpers` です。各パスヘルパーの名前は、ルート定義で使用されるコントローラーの名前に由来します。コントローラーは `HelloWeb.PageController` で、`page_path` はアプリケーションのルートへのパスを返す関数です。
 
-That's a mouthful. Let's see it in action. Run `iex -S mix` at the root of the project. When we call the `page_path` function on our router helpers with the `Endpoint` or connection and action as arguments, it returns the path to us.
+一言では言えないですね。実際に見てみましょう。プロジェクトのルートで `iex -S mix` を実行します。ルーターヘルパーの `page_path` 関数を `Endpoint` あるいは接続とアクションを引数に指定して呼び出すと、パスを返してくれます。
 
 ```elixir
 iex> HelloWeb.Router.Helpers.page_path(HelloWeb.Endpoint, :index)
 "/"
 ```
 
-This is significant because we can use the `page_path` function in a template to link to the root of our application. We can then use this helper in our templates:
+テンプレート内で `page_path` 関数を使用してアプリケーションのルートにリンクすることができるので、これは重要です。テンプレートの中でこのヘルパーを使うことができます。
 
 ```html
 <%= link "Welcome Page!", to: Routes.page_path(@conn, :index) %>
 ```
 
-The reason we can use `Routes.page_path` instead of the full `HelloWeb.Router.Helpers.page_path` name is because `HelloWeb.Router.Helpers` is aliased as `Routes` by default in the `view/0` block defined inside `lib/hello_web.ex`. This definition is made available to our templates through `use HelloWeb, :view`.
+完全な `HelloWeb.Router.Helpers.page_path` の代わりに `Routes.page_path` を使用できるのは、`HelloWeb.Router.Helpers` はデフォルトで `lib/hello_web.ex` 内の `view/0` ブロックで `Routes` としてエイリアスされているからです。この定義は、`use HelloWeb, :view`によってテンプレートで利用できるようになっています。
 
-We can, of course, use `HelloWeb.Router.Helpers.page_path(@conn, :index)` instead, but the convention is to use the aliased version for conciseness. Note that the alias is only set automatically for use in views, controllers and templates - outside these you need either the full name, or to alias it yourself inside the module definition with `alias HelloWeb.Router.Helpers, as: Routes`.
+もちろん、代わりに `HelloWeb.Router.Helpers.page_path(@conn, :index)` を使うこともできますが、簡潔さのためにエイリアス版を使うのが慣例です。エイリアスは、ビュー、コントローラー、テンプレートで使用するためだけに自動的に設定されることに注意してください - これらの外では、フルネームか、モジュール定義の中で `alias HelloWeb.Router.Helpers, as.Routes`でモジュール定義の中で自分でエイリアスを設定する必要があります。
 
-Using path helpers makes it easy to ensure our controllers, views and templates are linking to pages our router can actually handle.
+パスヘルパーを使用することで、コントローラー、ビュー、テンプレートがルーターが実際に処理できるページにリンクしていることを簡単に保証できます。
 
-### More on Path Helpers
+### パスヘルパーの詳細
 
-When we ran the `phx.routes` task for our user resource, it listed the `user_path` as the path helper function for each line of output. Here is what that translates to for each action:
+ユーザーリソースに対して `mix phx.routes` を実行すると、出力の各行のパスヘルパー関数として `user_path` がリストアップされます。これはそれぞれのアクションのために翻訳されています。
 
 ```elixir
 iex> alias HelloWeb.Router.Helpers, as: Routes
@@ -200,34 +200,34 @@ iex> Routes.user_path(Endpoint, :delete, 17)
 "/users/17"
 ```
 
-What about paths with query strings? By adding an optional fourth argument of key value pairs, the path helpers will return those pairs in the query string.
+クエリストリングを持つパスはどうでしょうか？オプションの第4引数にkey-valueのペアを追加することで、パスヘルパーはクエリ文字列のペアを返します。
 
 ```elixir
 iex> Routes.user_path(Endpoint, :show, 17, admin: true, active: false)
 "/users/17?admin=true&active=false"
 ```
 
-What if we need a full url instead of a path? Just replace `_path` with `_url`:
+パスの代わりに完全なURLが必要な場合はどうすればよいでしょうか？`_path` を `_url` に置き換えるだけです。
 
 ```elixir
 iex(3)> Routes.user_url(Endpoint, :index)
 "http://localhost:4000/users"
 ```
 
-The `_url` functions will get the host, port, proxy port, and SSL information needed to construct the full URL from the configuration parameters set for each environment. We'll talk about configuration in more detail in its own guide. For now, you can take a look at `config/dev.exs` file in your own project to see those values.
+`_url` 関数は、環境ごとの設定から、完全なURLを構築するために必要なホスト、ポート、プロキシポート、SSLの情報を取得します。設定については、それ自身のガイドで詳しく説明します。とりあえず、自分のプロジェクトの `config/dev.exs` ファイルを見て、これらの値を確認できます。
 
-Whenever possible prefer to pass a `conn` (or `@conn` in your views) in place of an `Endpoint`.
+可能な限り、`Endpoint` の代わりに `conn` (ビューでは `@conn`) を渡すことをオススメします。
 
-## Nested Resources
+## 入れ子になったリソース
 
-It is also possible to nest resources in a Phoenix router. Let's say we also have a `posts` resource which has a many-to-one relationship with `users`. That is to say, a user can create many posts, and an individual post belongs to only one user. We can represent that by adding a nested route in `lib/hello_web/router.ex` like this:
+Phoenixルーターの中にリソースをネストすることも可能です。たとえば、`users`と多対1の関係にある`posts`リソースがあるとしましょう。つまり、1人のユーザーが多くの投稿を作成することができ、個々の投稿は1人のユーザーにしか属していないということです。これを表現するには、`lib/hello_web/router.ex` に次のようなネストされたルートを追加します。
 
 ```elixir
 resources "/users", UserController do
   resources "/posts", PostController
 end
 ```
-When we run `mix phx.routes` now, in addition to the routes we saw for `users` above, we get the following set of routes:
+上で見た `users` 用のルートに加えて、`mix phx.routes` を実行すると、以下のようなルートが得られます。
 
 ```elixir
 ...
@@ -241,9 +241,9 @@ user_post_path  PATCH   /users/:user_id/posts/:id       HelloWeb.PostController 
 user_post_path  DELETE  /users/:user_id/posts/:id       HelloWeb.PostController :delete
 ```
 
-We see that each of these routes scopes the posts to a user ID. For the first one, we will invoke the `PostController` `index` action, but we will pass in a `user_id`. This implies that we would display all the posts for that individual user only. The same scoping applies for all these routes.
+これらのルートのそれぞれがpostをユーザーIDにスコープしていることがわかります。最初のルートでは、`PostController` `index` アクションを呼び出しますが、`user_id` を渡します。これは、そのユーザーのすべての投稿を表示することを意味します。これらすべてのルートに同じスコープが適用されます。
 
-When calling path helper functions for nested routes, we will need to pass the IDs in the order they came in the route definition. For the following `show` route, `42` is the `user_id`, and `17` is the `post_id`. Let's remember to alias our `HelloWeb.Endpoint` before we begin.
+ネストしたルートに対してパスヘルパー関数を呼び出す際には、ルート定義で指定した順番でIDを渡す必要があります。次の `show` ルートでは、`42` が `user_id` で、`17` が `post_id` です。始める前に、`HelloWeb.Endpoint`のエイリアスを忘れないようにしましょう。
 
 ```elixir
 iex> alias HelloWeb.Endpoint
@@ -251,14 +251,14 @@ iex> HelloWeb.Router.Helpers.user_post_path(Endpoint, :show, 42, 17)
 "/users/42/posts/17"
 ```
 
-Again, if we add a key/value pair to the end of the function call, it is added to the query string.
+ここでも、関数呼び出しの最後にkey-valueのペアを追加すると、それがクエリ文字列に追加されます。
 
 ```elixir
 iex> HelloWeb.Router.Helpers.user_post_path(Endpoint, :index, 42, active: true)
 "/users/42/posts?active=true"
 ```
 
-If we had aliased the `Helpers` module as before (it is only automatically aliased for views, templates and controllers, in this case, since we're inside `iex` we need to do it ourselves), we could instead do:
+`Helpers` モジュールをエイリアスしていれば（ビュー、テンプレート、コントローラーに対してのみ自動的にエイリアスされますが、この場合は `iex` の中にいるので自分でエイリアスする必要があります）、代わりに次のようにできます。
 
 ```elixir
 iex> alias HelloWeb.Router.Helpers, as: Routes
@@ -267,11 +267,11 @@ iex> Routes.user_post_path(Endpoint, :index, 42, active: true)
 "/users/42/posts?active=true"
 ```
 
-## Scoped Routes
+## スコープされたルート
 
-Scopes are a way to group routes under a common path prefix and scoped set of plugs. We might want to do this for admin functionality, APIs, and especially for versioned APIs. Let's say we have user generated reviews on a site, and that those reviews first need to be approved by an admin. The semantics of these resources are quite different, and they might not share the same controller. Scopes enable us to segregate these routes.
+スコープは、共通のパスプレフィックスとスコープされた一連のプラグの下でルートをグループ化する方法です。これは、管理者機能やAPI、特にバージョン管理されたAPIのために必要になるかもしれません。あるサイトにユーザーが生成したレビューがあり、それらのレビューは最初に管理者によって承認される必要があるとしましょう。これらのリソースのセマンティクスはまったく異なり、同じコントローラーを共有しているわけではないかもしれません。スコープを使用することで、これらのルートを分離できます。
 
-The paths to the user facing reviews would look like a standard resource.
+ユーザーが利用するレビューへのパスは、標準的なリソースのように見えるでしょう。
 
 ```console
 /reviews
@@ -280,7 +280,7 @@ The paths to the user facing reviews would look like a standard resource.
 ...
 ```
 
-The admin review paths could be prefixed with `/admin`.
+管理者レビューのパスの前に `/admin` をつけることができます。
 
 ```console
 /admin/reviews
@@ -289,7 +289,7 @@ The admin review paths could be prefixed with `/admin`.
 ...
 ```
 
-We accomplish this with a scoped route that sets a path option to `/admin` like this one. We could nest this scope inside another scope, but instead let's set it by itself at the root:
+これを実現するには、このように `/admin` にパスオプションを設定するスコープ付きルートを使用します。このスコープを別のスコープの中に入れ子にすることもできますが、その代わりにルートにスコープを設定しましょう。
 
 ```elixir
 scope "/admin", HelloWeb.Admin do
@@ -299,9 +299,9 @@ scope "/admin", HelloWeb.Admin do
 end
 ```
 
-We define a new scope where all routes a prefixed with "/admin" and all controllers are under the `HelloWeb.Admin` namespace.
+新しいスコープを定義して、すべてのルートのプレフィックスが "/admin" で、すべてのコントローラーが `HelloWeb.Admin` 名前空間の下にあるようにします。
 
-Running `mix phx.routes` again, in addition to the previous set of routes we get the following:
+`mix phx.routes` を再度実行すると、以前のルートに加えて、次のような結果が得られます。
 
 ```elixir
 ...
@@ -315,7 +315,7 @@ review_path  PATCH   /admin/reviews/:id       HelloWeb.Admin.ReviewController :u
 review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewController :delete
 ```
 
-This looks good, but there is a problem here. Remember that we wanted both user facing reviews routes `/reviews` as well as the admin ones `/admin/reviews`. If we now include the user facing reviews in our router under the root scope like this:
+これは良さそうに見えますが、ここで問題があります。管理者向けの `/admin/reviews` と同様に、ユーザー向けのレビュールート `/reviews` も必要なのでした。このようにルートスコープの下にあるルーターにユーザー向けのレビューを含めると、次のようになります。
 
 ```elixir
 scope "/", HelloWeb do
@@ -326,11 +326,13 @@ scope "/", HelloWeb do
 end
 
 scope "/admin", HelloWeb.Admin do
+  pipe_through :browser
+
   resources "/reviews", ReviewController
 end
 ```
 
-and we run `mix phx.routes`, we get this output:
+そして `mix phx.routes` を実行すると、このような出力が得られます。
 
 ```elixir
 ...
@@ -353,18 +355,20 @@ review_path  PATCH   /admin/reviews/:id       HelloWeb.Admin.ReviewController :u
 review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewController :delete
 ```
 
-The actual routes we get all look right, except for the path helper `review_path` at the beginning of each line. We are getting the same helper for both the user facing review routes and the admin ones, which is not correct.
+実際のルートは、各行の先頭にあるパスヘルパー `review_path` を除いて、すべて正しく見えます。ユーザーが利用するレビュールートと管理者が利用するレビュールートの両方で同じヘルパーを取得していますが、これは正しくありません。
 
-We can fix this problem by adding an `as: :admin` option to our admin scope:
+この問題は、管理者スコープに `as: :admin` オプションを追加することで解決できます。
 
 ```elixir
 
 scope "/admin", HelloWeb.Admin, as: :admin do
+  pipe_through :browser
+
   resources "/reviews", ReviewController
 end
 ```
 
-`mix phx.routes` now shows us we have what we are looking for.
+これで `mix phx.routes` で欲しい結果が得られました。
 
 ```elixir
 ...
@@ -387,7 +391,7 @@ admin_review_path  PATCH   /admin/reviews/:id              HelloWeb.Admin.Review
 admin_review_path  DELETE  /admin/reviews/:id              HelloWeb.Admin.ReviewController :delete
 ```
 
-The path helpers now return what we want them to as well. Run `iex -S mix` and give it a try yourself.
+パスヘルパーは、私たちが望むものを返すようになりました。`iex -S mix` を実行して、自分で試してみてください。
 
 ```elixir
 iex(1)> HelloWeb.Router.Helpers.review_path(HelloWeb.Endpoint, :index)
@@ -397,7 +401,7 @@ iex(2)> HelloWeb.Router.Helpers.admin_review_path(HelloWeb.Endpoint, :show, 1234
 "/admin/reviews/1234"
 ```
 
-What if we had a number of resources that were all handled by admins? We could put all of them inside the same scope like this:
+複数のリソースを管理者がすべて処理するとしたらどうでしょうか？このように、同じスコープ内にすべてのリソースを配置できます。
 
 ```elixir
 scope "/admin", HelloWeb.Admin, as: :admin do
@@ -409,7 +413,7 @@ scope "/admin", HelloWeb.Admin, as: :admin do
 end
 ```
 
-Here's what `mix phx.routes` tells us:
+以下が `mix phx.routes` の結果です。
 
 ```elixir
 ...
@@ -439,9 +443,9 @@ admin_review_path  DELETE  /admin/reviews/:id       HelloWeb.Admin.ReviewControl
   admin_user_path  DELETE  /admin/users/:id         HelloWeb.Admin.UserController :delete
 ```
 
-This is great, exactly what we want. Note how every route, path helper and controller is properly namespaced.
+これは素晴らしいですね。まさに我々が欲しいものです。すべてのルート、パスヘルパー、コントローラーが適切な名前空間になっていることに注目してください。
 
-Scopes can also be arbitrarily nested, but you should do it carefully as nesting can sometimes make our code confusing and less clear. With that said, suppose that we had a versioned API with resources defined for images, reviews and users. Then technically we could setup routes for the versioned API like this:
+スコープは入れ子にすることもできますが、入れ子にするとコードが混乱してわかりにくくなることがあるので、慎重に行う必要があります。とはいえ、画像、レビュー、ユーザー用のリソースを定義したバージョニングされたAPIがあったとしましょう。その場合、技術的には以下のようにバージョニングされたAPIのルートを設定できます。
 
 ```elixir
 scope "/api", HelloWeb.Api, as: :api do
@@ -455,9 +459,9 @@ scope "/api", HelloWeb.Api, as: :api do
 end
 ```
 
-You can run `mix phx.routes` to see how these definitions will look like.
+これらの定義がどのようになるかは `mix phx.routes` を実行することで確認できます。
 
-Interestingly, we can use multiple scopes with the same path as long as we are careful not to duplicate routes. This router is perfectly fine with two scopes defined for the same path.
+興味深いことに、ルートが重複しないように注意していれば、同じパスで複数のスコープを使用できます。このルーターは、同じパスに2つのスコープが定義されていてもまったく問題ありません。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -478,35 +482,35 @@ defmodule HelloWeb.Router do
 end
 ```
 
-If we do duplicate a route, we'll get this familiar warning.
+ルートを複製した場合、このおなじみの警告が表示されます。
 
 ```console
 warning: this clause cannot match because a previous clause at line 16 always matches
 ```
 
-## Pipelines
+## パイプライン
 
-We have come quite a long way in this guide without talking about one of the first lines we saw in the router - `pipe_through :browser`. It's time to fix that.
+このガイドでは、ルーターで最初に見た行の1つである `pipe_through :browser` について語らずに、かなり長い道のりを歩んできました。それを語るときがきました。
 
-Pipelines are a series of plugs that can be attached to specific scopes. If you are not familiar with plugs, we have an [in-depth guide about them](plug.html).
+パイプラインとは、特定のスコープに取り付けることができる一連のplugのことです。Plugに詳しくない方には、[詳細なガイド](plug.html)があります。
 
-Routes are defined inside scopes and scopes may pipe through multiple pipelines. Once a route matches, Phoenix invokes all plugs defined in all pipelines associated to that route. For example, accessing "/" will pipe through the `:browser` pipeline, consequently invoking all of its plugs.
+ルートはスコープ内で定義され、スコープは複数のパイプラインを通過できます。ルートが一致すると、Phoenixはそのルートに関連付けられたすべてのパイプラインで定義されたすべてのプラグを呼び出します。たとえば、"/" にアクセスすると `:browser` パイプラインを通過し、その結果、すべてのプラグが呼び出されます。
 
-Phoenix defines two pipelines by default, `:browser` and `:api`, which can be used for a number of common tasks. In turn we can customize them as well as create new pipelines to meet our needs.
+Phoenixはデフォルトで`:browser`と`:api`という2つのパイプラインを定義しており、多くの一般的なタスクに使用できます。これらのパイプラインをカスタマイズしたり、必要に応じて新しいパイプラインを作成したりできます。
 
-### The `:browser` and `:api` Pipelines
+### `:browser` と `:api` のパイプライン
 
-As their names suggest, the `:browser` pipeline prepares for routes which render requests for a browser. The `:api` pipeline prepares for routes which produce data for an api.
+名前が示すように、`:browser` パイプラインはブラウザへのリクエストをレンダリングするためのルートを準備します。`api` パイプラインはapiのデータを生成するルートの準備します。
 
-The `:browser` pipeline has five plugs: `plug :accepts, ["html"]` which defines the request format or formats which will be accepted, `:fetch_session`, which, naturally, fetches the session data and makes it available in the connection, `:fetch_flash` which retrieves any flash messages which may have been set, as well as `:protect_from_forgery` and `:put_secure_browser_headers`, which protects form posts from cross site forgery.
+`plug :accepts, ["html"]`はリクエストのフォーマットを定義し、`:fetch_session`はセッションデータを取得してコネクションで利用可能にするもので、`:fetch_flash`はセットされているフラッシュメッセージを取得するもので、`:protect_from_forgery`と`:put_secure_browser_headers`はクロスサイトフォージェリからフォーム投稿を保護するものです。
 
-Currently, the `:api` pipeline only defines `plug :accepts, ["json"]`.
+現在のところ、`:api` パイプラインは `plug :accepts, ["json"]` のみを定義しています。
 
-The router invokes a pipeline on a route defined within a scope. Routes outside of a scope have no pipelines. Although the use of nested scopes is discouraged (see above), if we call `pipe_through` within a nested scope, the router will invoke all `pipe_through`'s from parent scopes, followed by the nested one.
+ルーターは、スコープ内で定義されたルート上でパイプラインを呼び出します。スコープ外のルートにはパイプラインはありません。ネストされたスコープの使用はオススメしませんが (上記参照)、ネストされたスコープ内で `pipe_through` を呼び出すと、ルーターは親スコープからすべての `pipe_through` を呼び出し、その後にネストされたスコープを呼び出します。
 
-Those are a lot of words bunched up together. Let's take a look at some examples to untangle their meaning.
+たくさんの用語が束になっています。いくつかの例を見て、意味を紐解いてみましょう。
 
-Here's another look at the router from a newly generated Phoenix application, this time with the api scope uncommented back in and a route added.
+新しく生成されたPhoenixアプリケーションからルーターを見てみましょう。今回はapiスコープがコメントされておらず、ルートが追加されています。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -539,15 +543,15 @@ defmodule HelloWeb.Router do
 end
 ```
 
-When the server accepts a request, the request will always first pass through the plugs in our Endpoint, after which it will attempt to match on the path and HTTP verb.
+サーバーがリクエストを受け入れるとき、リクエストは常に最初にEndpointのプラグを通過し、その後、パスとHTTP動詞にマッチしようとします。
 
-Let's say that the request matches our first route: a GET to `/`. The router will first pipe that request through the `:browser` pipeline - which will fetch the session data, fetch the flash, and execute forgery protection - before it dispatches the request to the `PageController` `index` action.
+リクエストが最初のルートである `/` へのGETにマッチしたとしましょう。ルーターはまずそのリクエストを `:browser` パイプラインにパイプし、セッションデータを取得してフラッシュを取得してフォージェリ保護を実行します。
 
-Conversely, if the request matches any of the routes defined by the `resources/2` macro, the router will pipe it through the `:api` pipeline - which currently does nothing - before it dispatches further to the correct action of the `HelloWeb.ReviewController`.
+逆に、リクエストが `resources/2` マクロで定義されたルートのいずれかにマッチした場合、ルーターは `:api` パイプライン (現在は何もしていない) を経由して `HelloWeb.ReviewController` の正しいアクションにディスパッチする前に、リクエストをパイプします。
 
-If no route matches, no pipeline is invoked and a 404 error is rasied.
+ルートが一致しない場合、パイプラインは呼び出されず、404エラーが発生します。
 
-Let's stretch these ideas out a little bit more. What if we need to pipe requests through both `:browser` and one or more custom pipelines? We simply `pipe_through` a list of pipelines, and Phoenix will invoke them in order.
+これらの考えをもう少し広げてみましょう。リクエストを `:browser` と1つ以上のカスタムパイプラインの両方にパイプする必要があるとしたらどうでしょうか？パイプラインのリストを `pipe_through` するだけで、Phoenixはそれらのパイプラインを順番に呼び出します。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -570,7 +574,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Here's another example with two scopes that have different pipelines:
+ここでは、異なるパイプラインを持つ2つのスコープの別の例を示します。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -599,11 +603,11 @@ defmodule HelloWeb.Router do
 end
 ```
 
-In general, the scoping rules for pipelines behave as you might expect. In this example, all routes will pipe through the `:browser` pipeline. However, only the `reviews` resources routes will  pipe through the `:review_checks` pipeline. Since we declared both pipes `pipe_through [:browser, :review_checks]` in a list of pipelines, Phoenix will `pipe_through` each of them as it invokes them in order.
+一般的に、パイプラインのスコーピングルールは期待通りの振る舞いをします。この例では、すべてのルートが `:browser` パイプラインを通過します。しかし、`reviews` リソースのルートだけが `:review_checks` パイプラインを通過します。`pipe_through [:browser, :review_checks]` と両方のパイプをパイプラインのリストで宣言しているので、Phoenixはそれぞれのパイプを順番に `pipe_through` します。
 
-### Creating New Pipelines
+### 新しいパイプラインの作成
 
-Phoenix allows us to create our own custom pipelines anywhere in the router. To do so, we call the `pipeline/2` macro with these arguments: an atom for the name of our new pipeline and a block with all the plugs we want in it.
+Phoenixでは、ルーター内の任意の場所に独自のカスタムパイプラインを作成できます。そのためには、`pipeline/2` マクロをこれらの引数で呼び出します。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -630,7 +634,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Note that pipelines themselves are plugs, so we can plug a pipeline inside another pipeline. For example, we could rewrite the `review_checks` pipeline above to automatically invoke `browser`, simplifying the downstream pipeline call:
+パイプライン自体はplugなので、パイプラインを別のパイプラインの中に組み込むことができます。たとえば、上の `review_checks` パイプラインを `browser` を自動的に呼び出すように書き換えることで、下流のパイプライン呼び出しを簡素化できます。
 
 ```elixir
   pipeline :review_checks do
@@ -646,9 +650,9 @@ Note that pipelines themselves are plugs, so we can plug a pipeline inside anoth
   end
 ```
 
-## Forward
+## フォワード
 
-The `Phoenix.Router.forward/4` macro can be used to send all requests that start with a particular path to a particular plug. Let's say we have a part of our system that is responsible (it could even be a separate application or library) for running jobs in the background, it could have its own web interface for checking the status of the jobs. We can forward to this admin interface using:
+`Phoenix.Router.forward/4` マクロを使用して、特定のパスで始まるすべてのリクエストを特定のplugへ送信できます。システムの一部がバックグラウンドでジョブを実行しているとします（別のアプリケーションやライブラリであっても構いません）。この管理者インターフェースに転送するには、次のようにします。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -664,9 +668,9 @@ defmodule HelloWeb.Router do
 end
 ```
 
-This means that all routes starting with `/jobs` will be sent to the `HelloWeb.BackgroundJob.Plug` module. Inside the plug, you can match on subroutes, such as `/pending` and `/active` that shows the status of certain jobs.
+これは、`/jobs` で始まるすべてのルートが `HelloWeb.BackgroundJob.Plug` モジュールに送られることを意味します。プラグの中では、`/pending` や `/active` のように、特定のジョブのステータスを示すサブルートにマッチさせることができます。
 
-We can even mix the `forward/4` macro with pipelines. If we wanted to ensure that the user was authenticated and an administrator in order to see the jobs page, we could use the following in our router.
+パイプラインと `forward/4` マクロを混在させることもできます。ユーザーが認証済みで管理者であることを確認してジョブページを表示させたい場合は、ルーターで以下のようにすればよいでしょう。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -681,26 +685,26 @@ defmodule HelloWeb.Router do
 end
 ```
 
-This means the plugs in the `authenticate_user` and `ensure_admin` pipelines will be called before the `BackgroundJob.Plug` allowing them to send an appropriate response and halt the request accordingly.
+これは、`authenticate_user` と `ensure_admin` パイプラインのプラグが `BackgroundJob.Plug` の前に呼び出され、適切なレスポンスを送信し、それに応じてリクエストを停止できることを意味します。
 
-The `opts` that are received in the `init/1` callback of the Module Plug can be passed as a 3rd argument. For example, maybe the background job lets you set the name of your application to be displayed on the page. This could be passed with:
+モジュールplugの `init/1` コールバックで受け取る `opts` は、第3引数として渡すことができます。たとえば、バックグラウンドジョブでページに表示するアプリケーションの名前を設定できます。と一緒に渡すことができます。
 
 ```elixir
 forward "/jobs", BackgroundJob.Plug, name: "Hello Phoenix"
 ```
 
-There is a fourth `router_opts` argument that can be passed. These options are outlined in the `Phoenix.Router.scope/2` documentation.
+4番目の引数 `router_opts` を渡すことができます。これらのオプションの概要は `Phoenix.Router.scope/2` のドキュメントで説明されています。
 
-`BackgroundJob.Plug` can be implemented as any Module Plug discussed [in the Plug guide](plug.html). Note though it is not advised to forward to another Phoenix endpoint. This is because plugs defined by your app and the forwarded endpoint would be invoked twice, which may lead to errors.
+`BackgroundJob.Plug`は、[Plugガイドで説明されている](plug.html)モジュールPlugとして実装できます。しかし、別のPhoenixエンドポイントに転送することはオススメしません。これは、あなたのアプリで定義されたplugと転送されたエンドポイントが2回呼び出され、エラーにつながる可能性があるからです。
 
-## Summary
+## まとめ
 
-Routing is a big topic, and we have covered a lot of ground here. The important points to take away from this guide are:
+ルーティングは大きなトピックであり、ここでは多くの分野をカバーしています。このガイドから取り上げる重要なポイントは以下の通りです。
 
-- Routes which begin with an HTTP verb name expand to a single clause of the match function.
-- Routes which begin with 'resources' expand to 8 clauses of the match function.
-- Resources may restrict the number of match function clauses by using the `only:` or `except:` options.
-- Any of these routes may be nested.
-- Any of these routes may be scoped to a given path.
-- Using the `as:` option in a scope can reduce duplication.
-- Using the helper option for scoped routes eliminates unreachable paths.
+- HTTP動詞名で始まるルートは、1つのmatch関数定義に展開されます。
+- 'resources' で始まるルートは、8つのmatch関数定義に展開されます。
+- リソースは、`only:` または `except:` オプションを使用してmatch関数の数を制限できます。
+- これらのルートはいずれもネストさせることができます。
+- これらのルートはいずれも指定したパスにスコープできます
+- スコープで `as:` オプションを使うと重複を減らすことができます。
+- スコープされたルートにヘルパーオプションを使用すると、到達不可能なパスを排除できます。
