@@ -2,31 +2,31 @@
 layout: 1.5/layout
 version: 1.5
 group: deployment
-title: Introduction to Deployment
+title: デプロイの紹介
 nav_order: 1
-hash: aef1e2a6
+hash: d66738cd
 ---
-# Introduction to Deployment
+# デプロイの紹介
 
-Once we have a working application, we're ready to deploy it. If you're not quite finished with your own application, don't worry. Just follow the [Up and Running Guide](up_and_running.html) to create a basic application to work with.
+動作するアプリケーションができたら、それをデプロイする準備ができています。独自のアプリケーションがまだ完成していない場合でも、心配しないでください。[起動ガイド](./../introduction/up_and_running.html)に従って、デプロイに使用する基本的なアプリケーションを作成してください。
 
-When preparing an application for deployment, there are three main steps:
+アプリケーションをデプロイするための準備は、3つの主要なステップがあります:
 
-  * Handling of your application secrets
-  * Compiling your application assets
-  * Starting your server in production
+  * アプリケーションシークレットの取り扱い
+  * アセットのコンパイル
+  * productionモードでのサーバーの起動
 
-In this guide, we will learn how to get the production environment running locally. You can use the same techniques in this guide to run your application in production, but depending on your deployment infrastructure, extra steps will be necessary.
+このガイドでは、ローカルに本番動作環境を構築する方法を学びます。本番でアプリケーションを動かすためにはこのガイドで説明する同じ技法を使うことができますが、デプロイインフラストラクチャによっては、追加のステップが必要となるでしょう。
 
-As an example of deploying to other infrastructures, we also discuss two different approaches in our guides: using [Elixir's releases with `mix release`](releases.html) and [by using Heroku](heroku.html). The release guide also has a sample Docker file you can use if you prefer to deploy with container technologies.
+他のインフラストラクチャへのデプロイへの例として、3つの異なるアプローチも言及します: 1つ目は[`mix release`を利用したElixirのリリース](releases.html)と、2つ目は[Gigalixirの利用](gigalixir.html)、もうひとつは[Herokuの利用](heroku.html)です。もしコンテナ技術でデプロイをするのがお好みなら、このリリースガイドでは利用可能なサンプルのDockerファイルも紹介します。
 
-Let's explore those steps above one by one.
+上記の手順を1つずつ見ていきましょう。
 
-## Handling of your application secrets
+## アプリケーションシークレットの取り扱い
 
-All Phoenix applications have data that must be kept secure, for example, the username and password for your production database, and the secret Phoenix uses to sign and encrypt important information. The general recommendation is to keep those in environment variables and load them into your application. This is done in `config/prod.secret.exs`, which is responsible for loading secrets and configuration from environment variables.
+すべてのPhoenixアプリケーションは、たとえば、本番データベースのためのユーザーネームやパスワード、Phoenixが重要な情報の署名と暗号化に使用するシークレットなど、安全に保つ必要のあるデータがあります。一般的にはこれらを環境変数に保持しておいて、アプリケーションでそこから読み出すことが推奨されます。環境変数からシークレットとコンフィグを読み込む責務は、`config/prod.secret.exs`が持ちます。
 
-Therefore, you need to make sure the proper relevant variables are set in production:
+したがって、関連する変数が正しく本番環境に設定されていることを確認する必要があります:
 
 ```console
 $ mix phx.gen.secret
@@ -35,24 +35,24 @@ $ export SECRET_KEY_BASE=REALLY_LONG_SECRET
 $ export DATABASE_URL=ecto://USER:PASS@HOST/database
 ```
 
-Do not copy those values directly, set `SECRET_KEY_BASE` according to the result of `mix phx.gen.secret` and `DATABASE_URL` according to your database address.
+これらの値をそのままコピーしてはいけません。`mix phx.gen.secret`の結果に従って、`SECRET_KEY_BASE`を設定してください。`DATABASE_URL`はデータベースアドレスに従って設定をしてください。
 
-If for some reason you do not want to rely on environment variables, you can hard code the secrets in your `config/prod.secret.exs`, but make sure not to check the file into your version control system.
+いくつかの理由により環境変数を使いたくない場合には、`config/prod.secret.exs`に直接、シークレットを書き込んでください。しかし、`config/prod.secret.exs`がバージョンコントロールシステムで取り扱われないように確認をしておいてください。
 
-With your secret information properly secured, it is time to configure assets!
+シークレット情報が適切で安全に設定できたので、アセットを構成してみましょう!
 
-Before taking this step, we need to do one bit of preparation. Since we will be readying everything for production, we need to do some setup in that environment by getting our dependencies and compiling.
+このステップに進む前に、少し準備が必要です。本番用にすべてを準備しているので、依存関係の解決とコンパイルをすることにより、環境のセットアップが必要です。
 
 ```console
 $ mix deps.get --only prod
 $ MIX_ENV=prod mix compile
 ```
 
-## Compiling your application assets
+## アセットのコンパイル
 
-This step is required only if you have static assets like images, JavaScript, stylesheets and more in your Phoenix applications. By default, Phoenix uses webpack, and that's what we are going to explore.
+このステップは、Phoenixアプリケーション内で画像、JavaScript、スタイルシート等の静的アセットがある場合に必要となります。Phoenixの標準では、webpackを使っています。これについてこれから説明していきます。
 
-Compilation of static assets happens in two steps:
+静的アセットのコンパイルは2ステップで行います。
 
 ```console
 $ npm run deploy --prefix ./assets
@@ -60,9 +60,11 @@ $ mix phx.digest
 Check your digested files at "priv/static".
 ```
 
-And that is it! The first command builds the assets and the second generates digests as well as a cache manifest file so Phoenix can quickly serve assets in production.
+*注記:* Windowsでは、`npm`の`--prefix`は動作しないかもしれない。もしそうなら、最初のコマンドを`cd assets && npm run deploy && cd ..`.に置き換えてください。
 
-Keep in mind that, if you by any chance forget to run the steps above, Phoenix will show an error message:
+これだけです！ 最初のコマンドはアセットを構築し、2番目のコマンドはダイジェストとキャッシュマニフェストファイルを生成して、Phoenixが本番でアセットをすばやく提供できるようにします。
+
+上記ステップの実行を忘れた場合には、Phoenixがエラーメッセージを吐き出すことを覚えておいてください:
 
 ```console
 $ PORT=4001 MIX_ENV=prod mix phx.server
@@ -70,37 +72,37 @@ $ PORT=4001 MIX_ENV=prod mix phx.server
 10:50:18.735 [error] Could not find static manifest at "my_app/_build/prod/lib/foo/priv/static/cache_manifest.json". Run "mix phx.digest" after building your static files or remove the configuration from "config/prod.exs".
 ```
 
-The error message is quite clear: it says Phoenix could not find a static manifest. Just run the commands above to fix it or, if you are not serving or don't care about assets at all, you can just remove the `cache_static_manifest` configuration from `config/prod.exs`.
+エラーメッセージは非常に明確です。Phoenixが静的なマニフェストを見つけられなかったことを表しています。上記のコマンドを実行して修正するか、アセットを提供しないかまったく気にしない場合には、`config/prod.exs`から`cache_static_manifest`設定を削除してください。
 
-## Starting your server in production
+## productionモードでのサーバーの起動
 
-To run Phoenix in production, we need to set the `PORT` and `MIX_ENV` environment variables when invoking `mix phx.server`:
+productionモードでPhoenixを開始するには、`mix phx.server`を実行する際に、`PORT`と`MIX_ENV`環境を設定しておく必要があります:
 
 ```console
 $ PORT=4001 MIX_ENV=prod mix phx.server
 10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com
 ```
 
-To run in detached mode so that the Phoenix server does not stop and continues to run even if you close the terminal:
+デタッチモードを使うと、ターミナルを閉じたときにPhoenixサーバーを止めずに実行し続けるようになります:
 
 ```console
 $ PORT=4001 MIX_ENV=prod elixir --erl "-detached" -S mix phx.server
 ```
 
-In case you get an error message, please read it carefully, and open up a bug report if it is still not clear how to address it.
+エラーメッセージが表示された場合は、注意深く読んで、まだ対処方法が明確でない場合はバグレポートを確認してください。
 
-You can also run your application inside an interactive shell:
+IEx内でアプリケーションを動かすこともできます:
 
 ```console
 $ PORT=4001 MIX_ENV=prod iex -S mix phx.server
 10:59:19.136 [info] Running MyApp.Endpoint with Cowboy on http://example.com
 ```
 
-## Putting it all together
+## まとめ
 
-The previous sections give an overview about the main steps required to deploy your Phoenix application. In practice, you will end-up adding steps of your own as well. For example, if you are using a database, you will also want to run `mix ecto.migrate` before starting the server to ensure your database is up to date.
+前の節までは、Phoenixアプリケーションをデプロイするために必要な主要ステップを概説しました。実際には、最終的に独自のステップを追加することになります。たとえば、データベースを使用している場合、データベースを最新に保つため、サーバーを起動する前に`mix ecto.migrate`を実行したいでしょう。
 
-Overall, here is a script you can use as a starting point:
+全体として、ここに雛形として使用できるスクリプトを示しておきます:
 
 ```console
 # Initial setup
@@ -118,4 +120,8 @@ $ MIX_ENV=prod mix ecto.migrate
 $ PORT=4001 MIX_ENV=prod mix phx.server
 ```
 
-And that's it. Next you can learn [how to deploy Phoenix with Elixir's releases](releases.html) and [how to deploy to Heroku](heroku.html).
+以上です。続いてデプロイのための公式ガイドを利用することができます。
+
+  * [Elixirのリリースを使う](releases.html)
+  * [Gigalixirへデプロイする](gigalixir.html.html): Elixir中心のPlatform as a Service (PaaS)
+  * [Herokuへデプロイする](heroku.html): もっとも有名なPaaSのひとつ
