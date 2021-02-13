@@ -12,7 +12,7 @@ hash: 147308cf
 
 > **前提**: [リクエストのライフサイクルガイド](request_lifecycle.html)を理解していることを前提としています
 
-Phoenix viewsの主な仕事は、ブラウザやAPIクライアントに送信されるレスポンスの本文をレンダリングすることです。ほとんどの場合、テンプレートを使用してレスポンスを作成しますが、手作業で作成することもできます。その方法を学びます。
+Phoenixビューの主な仕事は、ブラウザやAPIクライアントに送信されるレスポンスの本文をレンダリングすることです。ほとんどの場合、テンプレートを使用してレスポンスを作成しますが、手作業で作成することもできます。その方法を学びます。
 
 ## テンプレートのレンダリング
 
@@ -58,7 +58,7 @@ end
 
 ホーム画面をリロードすると、新しいタイトルが表示されるはずです。テンプレートはビューの中でコンパイルされているので、単に `title()` としてビュー関数を呼び出すことができますが、そうでなければ `HelloWeb.LayoutView.title()` と入力しなければなりません。
 
-Elixirテンプレートでは、`EEx` として知られるEmbedded Elixirを使用しています。Elixirの式を実行するには、`<%= 式 %>` を使用します。式の結果はテンプレートに補間されます。Elixir式はほとんどのものを使うことができます。たとえば、条件式を持つには、以下のようにします。
+Elixirテンプレートでは、`EEx` として知られるEmbedded Elixirを使用しています。Elixirの式を実行するには、`<%= 式 %>` を使用します。式の結果はテンプレートに補間されます。Elixir式はほとんどのものを使うことができます。たとえば、条件式を持つには、次のようにします。
 
 ```html
 <%= if some_condition? do %>
@@ -103,7 +103,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-さて、`mix phx.server` でサーバを起動して `http://localhost:4000` にアクセスすると、メインテンプレートページの代わりにレイアウトヘッダーの下に以下のテキストが表示されるはずです。
+さて、`mix phx.server` でサーバを起動して `http://localhost:4000` にアクセスすると、メインテンプレートページの代わりにレイアウトヘッダーの下に次のテキストが表示されるはずです。
 
 ```console
 rendering with assigns [:conn, :view_module, :view_template]
@@ -111,7 +111,7 @@ rendering with assigns [:conn, :view_module, :view_template]
 
 独自の `render` 句を定義することで、テンプレートよりも優先度が高くなります。新たに追加した句を単に削除することで、テンプレートはまだ存在していることを確認できます。
 
-非常にすっきりしていますよね？コンパイル時に、Phoenixはすべての `*.html.eex` テンプレートをプリコンパイルし、それぞれのビューモジュール上で `render/2` 関数節に変換します。実行時には、すべてのテンプレートはすでにメモリにロードされています。ディスクの読み込み、複雑なファイルのキャッシング、テンプレートエンジンの計算は必要ありません。
+非常にすっきりしていますよね？コンパイル時に、Phoenixはすべての `*.html.eex` テンプレートをプリコンパイルし、それぞれのビューモジュール上で `render/2` 関数句に変換します。実行時には、すべてのテンプレートはすでにメモリにロードされています。ディスクの読み込み、複雑なファイルのキャッシング、テンプレートエンジンの計算は必要ありません。
 
 ### テンプレートを手動でレンダリングする
 
@@ -164,7 +164,7 @@ iex(5)> Phoenix.View.render_to_string(HelloWeb.PageView, "test.html", message: "
 <%= render(HelloWeb.PageView, "test.html", message: "Hello from layout!") %>
 ```
 
-同じビュー内でテンプレートをレンダリングしたい場合は、ビュー名を省略して `render("test.html", message: "Hello from sibling template!")` を呼び出すだけでも構いません。たとえば、`lib/hello_web/templates/page/index.html.eex` を開いて、先頭に以下のように追加します。
+同じビュー内でテンプレートをレンダリングしたい場合は、ビュー名を省略して `render("test.html", message: "Hello from sibling template!")` を呼び出すだけでも構いません。たとえば、`lib/hello_web/templates/page/index.html.eex` を開いて、先頭に次のように追加します。
 
 ```html
 <%= render("test.html", message: "Hello from sibling template!") %>
@@ -228,7 +228,7 @@ defmodule HelloWeb.PageView do
 end
 ```
 
-ビューでは、`render/2` 関数が `"index.json"`、`"show.json"`、`"page.json"` でパターンマッチしているのがわかります。index.json "と "show.json "はコントローラーから直接リクエストされたものです。これらはコントローラーから送られてきたassignにマッチします。`index.json"` はこのようなJSONを返します。
+ビューでは、`render/2` 関数が `"index.json"`、`"show.json"`、`"page.json"` でパターンマッチしているのがわかります。"index.json" と "show.json" はコントローラーから直接リクエストされたものです。これらはコントローラーから送られてきたassignにマッチします。`"index.json"` はこのようなJSONを返します。
 
 ```javascript
 {
