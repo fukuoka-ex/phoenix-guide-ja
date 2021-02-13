@@ -4,7 +4,7 @@ version: 1.5
 group: guides
 title: Views and templates
 nav_order: 6
-hash: f5ed42cc
+hash: 147308cf
 ---
 # Views and templates
 
@@ -58,7 +58,7 @@ end
 
 When we reload our home page, we should see our new title. Since templates are compiled inside the view, we could invoke the view function simply as `title()`, otherwise we would have to type `HelloWeb.LayoutView.title()`.
 
-As you may recall, Elixir templates use Embedded Elixir, known as `EEx`. We use `<%= expression %>` to execute Elixir expressions. The result of the expression is interpolated into the template. You can use pretty much use any Elixir expression. For example, in order to have conditionals:
+As you may recall, Elixir templates use Embedded Elixir, known as `EEx`. We use `<%= expression %>` to execute Elixir expressions. The result of the expression is interpolated into the template. You can use pretty much any Elixir expression. For example, in order to have conditionals:
 
 ```html
 <%= if some_condition? do %>
@@ -115,7 +115,7 @@ Pretty neat, right? At compile-time, Phoenix precompiles all `*.html.eex` templa
 
 ### Manually rendering templates
 
-So far, Phoenix has taken care of putting every in place and rendering views for us. However, we can also render views directly.
+So far, Phoenix has taken care of putting everything in place and rendering views for us. However, we can also render views directly.
 
 Let's create a new template to play around with, `lib/hello_web/templates/page/test.html.eex`:
 
@@ -139,7 +139,7 @@ iex(2)> Phoenix.View.render(HelloWeb.PageView, "test.html", message: "<script>ba
 {:safe, ["This is the message: ", "&lt;script&gt;badThings();&lt;/script&gt;"]}
 ```
 
-If we need only the rendered string, without the whole tuple, we can use the `render_to_iodata/3`.
+If we need only the rendered string, without the whole tuple, we can use `render_to_string/3`.
 
 ```elixir
 iex(5)> Phoenix.View.render_to_string(HelloWeb.PageView, "test.html", message: "Hello from IEx!")
@@ -164,7 +164,7 @@ Since `Phoenix.View` is automatically imported into our templates, we could even
 <%= render(HelloWeb.PageView, "test.html", message: "Hello from layout!") %>
 ```
 
-If you want to render a template within the same view, you can skip the view name, and simply call `render("test.html", message: "Hello from sibling template!")` instead. For example, open up `lib/hello_web/templates/page/index.html.eex` and at this at the top:
+If you want to render a template within the same view, you can skip the view name, and simply call `render("test.html", message: "Hello from sibling template!")` instead. For example, open up `lib/hello_web/templates/page/index.html.eex` and add this at the top:
 
 ```html
 <%= render("test.html", message: "Hello from sibling template!") %>
@@ -188,7 +188,7 @@ The view's job is not only to render HTML templates. Views are about data presen
 
 Phoenix uses [Jason](https://github.com/michalmuskala/jason) to encode JSON, so all we need to do in our views is format the data we'd like to respond with as a list or a map, and Phoenix will do the rest.
 
-While it is possible to respond with JSON back directly from the controller and skip the view, Phoenix Views provide a much more strucgtured approach for doing  so. Let's take our `PageController`, and see what it might look like when we respond with some static page maps as JSON, instead of HTML.
+While it is possible to respond with JSON back directly from the controller and skip the view, Phoenix Views provide a much more structured approach for doing  so. Let's take our `PageController`, and see what it might look like when we respond with some static page maps as JSON, instead of HTML.
 
 ```elixir
 defmodule HelloWeb.PageController do
