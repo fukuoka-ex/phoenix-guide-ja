@@ -2,21 +2,21 @@
 layout: 1.5/layout
 version: 1.5
 group: guides
-title: Controllers
+title: コントローラー
 nav_order: 5
-hash: 4f3a5fb6
+hash: a6b444e7
 ---
-# Controllers
+# コントローラー
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**: このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Request life-cycle guide](request_lifecycle.html).
+> **前提**: [リクエストのライフサイクルガイド](request_lifecycle.html)を理解していることを前提としています
 
-Phoenix controllers act as intermediary modules. Their functions - called actions - are invoked from the router in response to HTTP requests. The actions, in turn, gather all the necessary data and perform all the necessary steps before invoking the view layer to render a template or returning a JSON response.
+Phoenixコントローラーは、中間モジュールとして機能します。アクションと呼ばれる機能は、HTTPリクエストに応答してルーターから呼び出されます。アクションは必要なデータをすべて収集し、ビューレイヤーを呼び出してテンプレートをレンダリングしたり、JSONレスポンスを返したりする前に、必要なすべてのステップを実行します。
 
-Phoenix controllers also build on the Plug package, and are themselves plugs. Controllers provide the functions to do almost anything we need to in an action. If we do find ourselves looking for something that Phoenix controllers don't provide, we might find what we're looking for in Plug itself. Please see the [Plug Guide](plug.html) or [Plug Documentation](https://hexdocs.pm/plug/) for more information.
+Phoenixのコントローラーもまた、プラグパッケージをベースにしており、それ自体がプラグです。コントローラーは、アクションで必要なことをほとんどすべて行うための機能を提供します。Phoenixコントローラーが提供していないものを探していることに気がついた場合は、プラグ自体の中に探しているものがあるかもしれません。詳細については、[プラグガイド](plug.html)または[プラグのドキュメント](https://hexdocs.pm/plug/)を参照してください。
 
-A newly generated Phoenix app will have a single controller, the `PageController`, which can be found at `lib/hello_web/controllers/page_controller.ex` and looks like this.
+新しく生成されたPhoenixアプリには、単一のコントローラーである`PageController`があり、`lib/hello_web/controllers/page_controller.ex`にあります。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -28,27 +28,27 @@ defmodule HelloWeb.PageController do
 end
 ```
 
-The first line below the module definition invokes the `__using__/1` macro of the `HelloWeb` module, which imports some useful modules.
+モジュール定義の下の最初の行では、`HelloWeb`モジュールの`__using__/1`マクロを呼び出しており、いくつかの便利なモジュールをインポートしています。
 
-The `PageController` gives us the `index` action to display the Phoenix welcome page associated with the default route Phoenix defines in the router.
+`PageController`は、Phoenixがルーターで定義したデフォルトルートに関連付けられたPhoenixのウェルカムページを表示するための`index`アクションを提供します。
 
-## Actions
+## アクション
 
-Controller actions are just functions. We can name them anything we like as long as they follow Elixir's naming rules. The only requirement we must fulfill is that the action name matches a route defined in the router.
+コントローラーのアクションはただの関数です。Elixirの命名規則に従う限り、好きな名前をつけることができます。唯一満たさなければならない要件は、アクション名がルーターで定義されたルートと一致することです。
 
-For example, in `lib/hello_web/router.ex` we could change the action name in the default route that Phoenix gives us in a new app from index:
+たとえば、`lib/hello_web/router.ex`では、新しいアプリでPhoenixが与えてくれるデフォルトのルートのアクション名をindexから変更できます。
 
 ```elixir
 get "/", PageController, :index
 ```
 
-To test:
+これを:testに変更できます。
 
 ```elixir
 get "/", PageController, :test
 ```
 
-As long as we change the action name in the `PageController` to `test` as well, the welcome page will load as before.
+同様に `PageController`のアクション名を`test`に変更すれば、ウェルカムページは以前と同じように読み込まれます。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -59,22 +59,21 @@ defmodule HelloWeb.PageController do
   end
 end
 ```
+アクションには好きな名前をつけることができますが、可能な限り従うべきアクション名の規約があります。[ルーティング](routing.html)で説明しましたが、ここでも簡単に見てみましょう。
 
-While we can name our actions whatever we like, there are conventions for action names which we should follow whenever possible. We went over these in the [Routing Guide](routing.html), but we'll take another quick look here.
+- index - 与えられたリソースタイプの全アイテムのリストを表示します
+- show - IDを元に個々のアイテムを表示します
+- new - 新しいアイテムを作成するためのフォームをレンダリングします
+- create - 新しいアイテムのパラメーターを受け取り、それをデータストアに保存します
+- edit - 個々のアイテムをIDで取得し、編集用のフォームに表示します
+- update - 編集されたアイテムのパラメーターを受け取り、データストアに保存します
+- delete - 削除するアイテムのIDを受け取り、データストアから削除します
 
-- index   - renders a list of all items of the given resource type
-- show    - renders an individual item by id
-- new     - renders a form for creating a new item
-- create  - receives params for one new item and saves it in a datastore
-- edit    - retrieves an individual item by id and displays it in a form for editing
-- update  - receives params for one edited item and saves it to a datastore
-- delete  - receives an id for an item to be deleted and deletes it from a datastore
+これらのアクションにはそれぞれ2つのパラメーターが必要で、これはPhoenixが裏で提供するものです。
 
-Each of these actions takes two parameters, which will be provided by Phoenix behind the scenes.
+最初のパラメーターは常に`conn`で、ホスト、パス要素、ポート、クエリ文字列などのリクエストに関する情報を保持する構造体です。`conn`は、Elixirのプラグミドルウェアフレームワークを介してPhoenixに提供されます。`conn`の詳細については [プラグのドキュメント](https://hexdocs.pm/plug/Plug.Conn.html)を参照してください。
 
-The first parameter is always `conn`, a struct which holds information about the request such as the host, path elements, port, query string, and much more. `conn`, comes to Phoenix via Elixir's Plug middleware framework. More detailed info about `conn` can be found in [plug's documentation](https://hexdocs.pm/plug/Plug.Conn.html).
-
-The second parameter is `params`. Not surprisingly, this is a map which holds any parameters passed along in the HTTP request. It is a good practice to pattern match against params in the function signature to provide data in a simple package we can pass on to rendering. We saw this in the [Request life-cycle guide](request_lifecycle.html) when we added a messenger parameter to our `show` route in `lib/hello_web/controllers/hello_controller.ex`.
+2番目のパラメーターは`params`です。驚くことではありませんが、これはHTTPリクエストで渡されたすべてのパラメーターを保持するマップです。レンダリングに渡すことができるシンプルなパッケージのデータを提供するために、関数のシグネチャでparamsとパターンマッチするのは良い習慣です。これは、`lib/hello_web/controllers/hello_controller.ex`の`show`ルートにmessengerパラメーターを追加したときに、[リクエストライフサイクルガイド](request_lifecycle.html) で見ました。
 
 ```elixir
 defmodule HelloWeb.HelloController do
@@ -86,13 +85,13 @@ defmodule HelloWeb.HelloController do
 end
 ```
 
-In some cases - often in `index` actions, for instance - we don't care about parameters because our behavior doesn't depend on them. In those cases, we don't use the incoming params, and simply prepend the variable name with an underscore, `_params`. This will keep the compiler from complaining about the unused variable while still keeping the correct arity.
+いくつかのケース、たとえば`index`アクションでは、動作がパラメーターに依存しないため、パラメーターを気にしないことがよくあります。そのような場合には、入力されるパラメーターを使用せず、単に変数名の前にアンダースコアを付けて`_params`とします。これにより、正しいアリティを維持しつつ、コンパイラが未使用の変数について文句を言わないようになります。
 
-## Rendering
+## レンダリング
 
-Controllers have several ways of rendering content. The simplest is to render some plain text using the `text/2` function which Phoenix provides.
+コントローラーには、コンテンツをレンダリングするいくつかの方法があります。もっとも単純なのは、Phoenixが提供する`text/2`関数を使ってプレーンテキストをレンダリングすることです。
 
-For example, let's rewrite the `show` action from `PageController` to return text instead. For that, we could do the following.
+試しに、`PageController` の `show` アクションをテキストを返すように書き換えてみましょう。そのためには、次のようにします。
 
 ```elixir
 def show(conn, %{"messenger" => messenger}) do
@@ -100,9 +99,9 @@ def show(conn, %{"messenger" => messenger}) do
 end
 ```
 
-Now `/hello/Frank` in your browser should display `From messenger Frank` as plain text without any HTML.
+これで `/hello/Frank` は `From messenger Frank` をHTMLなしのプレーンテキストとして表示するようになりました。
 
-A step beyond this is rendering pure JSON with the `json/2` function. We need to pass it something that the [Jason library](https://github.com/michalmuskala/jason) can decode into JSON, such as a map. (Jason is one of Phoenix's dependencies.)
+この先のステップは`json/2`関数を使って純粋なJSONをレンダリングすることです。[Jasonライブラリ](https://github.com/michalmuskala/jason)がJSONにデコードできるもの、たとえばmapのようなものを渡す必要があります。（JasonはPhoenixの依存関係の1つです）
 
 ```elixir
 def show(conn, %{"messenger" => messenger}) do
@@ -110,13 +109,13 @@ def show(conn, %{"messenger" => messenger}) do
 end
 ```
 
-If we again visit `/hello/Frank` in the browser, we should see a block of JSON with the key `id` mapped to the string `"Frank"`.
+ブラウザで `/hello/Frank` に再度アクセスすると、キー `id` が文字列 `"Frank"` にマップされたJSONのブロックが表示されるはずです。
 
 ```json
 {"id": "Frank"}
 ```
 
-Phoenix controllers can also render HTML without a view. As you may have already guessed, the `html/2` function does just that. This time, we implement the `show` action like this.
+PhoenixのコントローラーはビューなしでHTMLをレンダリングすることもできます。すでにご存じかもしれませんが、`html/2`関数がそれを実現しています。今回は、このように`show`アクションを実装します。
 
 ```elixir
 def show(conn, %{"messenger" => messenger}) do
@@ -126,20 +125,20 @@ def show(conn, %{"messenger" => messenger}) do
         <title>Passing a Messenger</title>
      </head>
      <body>
-       <p>From messenger #{messenger}</p>
+       <p>From messenger #{Plug.HTML.html_escape(messenger)}</p>
      </body>
    </html>
   """)
 end
 ```
 
-Hitting `/hello/Frank` now renders the HTML string we defined in the `show` action. Note that what we wrote in the action is not an `eex` template. It's a multi-line string, so we interpolate the `id` variable like this `#{id}`, instead of this `<%= id %>`.
+これで`/hello/Frank`を入力すると、`show`アクションで定義したHTML文字列がレンダリングされます。アクションで書いたものは`eex`テンプレートではないことに注意してください。これは複数行の文字列なので、この`<%= messenger %>`の代わりに `#{Plug.HTML.html_escape(messenger)}`のように`messenger`変数を補間します。
 
-It is worth noting that the `text/2`, `json/2`, and `html/2` functions require neither a Phoenix view, nor a template to render.
+`text/2`、`json/2`、`html/2`関数はPhoenixビューもテンプレートも必要としないことは注目に値します。
 
-The `json/2` function is obviously useful for writing APIs, and the other two may come in handy, but most of the times we use Phoenix views to build our responses. For this, Phoenix provides the `render/3` function.
+`json/2` 関数はAPIを書くのに便利で、他の2つは便利ですが、ほとんどの場合、レスポンスを構築する際はPhoenixのビューを使用します。このために、Phoenixは `render/3` 関数を提供します。
 
-Let's rollback our `show` action to what we originally wrote [in the Request life-cycle guide](request_lifecycle.html):
+`show` アクションを [リクエストライフサイクルガイド](request_lifecycle.html) で書いたものにロールバックしてみましょう。
 
 ```elixir
 defmodule HelloWeb.HelloController do
@@ -151,12 +150,11 @@ defmodule HelloWeb.HelloController do
 end
 ```
 
-In order for the `render/3` function to work correctly, the controller and view must have the same root name, which must also have the same root name as the template directory where the `show.html.eex` template lives. In other words, the `HelloController` requires `HelloView`, and `HelloView` requires the existence of the `lib/hello_web/templates/hello` directory, which must contain the `show.html.eex` template.
+`render/3`関数が動作するためには、コントローラーとビューは`show.html.eex` テンプレートが存在するテンプレートディレクトリと同じルート名でなければなりません。言い換えれば、`HelloController`は`HelloView`を必要とし、`HelloView`は`lib/hello_web/templates/hello`ディレクトリの存在を必要とし、そのディレクトリには`show.html.eex`テンプレートが含まれていなければなりません。
 
-`render/3` will also pass the value which the `show` action received for `messenger` from the params as an assign.
+`render/3` は`messenger` 変数をViewで利用するために、`show` アクションがパラメーターから受け取った値を渡します。
 
-If we need to pass values into the template when using `render`, that's easy. We can pass a keyword like we've seen with `messenger: messenger`, or we can use `Plug.Conn.assign/3`, which conveniently returns `conn`.
-
+`render`を使用する際にテンプレートに値を渡す必要がある場合は、それは簡単です。`messenger: messenger`で見たようにキーワードリストを渡すこともできますし、`Plug.Conn.assign/3`を使って便利に `conn` を返すこともできます。
 ```elixir
   def show(conn, %{"messenger" => messenger}) do
     conn
@@ -165,9 +163,9 @@ If we need to pass values into the template when using `render`, that's easy. We
   end
 ```
 
-Note: Using `Phoenix.Controller` imports `Plug.Conn`, so shortening the call to `assign/3` works just fine.
+注意: `Phoenix.Controller`をuseすると`Plug.Conn`がimportされるため、`assign/3`の呼び出しを短くしても問題ありません。
 
-Passing more than one value in to our template is as simple as connecting `assign/3` functions together:
+複数の値をテンプレートに渡すのは、`assign/3` 関数を繋げても簡単にできます。
 
 ```elixir
   def show(conn, %{"messenger" => messenger}) do
@@ -178,21 +176,21 @@ Passing more than one value in to our template is as simple as connecting `assig
   end
 ```
 
-Generally speaking, once all assigns are configured, we invoke the View layer. The View layer then renders "show.html" alongside the layout and a response is sent back to the browser.
+一般的に言えば、すべての割り当てが設定されたら、ビューレイヤーを呼び出します。その後、ビューレイヤーはレイアウトと一緒に "show.html" をレンダリングし、レスポンスをブラウザに送り返します。
 
-[Views and templates](views.html) have their own guide, so we won't spend much time on them here. What we will look at is how to assign a different layout, or none at all, from inside a controller action.
+[ビューとテンプレート](views.html)には独自のガイドがあるので、ここではあまり時間をかけません。これから見ていくのは、コントローラーアクションの内部から、異なるレイアウトを割り当てたり、まったく割り当てなかったりする方法です。
 
-### Assigning Layouts
+### レイアウトを割り当てる
 
-Layouts are just a special subset of templates. They live in `lib/hello_web/templates/layout`. Phoenix created one for us when we generated our app. The default layout is called `app.html.eex`, and it is the layout into which all templates will be rendered by default.
+レイアウトはテンプレートの特別なサブセットにすぎません。これらは`lib/hello_web/templates/layout`にあります。Phoenixはアプリを生成したときに、私たちのために1つ作成してくれました。デフォルトのレイアウトは `app.html.eex` と呼ばれ、デフォルトではすべてのテンプレートがレンダリングされるレイアウトです。
 
-Since layouts are really just templates, they need a view to render them. This is the `LayoutView` module defined in `lib/hello_web/views/layout_view.ex`. Since Phoenix generated this view for us, we won't have to create a new one as long as we put the layouts we want to render inside the `lib/hello_web/templates/layout` directory.
+レイアウトは本当にただのテンプレートなので、それらをレンダリングするためのビューが必要です。これは`lib/hello_web/views/layout_view.ex`で定義されている`LayoutView`モジュールです。Phoenixがこのビューを生成してくれたので、レンダリングしたいレイアウトを`lib/hello_web/templates/layout`ディレクトリに置いておけば、新しいビューを作る必要はありません。
 
-Before we create a new layout, though, let's do the simplest possible thing and render a template with no layout at all.
+しかし、新しいレイアウトを作成する前に、可能な限り単純なことをして、レイアウトのないテンプレートをレンダリングしてみましょう。
 
-The `Phoenix.Controller` module provides the `put_layout/2` function for us to switch layouts. This takes `conn` as its first argument and a string for the basename of the layout we want to render. It also accepts `false` to disable the layout altogether.
+`Phoenix.Controller`モジュールには、レイアウトを切り替えるための`put_layout/2`関数が用意されています。これは`conn`を第1引数にとり、レンダリングしたいレイアウトのベース名を文字列で指定します。また、レイアウトを完全に無効にするには `false` を渡します。
 
-Edit the `index` action of the `PageController` module `lib/hello_web/controllers/page_controller.ex` to look like this.
+`PageController` モジュール `lib/hello_web/controllers/page_controller.ex` の `index` アクションを次のように編集します。
 
 ```elixir
 def index(conn, _params) do
@@ -202,15 +200,15 @@ def index(conn, _params) do
 end
 ```
 
-After reloading [http://localhost:4000/](http://localhost:4000/), we should see a very different page, one with no title, logo image, or css styling at all.
+[http://localhost:4000/](http://localhost:4000/)を再読み込みすると、タイトル、ロゴ画像、CSSのスタイルがまったくない、まったく別のページが表示されるはずです。
 
-Now let's actually create another layout and render the index template into it. As an example, let's say we had a different layout for the admin section of our application which didn't have the logo image. To do this, let's copy the existing `app.html.eex` to a new file `admin.html.eex` in the same directory `lib/hello_web/templates/layout`. Then let's remove the line in `admin.html.eex` that displays the logo.
+では、実際に別のレイアウトを作成して、indexテンプレートをレンダリングしてみましょう。例として、アプリケーションの管理セクションのために、ロゴ画像を持たない別のレイアウトがあったとします。これを行うには、既存の`app.html.eex`を同じディレクトリ`lib/hello_web/templates/layout`にある新しいファイル`admin.html.eex`へコピーします。次に、`admin.html.eex`の中のロゴを表示している行を削除してみましょう。
 
 ```html
 <span class="logo"></span> <!-- remove this line -->
 ```
 
-Then, pass the basename of the new layout into `put_layout/2` in our `index` action in `lib/hello_web/controllers/page_controller.ex`.
+次に、`lib/hello_web/controllers/page_controller.ex`の`index`アクションの`put_layout/2`に新しいレイアウトのベースネームを渡します。
 
 ```elixir
 def index(conn, _params) do
@@ -220,15 +218,15 @@ def index(conn, _params) do
 end
 ```
 
-When we load the page, we should be rendering the admin layout without a logo.
+ページを読み込んだときに、ロゴのない管理画面レイアウトをレンダリングしているはずです。
 
-### Overriding Rendering Formats
+### レンダリング形式のオーバーライド
 
-Rendering HTML through a template is fine, but what if we need to change the rendering format on the fly? Let's say that sometimes we need HTML, sometimes we need plain text, and sometimes we need JSON. Then what?
+テンプレートを使ってHTMLをレンダリングするのは良いのですが、その場でレンダリング形式を変更する必要がある場合はどうでしょうか？HTMLが必要な時もあれば、プレーンテキストが必要な時もあり、JSONが必要な時もあるとしましょう。その場合はどうすればいいのでしょうか？
 
-Phoenix allows us to change formats on the fly with the `_format` query string parameter. To make this happen, Phoenix requires an appropriately named view and an appropriately named template in the correct directory.
+Phoenixでは、`_format`クエリ文字列パラメーターを使用して、その場でフォーマットを変更できます。これを実現するために、Phoenixは適切なディレクトリに適切な名前のビューと適切な名前のテンプレートを必要とします。
 
-As an example, let's take the `PageController` index action from a newly generated app. Out of the box, this has the right view, `PageView`, the right templates directory, `lib/hello_web/templates/page`, and the right template for rendering HTML, `index.html.eex`.
+例として、新しく生成されたアプリの`PageController`のindexアクションを見てみましょう。このアクションには、適切なビュー`PageView`、適切なテンプレートディレクトリ`lib/hello_web/templates/page`、HTMLをレンダリングするための適切なテンプレート`index.html.eex` が含まれています。
 
 ```elixir
 def index(conn, _params) do
@@ -236,13 +234,13 @@ def index(conn, _params) do
 end
 ```
 
-What it doesn't have is an alternative template for rendering text. Let's add one at `lib/hello_web/templates/page/index.text.eex`. Here is our example `index.text.eex` template.
+これにないのは、テキストをレンダリングするための代替テンプレートです。`lib/hello_web/templates/page/index.text.eex`にテンプレートを追加してみましょう。以下に `index.text.eex` テンプレートの例を示します。
 
 ```html
 OMG, this is actually some text.
 ```
 
-There are just a few more things we need to do to make this work. We need to tell our router that it should accept the `text` format. We do that by adding `text` to the list of accepted formats in the `:browser` pipeline. Let's open up `lib/hello_web/router.ex` and change the `plug :accepts` to include `text` as well as `html` like this.
+これを動作させるには、もう少しやるべきことがあります。ルーターに`text`形式を受け入れるように指示する必要があります。これを行うには、`:browser`パイプラインの受け入れ可能なフォーマットのリストに `text`を追加します。`lib/hello_web/router.ex`を開き、`plug:accepts`で`html`と同様に`text`を含めるように変更してみましょう。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -257,7 +255,7 @@ defmodule HelloWeb.Router do
 ...
 ```
 
-We also need to tell the controller to render a template with the same format as the one returned by `Phoenix.Controller.get_format/1`. We do that by substituting the name of the template "index.html" with the atom version `:index`.
+また、`Phoenix.Controller.get_format/1`が返すテンプレートと同じフォーマットのテンプレートをレンダリングするようにコントローラーに指示する必要があります。テンプレート名"index.html"をアトムバージョン`:index`で代入します。
 
 ```elixir
 def index(conn, _params) do
@@ -265,13 +263,13 @@ def index(conn, _params) do
 end
 ```
 
-If we go to [`http://localhost:4000/?_format=text`](http://localhost:4000/?_format=text), we will see "OMG, this is actually some text.".
+[`http://localhost:4000/?_format=text`](http://localhost:4000/?_format=text)にアクセスすると、"OMG, this is actually some text."が表示されます。
 
-### Sending responses directly
+### レスポンスを直接送信する
 
-If none of the rendering options above quite fits our needs, we can compose our own using some of the functions that Plug gives us. Let's say we want to send a response with a status of "201" and no body whatsoever. We can easily do that with the `Plug.Conn.send_resp/3` function.
+上記のレンダリングオプションのどれもニーズに合っていない場合は、Plugが提供する関数を使用して独自のレンダリングオプションを作成できます。たとえば、ステータスが "201" で、ボディが何もないレスポンスを送信したいとします。これは `Plug.Conn.send_resp/3` 関数を使えば簡単にできます。
 
-Edit the `index` action of the `PageController` module `lib/hello_web/controllers/page_controller.ex` to look like this:
+`PageController` モジュール `lib/hello_web/controllers/page_controller.ex` の `index` アクションを次のように編集してください。
 
 ```elixir
 def index(conn, _params) do
@@ -280,9 +278,9 @@ def index(conn, _params) do
 end
 ```
 
-Reloading [http://localhost:4000](http://localhost:4000) should show us a completely blank page. The network tab of our browser's developer tools should show a response status of "201".
+[http://localhost:4000](http://localhost:4000) をリロードすると、真っ白なページが表示されるはずです。ブラウザの開発者ツールのネットワークタブには「201」という応答ステータスが表示されているはずです。
 
-If we would like to be really specific about the content type, we can use `put_resp_content_type/2` in conjunction with `send_resp/3`.
+コンテンツの種類を細かく指定したい場合は、`put_resp_content_type/2` と `send_resp/3` を組み合わせて使うことができます。
 
 ```elixir
 def index(conn, _params) do
@@ -292,13 +290,13 @@ def index(conn, _params) do
 end
 ```
 
-Using Plug functions in this way, we can craft just the response we need.
+このようにPlug関数を使用することで、必要なレスポンスを作成できます。
 
-### Setting the Content Type
+### コンテンツタイプを設定する
 
-Analogous to the `_format` query string param, we can render any sort of format we want by modifying the HTTP Content-Type Header and providing the appropriate template.
+クエリ文字列パラメーター `_format` と同様に、HTTP Content-Typeヘッダーを修正して適切なテンプレートを提供することで、任意の種類のフォーマットをレンダリングできます。
 
-If we wanted to render an xml version of our `index` action, we might implement the action like this in `lib/hello_web/page_controller.ex`.
+`index`アクションのxmlバージョンをレンダリングしたい場合、`lib/hello_web/page_controller.ex`に次のようなアクションを実装するでしょう。
 
 ```elixir
 def index(conn, _params) do
@@ -308,17 +306,17 @@ def index(conn, _params) do
 end
 ```
 
-We would then need to provide an `index.xml.eex` template which created valid xml, and we would be done.
+あとは、有効なxmlを作成した`index.xml.eex`テンプレートを提供する必要があります。
 
-For a list of valid content mime-types, please see the [mime.types](https://github.com/elixir-plug/mime/blob/master/priv/mime.types) documentation from the mime type library.
+有効なMIMEタイプのリストについては、mimeタイプライブラリの[mime.types](https://github.com/elixir-plug/mime/blob/master/priv/mime.type)のドキュメントを参照してください。
 
-### Setting the HTTP Status
+### HTTPステータスを設定する
 
-We can also set the HTTP status code of a response similarly to the way we set the content type. The `Plug.Conn` module, imported into all controllers, has a `put_status/2` function to do this.
+レスポンスのHTTPステータスコードもコンテンツタイプを設定するのと同じように設定できます。すべてのコントローラーにインポートされている`Plug.Conn`モジュールには、これを行うための`put_status/2`関数があります。
 
-`Plug.Conn.put_status/2` takes `conn` as the first parameter and as the second parameter either an integer or a "friendly name" used as an atom for the status code we want to set. The list of status code atom representations can be found in `Plug.Conn.Status.code/1` documentation.
+`Plug.Conn.put_status/2`は最初のパラメーターして`conn`を受け取り、2番目のパラメーターは設定したいステータスコードのアトムとして、整数か"フレンドリな名前"を指定します。ステータスコードのアトム表現のリストは`Plug.Conn.Status.code/1`のドキュメントを参照してください。
 
-Let's change the status in our `PageController` `index` action.
+`PageController`の`index`アクションのステータスを変更してみましょう。
 
 ```elixir
 def index(conn, _params) do
@@ -328,15 +326,15 @@ def index(conn, _params) do
 end
 ```
 
-The status code we provide must be a valid number.
+提供するステータスコードは有効な数値でなければなりません。
 
-## Redirection
+## リダイレクト
 
-Often, we need to redirect to a new url in the middle of a request. A successful `create` action, for instance, will usually redirect to the `show` action for the resource we just created. Alternately, it could redirect to the `index` action to show all the things of that same type. There are plenty of other cases where redirection is useful as well.
+リクエストの途中で新しいURLにリダイレクトする必要がよくあります。たとえば、`create`アクションが成功した場合、通常は作成したばかりのリソースへアクセスするため、`show`アクションにリダイレクトします。別の方法として、同じ型のすべてのリソースを表示するために`index`アクションへリダイレクトすることもできます。リダイレクトが有用なケースは他にもたくさんあります。
 
-Whatever the circumstance, Phoenix controllers provide the handy `redirect/2` function to make redirection easy. Phoenix differentiates between redirecting to a path within the application and redirecting to a url - either within our application or external to it.
+どのような状況であっても、Phoenixコントローラーには便利な`redirect/2`関数があり、リダイレクトを簡単に行うことができます。Phoenixでは、アプリケーション内のパスへのリダイレクトと、アプリケーション内または外部のURLへのリダイレクトを区別しています。
 
-In order to try out `redirect/2`, let's create a new route in `lib/hello_web/router.ex`.
+`redirect/2`を試すために、`lib/hello_web/router.ex`に新しいルートを作成してみましょう。
 
 ```elixir
 defmodule HelloWeb.Router do
@@ -351,7 +349,7 @@ defmodule HelloWeb.Router do
 end
 ```
 
-Then we'll change the `index` action to do nothing but redirect to our new route.
+次に、`index` アクションを変更して、ただ新しいルートにリダイレクトするだけにします。
 
 ```elixir
 def index(conn, _params) do
@@ -359,7 +357,7 @@ def index(conn, _params) do
 end
 ```
 
-Finally, let's define in the same file the action we redirect to, which simply renders the index, but now under a new address:
+最後に、リダイレクト先のアクションを同じファイルに定義してみましょう。これは単にindexをレンダリングしますが、別のアドレスとなります。
 
 ```elixir
 def redirect_test(conn, _params) do
@@ -367,11 +365,11 @@ def redirect_test(conn, _params) do
 end
 ```
 
-When we reload our [Welcome Page](http://localhost:4000), we see that we've been redirected to `/redirect_test` which shows the original welcome page. It works!
+[ウェルカムページ](http://localhost:4000)をリロードすると、オリジナルのウェルカムページを表示する`/redirect_test`にリダイレクトされていることがわかります。うまくいきました。
 
-If we care to, we can open up our developer tools, click on the network tab, and visit our root route again. We see two main requests for this page - a get to `/` with a status of `302`, and a get to `/redirect_test` with a status of `200`.
+もし気になったら、開発者ツールを開いてネットワークタブをクリックして、`/`ルートに再度アクセスしてみましょう。このページには2つの主要なリクエストがあります - ステータスが`302`の`/`へのアクセスと、ステータスが`200`の`/redirect_test`へのアクセスです。
 
-Notice that the redirect function takes `conn` as well as a string representing a relative path within our application. For security reasons, the `:to` helper can only redirect for paths within your appplication. If you want to redirect to a fully-qualified path or an external URL, you should use `:external` instead:
+リダイレクト関数は`conn`とアプリケーション内の相対パスを表す文字列を受け取ることに注目してください。セキュリティ上の理由から、`:to` ヘルパーはアプリケーション内のパスのみをリダイレクトできます。完全修飾されたパスや外部のURLにリダイレクトしたい場合は、代わりに `:external` を使うべきです。
 
 ```elixir
 def index(conn, _params) do
@@ -379,7 +377,7 @@ def index(conn, _params) do
 end
 ```
 
-We can also make use of the path helpers we learned about in the [Routing Guide](routing.html).
+また、[ルーティングガイド](routing.html)で学んだパスヘルパーを活用することもできます。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -391,15 +389,15 @@ defmodule HelloWeb.PageController do
 end
 ```
 
-Using route helpers is actually the preferred approach to link to any page within our application.
+ルートヘルパーを使用することは、アプリケーション内の任意のページにリンクするための好ましいアプローチです。
 
-## Flash Messages
+## フラッシュメッセージ
 
-There are times when we need to communicate with users during the course of an action. Maybe there was an error updating a schema. Maybe we just want to welcome them back to the application. For this, we have flash messages.
+アクションの途中でユーザーとコミュニケーションを取る必要がある場合があります。スキーマを更新する際にエラーが発生したかもしれません。アプリケーションに戻ってきたユーザーを歓迎したいのかもしれません。このために、フラッシュメッセージがあります。
 
-The `Phoenix.Controller` module provides the `put_flash/3` and `get_flash/2` functions to help us set and retrieve flash messages as a key value pair. Let's set two flash messages in our `HelloWeb.PageController` to try this out.
+`Phoenix.Controller`モジュールは`put_flash/3`と`get_flash/2`関数を提供しており、フラッシュメッセージをキー値のペアとして設定したり取得したりするのに役立ちます。それでは、`HelloWeb.PageController`に2つのフラッシュメッセージを設定してみましょう。
 
-To do this we modify the `index` action as follows:
+そのためには、`index`アクションを次のように変更します。
 
 ```elixir
 defmodule HelloWeb.PageController do
@@ -413,18 +411,18 @@ defmodule HelloWeb.PageController do
 end
 ```
 
-In order to see our flash messages, we need to be able to retrieve them and display them in a template/layout. One way to do the first part is with `get_flash/2` which takes `conn` and the key we care about. It then returns the value for that key.
+フラッシュメッセージを表示するためには、それらを取得してテンプレート/レイアウトで表示できるようにする必要があります。最初の部分を行う方法の1つが`get_flash/2`で、これは`conn`と関心があるキーを取得します。そして、そのキーの値を返します。
 
-Fortunately, our application layout, `lib/hello_web/templates/layout/app.html.eex`, already has markup for displaying flash messages.
+幸いなことに、私たちのアプリケーションレイアウト`lib/hello_web/templates/layout/app.html.eex`には、フラッシュメッセージを表示するためのマークアップがすでに用意されています。
 
 ```html
 <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
 <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 ```
 
-When we reload the [Welcome Page](http://localhost:4000/), our messages should appear just above "Welcome to Phoenix!"
+[ウェルカムページ](http://localhost:4000/)をリロードすると、"Welcome to Phoenix!"のすぐ上にメッセージが表示されるはずです。
 
-The flash functionality is handy when mixed with redirects. Perhaps you want to redirect to a page with some extra information. If we re-use the redirect action from the previous section, we can do:
+フラッシュ機能は、リダイレクトと組み合わせると便利です。おそらく、追加情報のあるページにリダイレクトしたいと思います。先ほどのリダイレクトアクションを再利用すれば、次のように実現できます。
 
 ```elixir
   def index(conn, _params) do
@@ -435,17 +433,17 @@ The flash functionality is handy when mixed with redirects. Perhaps you want to 
   end
 ```
 
-Now if you reload the Welcome page, you will be redirect and the flash messages will be shown once more.
+これでウェルカムページをリロードするとリダイレクトされ、フラッシュメッセージがもう一度表示されるようになりました。
 
-Besides `put_flash/3` and `get_flash/2`, the `Phoenix.Controller` module has another useful function worth knowing about. `clear_flash/1` takes only `conn` and removes any flash messages which might be stored in the session.
+`Phoenix.Controller`モジュールには、`put_flash/3`と`get_flash/2`の他にも知っておくと便利な関数があります。`clear_flash/1` は`conn`のみを受け取り、セッションに保存されている可能性のあるフラッシュメッセージを削除します。
 
-Phoenix does not enforce which keys are stored in the flash. As long as we are internally consistent, all will be well. `:info` and `:error`, however, are common and are handled by default in our templates.
+Phoenixは、どのキーがフラッシュに保存されているかを強制しません。内部的に一貫している限り、すべてうまくいきます。しかし、`:info` と `:error` は一般的なものであり、テンプレートではデフォルトで処理されます。
 
-## Action Fallback
+## アクションフォールバック
 
-Action Fallback allows us to centralize error handling code in plugs which are called when a controller action fails to return a `%Plug.Conn{}` struct. These plugs receive both the `conn` which was originally passed to the controller action along with the return value of the action.
+アクションフォールバックにより、コントローラーアクションが`%Plug.Conn{}`構造体を返すのに失敗したときに呼び出されるプラグ内のエラー処理コードを一元化できます。これらのプラグは、元々コントローラーアクションに渡された`conn`とアクションの戻り値の両方を受け取ります。
 
-Let's say we have a `show` action which uses `with` to fetch a blog post and then authorize the current user to view that blog post. In this example we might expect `fetch_post/1` to return `{:error, :not_found}` if the post is not found and `authorize_user/3` might return `{:error, :unauthorized}` if the user is unauthorized. We could use the `ErrorView` Phoenix generates for every new application to handle these error paths accordingly:
+たとえば、`with`を使ってブログ記事を取得し、現在のユーザにそのブログ記事の閲覧を許可する`show`アクションがあるとしましょう。この例では、`fetch_post/1`は記事が見つからなかった場合に`{:error, :not_found}`を返し、`Authorizer.authorize/3`はユーザが権限を持っていない場合に`{:error, :unauthorized}`を返すと期待できます。Phoenixが新しいアプリケーションごとに生成する`ErrorView`を使用して、これらのエラーパスを適切に処理できます。
 
 ```elixir
 defmodule HelloWeb.MyController do
@@ -472,9 +470,9 @@ defmodule HelloWeb.MyController do
 end
 ```
 
-Now imagine you may need to implement similar logic for every controller and action handled by your API. This would result in a lot of repetition.
+次に、APIで処理されるすべてのコントローラーやアクションに対して、同様のロジックを実装する必要があると想像してみてください。これは多くの繰り返しになります。
 
-Instead we can define a Module Plug which knows how to handle these error cases specifically. Since controllers are Module Plugs, let's define our Plug as a controller:
+その代わりに、これらのエラーケースの処理方法を知っているモジュールプラグを定義できます。コントローラーモジュールプラグなので、プラグをコントローラーとして定義してみましょう。
 
 ```elixir
 defmodule HelloWeb.MyFallbackController do
@@ -496,7 +494,7 @@ defmodule HelloWeb.MyFallbackController do
 end
 ```
 
-Then we can reference our new controller as the `action_fallback` and simply remove the `else` block from our `with`:
+そして、新しいコントローラーを `action_fallback` として参照し、単に `with` から `else` ブロックを削除するだけです。
 
 ```elixir
 defmodule HelloWeb.MyController do
@@ -513,4 +511,4 @@ defmodule HelloWeb.MyController do
 end
 ```
 
-Whenever the `with` conditions do not match, `HelloWeb.MyFallbackController` will receive the original `conn` as well as the result of the action and respond appropriately.
+`with` の条件が一致しない場合、 `HelloWeb.MyFallbackController` は元の `conn` とアクションの結果を受け取り、適切に応答します。
