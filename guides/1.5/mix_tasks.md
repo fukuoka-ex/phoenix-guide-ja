@@ -4,7 +4,7 @@ version: 1.5
 group: guides
 title: Mix Tasks
 nav_order: 9
-hash: fdb397b1
+hash: 629a2fb4
 ---
 # Mix Tasks
 
@@ -171,7 +171,7 @@ warning: function HelloWeb.Router.Helpers.post_path/3 is undefined or private
   lib/hello_web/controllers/post_controller.ex:18
 ```
 
-`mix phx.new.json` also supports `--no-context`, `--no-schema`, and others, as in `mix phx.new.html`.
+`mix phx.gen.json` also supports `--no-context`, `--no-schema`, and others, as in `mix phx.gen.html`.
 
 ### `mix phx.gen.context`
 
@@ -593,13 +593,7 @@ The `--step` option will behave the same way.
 mix ecto.migrate --step 2
 ```
 
-We can also specify an individual migration we would like to run with the `-v` option.
-
-```console
-mix ecto.migrate -v 20150317170448
-```
-
-The `--to` option will behave the same way.
+The `--to` option will run all migrations up to and including given version.
 
 ```console
 mix ecto.migrate --to 20150317170448
