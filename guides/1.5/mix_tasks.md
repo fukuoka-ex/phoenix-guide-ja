@@ -2,17 +2,17 @@
 layout: 1.5/layout
 version: 1.5
 group: guides
-title: Mix Tasks
+title: Mixタスク
 nav_order: 9
 hash: 629a2fb4
 ---
-# Mix Tasks
+# Mixタスク
 
-There are currently a number of built-in Phoenix-specific and Ecto-specific mix tasks available to us within a newly-generated application. We can also create our own application specific tasks.
+現在、新しく生成されたアプリケーション内で利用可能な、組み込みのPhoenix固有のタスクとEcto固有のMixタスクが多数存在します。また、独自のアプリケーション固有のタスクを作成することもできます。
 
-> Note to learn more about `mix`, you can read Elixir's official [Introduction to Mix](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html).
+> 注：`mix` について詳しく知りたい方は、Elixirの公式の[Mix入門](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html)を参照してください。
 
-## Phoenix tasks
+## Phoenixタスク
 
 ```console
 ➜ mix help --search "phx"
@@ -36,15 +36,14 @@ mix phx.routes         # Prints all routes
 mix phx.server         # Starts applications and their servers
 ```
 
-We have seen all of these at one point or another in the guides, but having all the information about them in one place seems like a good idea.
+ガイドの中でも1度は目にしたことがありますが、それらの情報が1箇所に持っていることは良いことのように思えます。
 
-We will cover all Phoenix Mix tasks, except `phx.new`, `phx.new.ecto`, and `phx.new.web`, which are part of the Phoenix installer. You can learn more about them or any other task by calling `mix help TASK`.
-
+ここでは、Phoenixインストーラーの一部である `phx.new`, `phx.new.ecto`, `phx.new.web` を除いたPhoenix Mixタスクを扱います。これらのタスクや他のタスクについては、`mix help TASK` を呼び出すことで詳しく知ることができます。
 ### `mix phx.gen.html`
 
-Phoenix offers the ability to generate all the code to stand up a complete HTML resource - ecto migration, ecto context, controller with all the necessary actions, view, and templates. This can be a tremendous timesaver. Let's take a look at how to make this happen.
+Phoenixは、完全なHTMLリソースを立ち上げるためのすべてのコードを生成する機能を提供します。生成されるのはectoマイグレーション、ectoコンテキスト、必要なすべてのアクション、ビュー、テンプレートを持つコントローラーです。これは、とてつもなく時間を節約できます。これを実現する方法を見てみましょう。
 
-The `mix phx.gen.html` task takes a number of arguments, the module name of the context, the module name of the schema, the resource name, and a list of column_name:type attributes. The module name we pass in must conform to the Elixir rules of module naming, following proper capitalization.
+`mix phx.gen.html` タスクはいくつかの引数をとります。コンテキストのモジュール名、スキーマのモジュール名、リソース名、そしてcolumn_name:type属性のリストです。私たちが渡すモジュール名は適切な大文字から始まり、Elixirのモジュール名のルールに準拠していなければなりません。
 
 ```console
 $ mix phx.gen.html Blog Post posts body:string word_count:integer
@@ -64,7 +63,7 @@ $ mix phx.gen.html Blog Post posts body:string word_count:integer
 * injecting test/hello/blog/blog_test.exs
 ```
 
-When `mix phx.gen.html` is done creating files, it helpfully tells us that we need to add a line to our router file as well as run our ecto migrations.
+ファイルの作成が終わると、`mix phx.gen.html` は、ectoマイグレーションを実行するのと同様に、ルーターファイルに1行を追加する必要があることを教えてくれます。
 
 ```console
 Add the resource to your browser scope in lib/hello_web/router.ex:
@@ -76,7 +75,7 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-Important: If we don't do this, we will see the following warnings in our logs, and our application will error when trying to execute the function.
+重要: これを行わないと、ログに以下のような警告が表示され、関数を実行しようとするとアプリケーションがエラーになります。
 
 ```console
 $ mix phx.server
@@ -86,7 +85,7 @@ warning: function HelloWeb.Router.Helpers.post_path/3 is undefined or private
   lib/hello_web/controllers/post_controller.ex:22:
 ```
 
-If we don't want to create a context or schema for our resource we can use the `--no-context` flag. Note that this still requires a context module name as a parameter.
+リソースのコンテキストやスキーマを作成したくない場合は、`--no-context` フラグを使うことができます。この場合でも、パラメーターとしてコンテキストモジュール名が必要になることに注意しましょう。
 
 ```console
 $ mix phx.gen.html Blog Post posts body:string word_count:integer --no-context
@@ -100,7 +99,8 @@ $ mix phx.gen.html Blog Post posts body:string word_count:integer --no-context
 * creating test/hello_web/controllers/post_controller_test.exs
 ```
 
-It will tell us we need to add a line to our router file, but since we skipped the context, it won't mention anything about `ecto.migrate`.
+ルーターファイルに行を追加する必要があることを教えてくれますが、コンテキストをスキップしたので、`ecto.migrate` については何も言及してくれません。
+
 
 ```console
 Add the resource to your browser scope in lib/hello_web/router.ex:
@@ -108,7 +108,7 @@ Add the resource to your browser scope in lib/hello_web/router.ex:
     resources "/posts", PostController
 ```
 
-Similarly - if we want a context created without a schema for our resource we can use the `--no-schema` flag.
+同様に、リソースのスキーマなしでコンテキストを作成したい場合は `--no-schema` フラグを使うことができます。
 
 ```console
 $ mix phx.gen.html Blog Post posts body:string word_count:integer --no-schema
@@ -126,13 +126,13 @@ $ mix phx.gen.html Blog Post posts body:string word_count:integer --no-schema
 * injecting test/hello/blog/blog_test.exs
 ```
 
-It will tell us we need to add a line to our router file, but since we skipped the schema, it won't mention anything about `ecto.migrate`.
+ルーターファイルに行を追加する必要があることを教えてくれますが、スキーマをスキップしているので、 `ecto.migrate` については何も言及していません。
 
 ### `mix phx.gen.json`
 
-Phoenix also offers the ability to generate all the code to stand up a complete JSON resource - ecto migration, ecto schema, controller with all the necessary actions and view. This command will not create any template for the app.
+また、Phoenixは、完全なJSONリソースを立ち上げるためのすべてのコードを生成する機能を提供しています。生成されるのはectoマイグレーション、ectoスキーマ、すべての必要なアクションとビューを持つコントローラーです。このコマンドは、アプリのテンプレートを作成しません。
 
-The `mix phx.gen.json` task takes a number of arguments, the module name of the context, the module name of the schema, the resource name, and a list of column_name:type attributes. The module name we pass in must conform to the Elixir rules of module naming, following proper capitalization.
+`mix phx.gen.json` タスクはいくつかの引数をとります。コンテキストのモジュール名、スキーマのモジュール名、リソース名、そしてcolumn_name:type属性のリストです。私たちが渡すモジュール名は適切な大文字から始まり、Elixirのモジュール名のルールに準拠していなければなりません。
 
 ```console
 $ mix phx.gen.json Blog Post posts title:string content:string
@@ -149,7 +149,7 @@ $ mix phx.gen.json Blog Post posts title:string content:string
 * injecting test/hello/blog/blog_test.exs
 ```
 
-When `mix phx.gen.json` is done creating files, it helpfully tells us that we need to add a line to our router file as well as run our ecto migrations.
+`mix phx.gen.json` がファイルの作成を終えると、ectoマイグレーションを実行するのと同様に、ルーターファイルに1行を追加する必要があることを教えてくれます。
 
 ```console
 Add the resource to your :api scope in lib/hello_web/router.ex:
@@ -161,7 +161,7 @@ Remember to update your repository by running migrations:
     $ mix ecto.migrate
 ```
 
-Important: If we don't do this, we'll get the following warning in our logs and the application will error when attempting to load the page:
+重要: これを行わないと、ログに以下のような警告が表示され、ページを読み込もうとするとアプリケーションがエラーになります。
 
 ```console
 $ mix phx.server
@@ -171,13 +171,12 @@ warning: function HelloWeb.Router.Helpers.post_path/3 is undefined or private
   lib/hello_web/controllers/post_controller.ex:18
 ```
 
-`mix phx.gen.json` also supports `--no-context`, `--no-schema`, and others, as in `mix phx.gen.html`.
-
+`mix phx.gen.json` は `mix phx.gen.html` と同様に `--no-context`, `--no-schema` などもサポートしています。
 ### `mix phx.gen.context`
 
-If we don't need a complete HTML/JSON resource and instead are only interested in a context, we can use the `mix phx.gen.context` task. It will generate a context, a schema, a migration and a test case.
+完全なHTML/JSONリソースを必要とせず、代わりにコンテキストだけに興味がある場合、`mix phx.gen.context` タスクを使うことができます。これはコンテキスト、スキーマ、マイグレーション、テストケースを生成します。
 
-The `mix phx.gen.context` task takes a number of arguments, the module name of the context, the module name of the schema, the resource name, and a list of column_name:type attributes.
+`mix phx.gen.context` タスクはいくつかの引数を取ります。コンテキストのモジュール名、スキーマのモジュール名、リソース名、column_name:type属性のリストを受け取ります。
 
 ```console
 $ mix phx.gen.context Accounts User users name:string age:integer
@@ -189,7 +188,7 @@ $ mix phx.gen.context Accounts User users name:string age:integer
 * injecting test/hello/accounts/accounts_test.exs
 ```
 
-> Note: If we need to namespace our resource we can simply namespace the first argument of the generator.
+> 注意: リソースを名前空間にする必要がある場合は、単にジェネレーターの第一引数を名前空間にできます。
 
 ```console
 * creating lib/hello/admin/accounts/user.ex
@@ -202,9 +201,9 @@ $ mix phx.gen.context Accounts User users name:string age:integer
 
 ### `mix phx.gen.schema`
 
-If we don't need a complete HTML/JSON resource and are not interested in generating or altering a context we can use the `mix phx.gen.schema` task. It will generate a schema, and a migration.
+完全なHTML/JSONリソースを必要とせず、コンテキストの生成や変更に興味がない場合、`mix phx.gen.schema` タスクを使うことができます。これはスキーマとマイグレーションを生成します。
 
-The `mix phx.gen.schema` task takes a number of arguments, the module name of the schema (which may be namespaced), the resource name, and a list of column_name:type attributes.
+`mix phx.gen.schema` タスクはいくつかの引数を取ります。スキーマのモジュール名（名前空間を持つこともあります）、リソース名、column_name:type属性のリストを受け取ります。
 
 ```console
 $ mix phx.gen.schema Accounts.Credential credentials email:string:unique user_id:references:users
@@ -214,7 +213,7 @@ $ mix phx.gen.schema Accounts.Credential credentials email:string:unique user_id
 
 ### `mix phx.gen.channel`
 
-This task will generate a basic Phoenix channel as well a test case for it. It takes the module name for the channel as argument:
+このタスクは、基本的なPhoenixチャンネルとテストケースを生成します。このタスクはチャンネルのモジュール名を引数にとります。
 
 ```console
 $ mix phx.gen.channel Room
@@ -222,7 +221,7 @@ $ mix phx.gen.channel Room
 * creating test/hello_web/channels/room_channel_test.exs
 ```
 
-When `mix phx.gen.channel` is done, it helpfully tells us that we need to add a channel route to our router file.
+`mix phx.gen.channel` が完了すると、ルーターファイルにチャンネルルートを追加する必要があることを教えてくれます。
 
 ```console
 Add the channel to your `lib/hello_web/channels/user_socket.ex` handler, for example:
@@ -232,8 +231,7 @@ Add the channel to your `lib/hello_web/channels/user_socket.ex` handler, for exa
 
 ### `mix phx.gen.presence`
 
-This task will generate a Presence tracker. The module name can be passed as an argument,
-`Presence` is used if no module name is passed.
+このタスクはプレゼンストラッカーを生成します。引数としてモジュール名を渡すことができ、モジュール名を渡さない場合は `Presence` が用いられます。
 
 ```console
 $ mix phx.gen.presence Presence
@@ -242,15 +240,15 @@ $ lib/hello_web/channels/presence.ex
 
 ### `mix phx.routes`
 
-This task has a single purpose, to show us all the routes defined for a given router. We saw it used extensively in the [Routing Guide](routing.html).
+このタスクの目的は1つで、あるルーターに対して定義されたすべてのルートを表示することです。[ルーティングガイド](routing.html)で広く使われているのを見ました。
 
-If we don't specify a router for this task, it will default to the router Phoenix generated for us.
+このタスクにルーターを指定しない場合、Phoenixが生成してくれたルーターがデフォルトになります。
 
 ```console
 $ mix phx.routes
 page_path  GET  /  TaskTester.PageController.index/2
 ```
-We can also specify an individual router if we have more than one for our application.
+また、アプリケーションに複数のルーターがある場合は、個々のルーターを指定することもできます。
 
 ```console
 $ mix phx.routes TaskTesterWeb.Router
@@ -259,19 +257,19 @@ page_path  GET  /  TaskTesterWeb.PageController.index/2
 
 ### `mix phx.server`
 
-This is the task we use to get our application running. It takes no arguments at all. If we pass any in, they will be silently ignored.
+これはアプリケーションを起動するために使用するタスクです。これは引数を一切取りません。何か引数を渡しても、それは静かに無視されます。
 
 ```console
 $ mix phx.server
 [info] Running TaskTesterWeb.Endpoint with Cowboy on port 4000 (http)
 ```
-It silently ignores our `DoesNotExist` argument.
+引数 `DoesNotExist` を黙って無視します。
 
 ```console
 $ mix phx.server DoesNotExist
 [info] Running TaskTesterWeb.Endpoint with Cowboy on port 4000 (http)
 ```
-If we would like to start our application and also have an `iex` session open to it, we can run the mix task within `iex` like this, `iex -S mix phx.server`.
+アプリケーションを起動して `iex` セッションを開きたい場合は、`iex` 内でMixタスクを次のように実行できます。
 
 ```console
 $ iex -S mix phx.server
@@ -284,13 +282,13 @@ iex(1)>
 
 ### `mix phx.digest`
 
-This task does two things, it creates a digest for our static assets and then compresses them.
+このタスクは2つのことを行います。静的アセットのダイジェストを作成し、圧縮します。
 
-"Digest" here refers to an MD5 digest of the contents of an asset which gets added to the filename of that asset. This creates a sort of "fingerprint" for it. If the digest doesn't change, browsers and CDNs will use a cached version. If it does change, they will re-fetch the new version.
+ここでいう「ダイジェスト」とは、アセットの内容をMD5によってダイジェストしたもので、アセットのファイル名に追加されます。これにより、一種の「フィンガープリント」が作成されます。ダイジェストが変更されなければ、ブラウザやCDNはキャッシュされたバージョンを使用します。ダイジェストが変更された場合は、新しいバージョンを再取得します。
 
-Before we run this task let's inspect the contents of two directories in our hello application.
+このタスクを実行する前に、helloアプリケーションの2つのディレクトリの内容を調べてみましょう。
 
-First `priv/static` which should look similar to this:
+最初の `priv/static` は以下のようになっているはずです。
 
 ```console
 ├── images
@@ -298,7 +296,7 @@ First `priv/static` which should look similar to this:
 ├── robots.txt
 ```
 
-And then `assets/` which should look similar to this:
+そして、`assets/` は以下のようになります。
 
 ```console
 ├── css
@@ -309,36 +307,36 @@ And then `assets/` which should look similar to this:
 │   └── phoenix.js
 ```
 
-All of these files are our static assets. Now let's run the `mix phx.digest` task.
+これらのファイルはすべて静的アセットです。それでは `mix phx.digest` タスクを実行してみましょう。
 
 ```console
 $ mix phx.digest
 Check your digested files at 'priv/static'.
 ```
 
-We can now do as the task suggests and inspect the contents of `priv/static` directory. We'll see that all files from `assets/` have been copied over to `priv/static` and also each file now has a couple of versions. Those versions are:
+タスクが示すように、`priv/static` ディレクトリの内容を検査できます。 `assets/` のすべてのファイルが `priv/static` にコピーされ、各ファイルにはいくつかのバージョンがあることがわかります。それらのバージョンは次の通りです。
 
-* the original file
-* a compressed file with gzip
-* a file containing the original file name and its digest
-* a compressed file containing the file name and its digest
+* 元ファイル
+* gzip圧縮されたファイル
+* 元のファイル名とそのダイジェストを含むファイル
+* ファイル名とそのダイジェストを含む圧縮ファイル
 
-We can optionally determine which files should be gzipped by using the `:gzippable_exts` option in the config file:
+オプションで、設定ファイルの `:gzippable_exts` オプションを使って、どのファイルを圧縮するかを決めることができます。
 
 ```elixir
 config :phoenix, :gzippable_exts, ~w(.js .css)
 ```
 
-> Note: We can specify a different output folder where `mix phx.digest` will put processed files. The first argument is the path where the static files are located.
+> 注意: `mix phx.digest` が処理されたファイルを置く別の出力フォルダを指定できます。第一引数は静的ファイルが置かれているパスです。
 
 ```console
 $ mix phx.digest priv/static -o www/public
 Check your digested files at 'www/public'.
 ```
 
-## Ecto tasks
+## Ectoタスク
 
-Newly generated Phoenix applications now include ecto and postgrex as dependencies by default (which is to say, unless we use `mix phx.new` with the `--no-ecto` flag). With those dependencies come mix tasks to take care of common ecto operations. Let's see which tasks we get out of the box.
+新しく生成されたPhoenixアプリケーションは、デフォルトでectoとpostgrexを依存関係として含んでいます（`mix phx.new` に `--no-ecto` フラグを付けて使わない限り）。これらの依存関係には、一般的なectoの操作を行うためのMixタスクが含まれています。どのようなタスクがあるのか見てみましょう。
 
 ```console
 $ mix help --search "ecto"
@@ -354,72 +352,71 @@ mix ecto.migrations    # Displays the repository migration status
 mix ecto.rollback      # Rolls back the repository migrations
 ```
 
-Note: We can run any of the tasks above with the `--no-start` flag to execute the task without starting the application.
+注意: アプリケーションを起動せずにタスクを実行するには、`--no-start` フラグを付けて上記のタスクを実行できます。
 
 ### `mix ecto.create`
 
-This task will create the database specified in our repo. By default it will look for the repo named after our application (the one generated with our app unless we opted out of ecto), but we can pass in another repo if we want.
+このタスクはレポで指定されたデータベースを作成します。デフォルトでは、アプリケーションの名前のついたレポ(ectoをオプトアウトしていない限り、アプリケーションで生成されたもの)を探しますが、必要に応じて別のレポを渡すこともできます。
 
-Here's what it looks like in action.
+実際の動作は以下のようになります。
 
 ```console
 $ mix ecto.create
 The database for Hello.Repo has been created.
 ```
 
-There are a few things that can go wrong with `ecto.create`. If our Postgres database doesn't have a "postgres" role (user), we'll get an error like this one.
+`ecto.create` でうまくいかないことがいくつかあります。Postgresデータベースに "postgres" ロール（ユーザー）がない場合、このようなエラーが発生します。
 
 ```console
 $ mix ecto.create
 ** (Mix) The database for Hello.Repo couldn't be created, reason given: psql: FATAL:  role "postgres" does not exist
 ```
 
-We can fix this by creating the "postgres" role in the `psql` console with the permissions needed to log in and create a database.
+ログインしてデータベースを作成するために必要なパーミッションを持った "postgres" ロールを `psql` コンソールにて作成することで、これを修正できます。
 
 ```console
 =# CREATE ROLE postgres LOGIN CREATEDB;
 CREATE ROLE
 ```
 
-If the "postgres" role does not have permission to log in to the application, we'll get this error.
+"postgres"ロールがアプリケーションにログインする権限を持っていない場合、このようなエラーが発生します。
 
 ```console
 $ mix ecto.create
 ** (Mix) The database for Hello.Repo couldn't be created, reason given: psql: FATAL:  role "postgres" is not permitted to log in
 ```
 
-To fix this, we need to change the permissions on our "postgres" user to allow login.
+これを修正するには、"postgres"ユーザーのパーミッションを変更してログインを許可する必要があります。
 
 ```console
 =# ALTER ROLE postgres LOGIN;
 ALTER ROLE
 ```
 
-If the "postgres" role does not have permission to create a database, we'll get this error.
+"postgres"ロールがデータベースを作成する権限を持っていない場合、このようなエラーが発生します。
 
 ```console
 $ mix ecto.create
 ** (Mix) The database for Hello.Repo couldn't be created, reason given: ERROR:  permission denied to create database
 ```
 
-To fix this, we need to change the permissions on our "postgres" user in the `psql` console  to allow database creation.
+これを修正するには、`psql` コンソールで"postgres"ユーザーのパーミッションを変更して、データベースの作成を許可する必要があります。
 
 ```console
 =# ALTER ROLE postgres CREATEDB;
 ALTER ROLE
 ```
 
-If the "postgres" role is using a password different from the default "postgres", we'll get this error.
+"postgres"ロールがデフォルトの"postgres"とは異なるパスワードを使用している場合、このエラーが発生します。
 
 ```console
 $ mix ecto.create
 ** (Mix) The database for Hello.Repo couldn't be created, reason given: psql: FATAL:  password authentication failed for user "postgres"
 ```
 
-To fix this, we can change the password in the environment specific configuration file. For the development environment the password used can be found at the bottom of the `config/dev.exs` file.
+これを修正するには、環境固有の設定ファイルでパスワードを変更します。開発環境で使用するパスワードは `config/dev.exs` ファイルの一番下にあります。
 
-Finally, if we happen to have another repo called `OurCustom.Repo` that we want to create the database for, we can run this.
-
+最後に、データベースを作成したい `OurCustom.Repo` という名前のレポがある場合は、次のように実行します。
 ```console
 $ mix ecto.create -r OurCustom.Repo
 The database for OurCustom.Repo has been created.
@@ -427,14 +424,14 @@ The database for OurCustom.Repo has been created.
 
 ### `mix ecto.drop`
 
-This task will drop the database specified in our repo. By default it will look for the repo named after our application (the one generated with our app unless we opted out of ecto). It will not prompt us to check if we're sure we want to drop the db, so do exercise caution.
+このタスクはレポで指定したデータベースを削除します。デフォルトでは、私たちのアプリケーションにちなんだレポを探します（ectoをオプトアウトしない限り、私たちのアプリケーションで生成されたもの）。dbを削除するかどうかを確認するためのプロンプトは表示されませんので、注意してください。
 
 ```console
 $ mix ecto.drop
 The database for Hello.Repo has been dropped.
 ```
 
-If we happen to have another repo that we want to drop the database for, we can specify it with the `-r` flag.
+たまたまデータベースを削除したいレポがあった場合は、`-r` フラグで指定します。
 
 ```console
 $ mix ecto.drop -r OurCustom.Repo
@@ -443,9 +440,9 @@ The database for OurCustom.Repo has been dropped.
 
 ### `mix ecto.gen.repo`
 
-Many applications require more than one data store. For each data store, we'll need a new repo, and we can generate them automatically with `ecto.gen.repo`.
+多くのアプリケーションでは複数のデータストアを必要とします。それぞれのデータストアに対して新しいレポが必要で、`ecto.gen.repo` で自動的に生成できます。
 
-If we name our repo `OurCustom.Repo`, this task will create it here `lib/our_custom/repo.ex`.
+レポの名前を `OurCustom.Repo` とすると、このタスクは `lib/our_custom/repo.ex` という名前でレポを作成します。
 
 ```console
 $ mix ecto.gen.repo -r OurCustom.Repo
@@ -462,7 +459,7 @@ Don't forget to add your new repo to your supervision tree
     ]
 ```
 
-Notice that this task has updated `config/config.exs`. If we take a look, we'll see this extra configuration block for our new repo.
+このタスクは `config/config.exs` を更新していることに注目してください。見てみると、新しいレポ用に追加された設定ブロックが見えます。
 
 ```elixir
 . . .
@@ -474,9 +471,9 @@ config :hello, OurCustom.Repo,
 . . .
 ```
 
-Of course, we'll need to change the login credentials to match what our database expects. We'll also need to change the config for other environments.
+もちろん、ログインクレデンシャルをデータベースが期待するものと一致するように変更する必要があります。また、他の環境用に設定を変更する必要があります。
 
-We certainly should follow the instructions and add our new repo to our supervision tree. In our `Hello` application, we would open up `lib/hello.ex`, and add our repo as a worker to the `children` list.
+指示にしたがって、新しいレポを監視ツリーに追加する必要があります。私たちの `Hello` アプリケーションでは、`lib/hello.ex` を開き、私たちのレポをworkerとして `children` リストに追加します。
 
 ```elixir
 . . .
@@ -493,9 +490,9 @@ children = [
 
 ### `mix ecto.gen.migration`
 
-Migrations are a programmatic, repeatable way to affect changes to a database schema. Migrations are also just modules, and we can create them with the `ecto.gen.migration` task. Let's walk through the steps to create a migration for a new comments table.
+マイグレーションは、データベーススキーマへの変更に影響を与えるためのプログラム的で繰り返し可能な方法です。マイグレーションは単なるモジュールであり、`ecto.gen.migration` タスクで作成できます。新しいコメントテーブルのためのマイグレーションを作成する手順を見てみましょう。
 
-We simply need to invoke the task with a `snake_case` version of the module name that we want. Preferably, the name will describe what we want the migration to do.
+タスクを起動するには、必要なモジュール名のsnake_caseバージョンを指定するだけです。この名前にはマイグレーションで何をするかを記述することが望ましいです。
 
 ```console
 mix ecto.gen.migration add_comments_table
@@ -503,9 +500,9 @@ mix ecto.gen.migration add_comments_table
 * creating priv/repo/migrations/20150318001628_add_comments_table.exs
 ```
 
-Notice that the migration's filename begins with a string representation of the date and time the file was created.
+マイグレーションのファイル名は、ファイルが作成された日時を表す文字列で始まることに注目してください。
 
-Let's take a look at the file `ecto.gen.migration` has generated for us at `priv/repo/migrations/20150318001628_add_comments_table.exs`.
+`priv/repo/migrations/20150318001628_add_comments_table.exs` にある `ecto.gen.migration` が生成したファイルを見てみましょう。
 
 ```elixir
 defmodule Hello.Repo.Migrations.AddCommentsTable do
@@ -516,9 +513,9 @@ defmodule Hello.Repo.Migrations.AddCommentsTable do
 end
 ```
 
-Notice that there is a single function `change/0` which will handle both forward migrations and rollbacks. We'll define the schema changes that we want using ecto's handy dsl, and ecto will figure out what to do depending on whether we are rolling forward or rolling back. Very nice indeed.
+単一の関数 `change/0` があり、これはフォワードとロールバックの両方を処理します。ectoの便利なDSLを使ってスキーマの変更を定義し、ロールフォワードかロールバックかによって何をすべきかを判断します。非常に良いですね。
 
-What we want to do is create a `comments` table with a `body` column, a `word_count` column, and timestamp columns for `inserted_at` and `updated_at`.
+ここでやりたいことは、`body` カラム、`word_count` カラム、そして `inserted_at` と `updated_at` のタイムスタンプカラムを持つ `comments` テーブルを作成することです。
 
 ```elixir
 . . .
@@ -532,7 +529,7 @@ end
 . . .
 ```
 
-Again, we can run this task with the `-r` flag and another repo if we need to.
+繰り返しになりますが、このタスクは `-r` フラグと必要に応じて別のレポを使って実行できます。
 
 ```console
 $ mix ecto.gen.migration -r OurCustom.Repo add_users
@@ -540,16 +537,14 @@ $ mix ecto.gen.migration -r OurCustom.Repo add_users
 * creating priv/repo/migrations/20150318172927_add_users.exs
 ```
 
-For more information on how to modify your database schema please refer to the
-ecto's migration dsl [ecto migration docs](https://hexdocs.pm/ecto_sql/Ecto.Migration.html).
-For example, to alter an existing schema see the documentation on ecto’s
-[`alter/2`](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#alter/2) function.
+データベーススキーマを変更する方法の詳細についてはectoのマイグレーションDSL（[ecto migrationドキュメント](https://hexdocs.pm/ecto_sql/Ecto.Migration.html)）を参照してください。
+たとえば、既存のスキーマを変更するには、ectoの[`alter/2`](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#alter/2) 関数を使用しています。
 
-That's it! We're ready to run our migration.
+これで完了です！マイグレーションを実行する準備ができました。
 
 ### `mix ecto.migrate`
 
-Once we have our migration module ready, we can simply run `mix ecto.migrate` to have our changes applied to the database.
+マイグレーションモジュールの準備ができたら、`mix ecto.migrate` を実行して、変更をデータベースに適用します。
 
 ```console
 $ mix ecto.migrate
@@ -558,9 +553,9 @@ $ mix ecto.migrate
 [info] == Migrated in 0.1s
 ```
 
-When we first run `ecto.migrate`, it will create a table for us called `schema_migrations`. This will keep track of all the migrations which we run by storing the timestamp portion of the migration's filename.
+最初に `ecto.migrate` を実行すると、`schema_migrations` というテーブルが作成されます。これは、マイグレーションのファイル名のタイムスタンプ部分を保存することで、実行したすべてのマイグレーションを追跡します。
 
-Here's what the `schema_migrations` table looks like.
+テーブル `schema_migrations` は以下のようになっています。
 
 ```console
 hello_dev=# select * from schema_migrations;
@@ -571,11 +566,11 @@ version        |     inserted_at
 (2 rows)
 ```
 
-When we roll back a migration, `ecto.rollback` will remove the record representing this migration from `schema_migrations`.
+マイグレーションをロールバックすると、`ecto.rollback` はそのマイグレーションを表すレコードを `schema_migrations` から削除します。
 
-By default, `ecto.migrate` will execute all pending migrations. We can exercise more control over which migrations we run by specifying some options when we run the task.
+デフォルトでは、`ecto.migrate` は保留中のすべてのマイグレーションを実行します。タスクの実行時にいくつかのオプションを指定することで、どのマイグレーションを実行するかを制御できます。
 
-We can specify the number of pending migrations we would like to run with the `-n` or `--step` options.
+`-n` または `--step` オプションを用いて、実行したい保留中のマイグレーションの数を指定できます。
 
 ```console
 $ mix ecto.migrate -n 2
@@ -587,13 +582,13 @@ $ mix ecto.migrate -n 2
 [info] == Migrated in 0.0s
 ```
 
-The `--step` option will behave the same way.
+`--step` オプションも同じように動作します。
 
 ```console
 mix ecto.migrate --step 2
 ```
 
-The `--to` option will run all migrations up to and including given version.
+`to` オプションは、指定されたバージョンまでのすべてのマイグレーションを実行します。
 
 ```console
 mix ecto.migrate --to 20150317170448
@@ -601,7 +596,7 @@ mix ecto.migrate --to 20150317170448
 
 ### `mix ecto.rollback`
 
-The `ecto.rollback` task will reverse the last migration we have run, undoing the schema changes. `ecto.migrate` and `ecto.rollback` are mirror images of each other.
+`ecto.rollback` タスクは最後に実行したマイグレーションを逆にして、スキーマの変更を元に戻します。`ecto.migrate` と `ecto.rollback` は互いにミラーイメージです。
 
 ```console
 $ mix ecto.rollback
@@ -610,19 +605,19 @@ $ mix ecto.rollback
 [info] == Migrated in 0.0s
 ```
 
-`ecto.rollback` will handle the same options as `ecto.migrate`, so `-n`, `--step`, `-v`, and `--to` will behave as they do for `ecto.migrate`.
+`ecto.rollback` は `ecto.migrate` と同じオプションを扱うので、`-n`, `--step`, `-v`, `--to` は `ecto.migrate` と同じように動作します。
 
-## Creating our own Mix task
+## 独自のMixタスクを作成する
 
-As we've seen throughout this guide, both mix itself and the dependencies we bring in to our application provide a number of really useful tasks for free. Since neither of these could possibly anticipate all our individual application's needs, mix allows us to create our own custom tasks. That's exactly what we are going to do now.
+このガイドで見てきたように、mix自体も、アプリケーションに持ち込む依存関係も、本当に便利なタスクを無料で提供してくれます。これらのいずれも、個々のアプリケーションのすべてのニーズを予測することはできませんが、mixでは独自のカスタムタスクを作成できます。これがまさにこれからやろうとしていることです。
 
-The first thing we need to do is create a `mix/tasks` directory inside of `lib`. This is where any of our application specific mix tasks will go.
+最初にすべきことは、`lib` の中に `mix/tasks` ディレクトリを作ることです。ここにアプリケーション固有のMixタスクを作成します。
 
 ```console
 $ mkdir -p lib/mix/tasks
 ```
 
-Inside that directory, let's create a new file, `hello.greeting.ex`, that looks like this.
+そのディレクトリの中に、次のような `hello.greeting.ex` という新しいファイルを作成してみましょう。
 
 ```elixir
 defmodule Mix.Tasks.Hello.Greeting do
@@ -642,22 +637,21 @@ defmodule Mix.Tasks.Hello.Greeting do
 end
 ```
 
-Let's take a quick look at the moving parts involved in a working mix task.
+ここでは、作成中のMixタスクに含まれる動的な部分を簡単に見てみましょう。
 
-The first thing we need to do is name our module. All tasks must be defined in `Mix.Tasks` namespace. We'd like to invoke this as `mix hello.greeting`, so we complete the module name with
-`Hello.Greeting`.
+最初にすべきことは、モジュールの名前を付けることです。すべてのタスクは `Mix.Tasks` 名前空間で定義する必要があります。これを `mix hello.greeting` として呼び出したいので、モジュール名を `Hello.Greeting` と命名します。
 
-The `use Mix.Task` line brings in functionality from Mix that makes this module behave as a mix task.
+`use Mix.Task` 行は、このモジュールをMixタスクとして動作させるMixの機能をもたらします。
 
-The `@shortdoc` module attribute holds a string which will describe our task when users invoke `mix help`.
+モジュール属性 `@shortdoc` は、ユーザーが `mix help` を起動したときのタスクを説明する文字列を保持します。
 
-`@moduledoc` serves the same function that it does in any module. It's where we can put long-form documentation and doctests, if we have any.
+`moduledoc` は他のモジュールと同じ機能を果たします。長文のドキュメントやdoctestがあれば、ここに置くことができます。
 
-The `run/1` function is the critical heart of any Mix task. It's the function that does all the work when users invoke our task. In ours, all we do is send a greeting from our app, but we can implement our `run/1` function to do whatever we need it to. Note that `Mix.shell().info/1` is the preferred way to print text back out to the user.
+関数 `run/1` はMixタスクの重要な心臓部です。これは、ユーザーがタスクを起動したときにすべての作業を行う関数です。我々のタスクでは、アプリから挨拶を送るだけですが、`run/1` 関数を実装することで、必要なことを何でも行うことができます。`Mix.shell().info/1` は、ユーザーへテキストを出力するのに好ましい方法であることに注目してください。
 
-Of course, our task is just a module, so we can define other private functions as needed to support our `run/1` function.
+もちろん、このタスクは単なるモジュールなので、`run/1` 関数をサポートするために必要に応じて他のプライベート関数を定義できます。
 
-Now that we have our task module defined, our next step is to compile the application.
+タスクモジュールを定義したので、次のステップはアプリケーションをコンパイルすることです。
 
 ```console
 $ mix compile
@@ -665,25 +659,25 @@ Compiled lib/tasks/hello.greeting.ex
 Generated hello.app
 ```
 
-Now our new task should be visible to `mix help`.
+これで新しいタスクが `mix help` に表示されるようになりました。
 
 ```console
 $ mix help --search hello
 mix hello.greeting # Sends a greeting to us from Hello Phoenix
 ```
 
-Notice that `mix help` displays the text we put into the `@shortdoc` along with the name of our task.
+`mix help` は `@shortdoc` に入力したテキストとタスク名を表示していることに注目してください。
 
-So far, so good, but does it work?
+ここまでは順調ですが、うまくいくでしょうか？
 
 ```console
 $ mix hello.greeting
 Greetings from the Hello Phoenix Application!
 ```
 
-Indeed it does.
+確かに動作しました。
 
-If you want to make your new mix task to use your application's infrastructure, you need to make sure the application is started when mix task is being executed. This is particularly useful if you need to access your database from within the mix task. Thankfully, mix makes it really easy for us:
+新しいMixタスクでアプリケーションのインフラストラクチャを使用するようにしたい場合、Mixタスクが実行されているときにアプリケーションが起動しているようにする必要があります。これは、Mixタスク内からデータベースへアクセスする必要がある場合にとくに便利です。ありがたいことに、mixはそれを本当に簡単にしてくれます。
 
 ```elixir
   . . .
