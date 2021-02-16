@@ -564,7 +564,6 @@ $ mix phx.digest
 Check your digested files at 'priv/static'.
 ```
 
-We can now do as the task suggests and inspect the contents of `priv/static` directory. We'll see that all files from `assets/` have been copied over to `priv/static` and also each file now has a couple of versions. Those versions are:
 タスクが示すように、`priv/static` ディレクトリの内容を検査できます。`assets/`のすべてのファイルが`priv/static`にコピーされ、各ファイルにはいくつかのバージョンがあることがわかります。それらのバージョンは以下の通りです。
 
 * 元ファイル
@@ -783,7 +782,7 @@ $ mix ecto.gen.migration -r OurCustom.Repo add_users
 * creating priv/repo/migrations/20150318172927_add_users.exs
 ```
 
-データベーススキーマを変更する方法の詳細についてはectoのマイグレーションDSL（[ecto migration docs](https://hexdocs.pm/ecto_sql/Ecto.Migration.html)）を参照してください。
+データベーススキーマを変更する方法の詳細についてはectoのマイグレーションDSL（[ecto migrationドキュメント](https://hexdocs.pm/ecto_sql/Ecto.Migration.html)）を参照してください。
 たとえば、既存のスキーマを変更するには、ectoの[`alter/2`](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#alter/2) 関数を使用しています。
 
 これで完了です！マイグレーションを実行する準備ができました。
