@@ -3,7 +3,7 @@ layout: 1.5/layout
 version: 1.5
 group: deployment
 title: Deploying on Heroku
-nav_order: 3
+nav_order: 4
 hash: fc821d71
 ---
 # Deploying on Heroku
