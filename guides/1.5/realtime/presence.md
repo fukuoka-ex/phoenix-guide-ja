@@ -2,21 +2,21 @@
 layout: 1.5/layout
 version: 1.5
 group: realtime
-title: Presence
+title: プレゼンス
 nav_order: 2
 hash: 50b4e756
 ---
-# Presence
+# プレゼンス
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**: このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Channels guide](channels.html).
+> **前提**: [チャネルガイド](channels.html)を理解していることを前提としています
 
-Phoenix Presence is a feature which allows you to register process information on a topic and replicate it transparently across a cluster. It's a combination of both a server-side and client-side library which makes it simple to implement. A simple use-case would be showing which users are currently online in an application.
+Phoenixプレゼンスは、トピックのプロセス情報を登録し、クラスター間で透過的に複製することができる機能です。サーバーサイドとクライアントサイドの両方のライブラリを組み合わせたもので、実装が簡単です。簡単な使用例としては、アプリケーションで現在オンラインになっているユーザーを表示することが挙げられます。 
 
-Phoenix Presence is special for a number of reasons. It has no single point of failure, no single source of truth, relies entirely on the standard library with no operational dependencies and self heals. This is all handled with a conflict-free replicated data type (CRDT) protocol.
+Phoenixプレゼンスが特別なのには、いくつかの理由があります。単一障害点がなく、信頼できる唯一の情報源（SSOT）がなく、運用上の依存関係がなく、標準ライブラリに完全に依存しており、自己修復を行います。これらはすべてコンフリクトフリーなレプリケートデータ型（CRDT）プロトコルで処理されます。 
 
-To get started with Presence we'll first need to generate a presence module. We can do this with the `mix phx.gen.presence` task:
+プレゼンスを使い始めるには、まずプレゼンスモジュールを生成する必要があります。これは `mix phx.gen.presence` タスクで行うことができます。 
 
 ```console
 $ mix phx.gen.presence
@@ -34,7 +34,7 @@ You're all set! See the Phoenix.Presence docs for more details:
 http://hexdocs.pm/phoenix/Phoenix.Presence.html
 ```
 
-If we open up the `lib/hello_web/channels/presence.ex` file, we will see the following line:
+`lib/hello_web/channels/presence.ex` ファイルを開くと、以下のような行が表示されます。
 
 ```elixir
 use Phoenix.Presence,
@@ -42,8 +42,7 @@ use Phoenix.Presence,
   pubsub_server: Hello.PubSub
 ```
 
-This sets up the module for presence, defining the functions we require for tracking presences. As mentioned in the generator task, we should add this module to our supervision tree in
-`application.ex`:
+これはプレゼンスのためのモジュールをセットアップし、プレゼンスを追跡するために必要な関数を定義します。ジェネレータータスクで述べたように、このモジュールを `application.ex` にある監視ツリーへ追加する必要があります。
 
 ```elixir
 children = [
@@ -52,7 +51,7 @@ children = [
 ]
 ```
 
-Next we will create a channel that Presence can communicate on. For this example we will create a `RoomChannel` ([see the channels guide for more details on this](channels.html)):
+次に、プレゼンスが通信できるチャネルを作成します。この例では `RoomChannel` [詳細はチャネルガイドを参照](channels.html)）を作成します。
 
 ```console
 $ mix phx.gen.channel Room
@@ -64,7 +63,7 @@ Add the channel to your `lib/hello_web/channels/user_socket.ex` handler, for exa
     channel "room:lobby", HelloWeb.RoomChannel
 ```
 
-and register it in `lib/hello_web/channels/user_socket.ex`:
+そして、`lib/hello_web/channels/user_socket.ex` に登録します。
 
 ```elixir
 defmodule HelloWeb.UserSocket do
@@ -74,7 +73,7 @@ defmodule HelloWeb.UserSocket do
 end
 ```
 
-We also need to change our connect function to take a `user_id` from the params and assign it on the socket. In production you may want to use `Phoenix.Token` if you have real users that are authenticated.
+また、connect関数を変更してパラメーターから `user_id` を受け取り、ソケットに割り当てる必要があります。本番環境では、認証済みのユーザーがいる場合は `Phoenix.Token` を使いたいかもしれません。
 
 ```elixir
 def connect(params, socket, _connect_info) do
@@ -82,11 +81,11 @@ def connect(params, socket, _connect_info) do
 end
 ```
 
-Next, we will create the channel that we'll communicate presence over. After a user joins we can push the list of presences down the channel and then track the connection. We can also provide a map of additional information to track.
+次に、プレゼンスを通信するチャネルを作成します。ユーザーが参加した後、プレゼンスのリストをチャネルにプッシュして、コネクションを追跡できます。また、追跡する追加情報のマップを提供することもできます。
 
-Note that we provide the `user_id` from the connection in order to uniquely identify the client. You can use whatever identifier you like, but you'll see how this is provided to the socket in the client-side example below.
+クライアントを一意に識別するために、コネクションから `user_id` を提供することに注意してください。識別子は任意のものを使うことができますが、以下のクライアント側の例でソケットにどのように提供されるかを見てみましょう。
 
-To learn more about channels, read the [channel documentation in the guide](channels.html).
+チャネルについての詳細は、[チャネルガイド](channels.html)を参照してください。
 
 ```elixir
 defmodule HelloWeb.RoomChannel do
@@ -109,13 +108,13 @@ defmodule HelloWeb.RoomChannel do
 end
 ```
 
-Finally we can use the client-side Presence library included in `phoenix.js` to manage the state and presence diffs that come down the socket. It listens for the `"presence_state"` and `"presence_diff"` events and provides a simple callback for you to handle the events as they happen, with the `onSync` callback.
+最後に、`phoenix.js` に含まれるクライアント側プレゼンスライブラリを利用して、ソケットを経由してくる状態とプレゼンスの差分を管理できます。このライブラリは `"presence_state"` と `"presence_diff"` イベントをリッスンし、`onSync` コールバックでイベントを処理するためのシンプルなコールバックを提供します。
 
-The `onSync` callback allows you to easily react to presence state changes, which most often results in re-rendering an updated list of active users. You can use the `list` method to format and return each individual presence based on the needs of your application.
+`onSync` コールバックを使うとプレゼンスの状態変化に簡単に反応できます。これは、多くの場合、アクティブなユーザーのリストを更新して再表示することになります。`list` メソッドを使うと、アプリケーションのニーズに基づいて個々のプレゼンスをフォーマットして返すことができます。
 
-To iterate users, we use the `presences.list()` function which accepts a callback. The callback will be called for each presence item with 2 arguments, the presence id and a list of metas (one for each presence for that presence id). We use this to display the users and the number of devices they are online with.
+ユーザーを反復処理するには、コールバックを受け付ける `presences.list()` 関数を使います。コールバックは各プレゼンスに対して2つの引数、プレゼンスIDとメタのリスト（そのプレゼンスIDへ対応するプレゼンスごとに1つずつ）を指定して呼び出されます。これを使ってユーザーとオンラインになっているデバイスの数を表示します。
 
-We can see presence working by adding the following to `assets/js/app.js`:
+以下を `assets/js/app.js` に追加することで、プレゼンスが動作していることを確認できます。
 
 ```javascript
 import {Socket, Presence} from "phoenix"
@@ -145,11 +144,11 @@ presence.onSync(() => renderOnlineUsers(presence))
 channel.join()
 ```
 
-We can ensure this is working by opening 3 browser tabs. If we navigate to <http://localhost:4000/?name=Alice> on two browser tabs and <http://localhost:4000/?name=Bob> then we should see:
+3つのブラウザータブを開くことで、これが動作していることを確認できます。2つのブラウザータブで http://localhost:4000/?name=Alice に移動し、 http://localhost:4000/?name=Bob に移動すると、以下のように表示されるはずです。 
 
 ```plaintext
 Alice (count: 2)
 Bob (count: 1)
 ```
 
-If we close one of the Alice tabs, then the count should decrease to 1. If we close another tab, the user should disappear from the list entirely.
+アリスタブの1つを閉じればカウントは1に減り、別のタブを閉じればリストから完全に消えるはずです。
