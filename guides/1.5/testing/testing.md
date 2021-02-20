@@ -4,7 +4,7 @@ version: 1.5
 group: testing
 title: Introduction to Testing
 nav_order: 1
-hash: cb806f16
+hash: 8a1d0826
 ---
 # Introduction to Testing
 
@@ -506,7 +506,7 @@ That's all you need to do and ExUnit and Phoenix will take care of all rest, inc
 
 ## Going further
 
-While ExUnit is a simple test framework, it provides a really flexible and robust test runner through the `mix test` command. We recommend you to run `mix help test` or [read the docs online](https://hex)
+While ExUnit is a simple test framework, it provides a really flexible and robust test runner through the `mix test` command. We recommend you to run `mix help test` or [read the docs online](https://hexdocs.pm/mix/Mix.Tasks.Test.html)
 
 We've seen what Phoenix gives us with a newly generated app. Furthermore, whenever you generate a new resource, Phoenix will generate all appropariate tests for that resource too. For example, you can create a complete scaffold with schema, context, controllers, and views by running the following command at the root of your application:
 
