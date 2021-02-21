@@ -4,7 +4,7 @@ version: 1.5
 group: testing
 title: Testing Contexts
 nav_order: 2
-hash: f08d6839
+hash: 4ee3484f
 ---
 # Testing Contexts
 
@@ -12,7 +12,7 @@ hash: f08d6839
 
 > **Requirement**: This guide expects that you have gone through [the Introduction to Testing guide](testing.html).
 
-> **Requirement**: This guide expects that you have gone through [the Context guide](context.html).
+> **Requirement**: This guide expects that you have gone through [the Contexts guide](contexts.html).
 
 At the end of the Introduction to Testing guide, we generated an HTML resource for posts using the following command:
 
@@ -70,7 +70,7 @@ defmodule Hello.BlogTest do
     ...
 ```
 
-As the top of the file we import `Hello.DataCase`, which as we will see soon, it is similar to `HelloWeb.ConnCase`. While `HelloWeb.ConnCase` set up helpers for working with connections, which is useful when testing controllers and views, `Hello.DataCase` provides functionality for working with contexts and schemas.
+As the top of the file we import `Hello.DataCase`, which as we will see soon, it is similar to `HelloWeb.ConnCase`. While `HelloWeb.ConnCase` sets up helpers for working with connections, which is useful when testing controllers and views, `Hello.DataCase` provides functionality for working with contexts and schemas.
 
 Next we define an alias, so we can refer to `Hello.Blog` simply as `Blog`.
 
@@ -151,7 +151,7 @@ You may be wondering then: when do we test the context directly and when do we t
 
 The general guideline is to keep all side-effect free code in the schema. In other words, if you are simply working with data structures, schemas and changesets, put it in the schema. The context will typically have the code that creates and updates schemas and then write them to a database or an API.
 
-We'll be adding additional validations to the schema module, so that's a great opportunity to write some schema specific tests. Open up `lib/hello/blog/post.ex` and add the following validadtion to `def changeset`:
+We'll be adding additional validations to the schema module, so that's a great opportunity to write some schema specific tests. Open up `lib/hello/blog/post.ex` and add the following validation to `def changeset`:
 
 ```elixir
 def changeset(post, attrs) do
