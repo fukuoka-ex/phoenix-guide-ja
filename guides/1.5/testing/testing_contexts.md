@@ -2,27 +2,27 @@
 layout: 1.5/layout
 version: 1.5
 group: testing
-title: Testing Contexts
+title: コンテキストのテスト
 nav_order: 2
 hash: 4ee3484f
 ---
-# Testing Contexts
+# コンテキストのテスト
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**: このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Introduction to Testing guide](testing.html).
+> **前提**: [テストの導入ガイド](testing.html)を理解していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Contexts guide](contexts.html).
+> **前提**: このガイドでは、[コンテキストガイド](contexts.html)の内容を前提としています
 
-At the end of the Introduction to Testing guide, we generated an HTML resource for posts using the following command:
+テスト入門ガイドの最後に、以下のコマンドを使って投稿用のHTMLリソースを生成しました。
 
 ```console
 $ mix phx.gen.html Blog Post posts title body:text
 ```
 
-This gave us a number of modules for free, including a Blog context and a Post schema, alongside their respective test files. As we have learned in the Context guide, the Blog context is simply a module with functions to a particular area of our business domain while Post schema maps to a particular table in our database.
+これにより、BlogコンテキストとPostスキーマを含む多くのモジュールを、それぞれのテストファイルと一緒に無料で提供してくれました。コンテキストガイドで学んだように、Blogコンテキストはビジネスドメインの特定の領域に対応する機能を持つモジュールで、ポストスキーマはデータベースの特定のテーブルにマップします。
 
-In this guide, we are going to explore the tests generated for our contexts and schemas. Before we do anything else, let's run `mix test` to make sure our test suite runs cleanly.
+このガイドでは、コンテキストとスキーマのために生成されたテストについて調べていきます。他のことをする前に、`mix test` を実行してテストスイートがきれいに動作することを確認しましょう。
 
 ```console
 $ mix test
@@ -34,11 +34,11 @@ Finished in 0.6 seconds
 Randomized with seed 638414
 ```
 
-Great. We've got nineteen tests and they are all passing!
+いいですね。19のテストがありますが、すべて合格しています!
 
-## Testing posts
+## postsをテストする
 
-If you open up `test/hello/blog_test.exs`, you will see a file with the following:
+`test/hello/blog_test.exs` を開くと、以下のようなファイルが出てきます。
 
 ```elixir
 defmodule Hello.BlogTest do
@@ -70,19 +70,19 @@ defmodule Hello.BlogTest do
     ...
 ```
 
-As the top of the file we import `Hello.DataCase`, which as we will see soon, it is similar to `HelloWeb.ConnCase`. While `HelloWeb.ConnCase` sets up helpers for working with connections, which is useful when testing controllers and views, `Hello.DataCase` provides functionality for working with contexts and schemas.
+ファイルの先頭には `Hello.DataCase` をインポートしています。`HelloWeb.ConnCase` がコネクションを扱うためのヘルパーを設定するのに対し、`Hello.DataCase` はコンテキストやスキーマを扱うための機能を提供します。
 
-Next we define an alias, so we can refer to `Hello.Blog` simply as `Blog`.
+次にエイリアスを定義して、`Hello.Blog` を単に `Blog` として参照できるようにします。
 
-Then we start a `describe "posts"` block. A `describe` block is a feature in ExUnit that allows us to group similar tests. The reason why we have grouped all post related tests together is because contexts in Phoenix are capable of grouping multiple schemas together. For example, if you ran this command:
+そして、`describe "posts"` ブロックを開始します。`describe` ブロックはExUnitの機能で、似たようなテストをグループ化できます。ここで投稿に関連するテストをまとめているのは、Phoenixのコンテキストでは複数のスキーマをまとめてグループ化することができるからです。たとえば、次のようなコマンドを実行したとします。
 
 ```console
 $ mix phx.gen.html Blog Comment comments post_id:references:posts body:text
 ```
 
-We will would get a bunch of new functions in the `Hello.Blog` context plus a whole new `describe "comments"` block in our test file.
+`Hello.Blog` のコンテキストに新しい関数をたくさん追加し、テストファイルに新しい `describe "comments"` ブロックを追加する予定です。
 
-The tests defined for our context are very straight-forward. They call the functions in our context and assert on their results. As you can see, some of those tests even create entries in the database:
+コンテキストのために定義されたテストは非常にわかりやすいものです。これらのテストはコンテキスト内の関数を呼び出し、その結果をアサートします。ご覧のように、これらのテストの中にはデータベースにエントリを作成するものもあります。
 
 ```elixir
 test "create_post/1 with valid data creates a post" do
@@ -92,11 +92,11 @@ test "create_post/1 with valid data creates a post" do
 end
 ```
 
-At this point, you may wonder: how can Phoenix make sure the data created in one of the tests do not affect other tests? We are glad you asked. To answer this question, let's talk about the `DataCase`.
+この時点であるテストで作成されたデータが他のテストに影響を与えないようにするにはどうすればよいのか？と疑問に思うかもしれません。この質問に答えるために、`DataCase` について説明しましょう。
 
-## The DataCase
+## DataCase
 
-If you open up `test/support/data_case.ex`, you will find the following:
+`test/support/data_case.ex` を開くと以下のようになっています。
 
 ```elixir
 defmodule Hello.DataCase do
@@ -129,29 +129,29 @@ defmodule Hello.DataCase do
 end
 ```
 
-`Hello.DataCase` is another `ExUnit.CaseTemplate`. In the `using` block, we can see all of the aliases and imports `DataCase` brings into our tests. The `setup` chunk for `DataCase` is very similar to the one from `ConnCase`. As we can see, most of the `setup` block revolves around setting up a SQL Sandbox.
+`Hello.DataCase` は別の `ExUnit.CaseTemplate` です。`using` ブロックでは、`DataCase` がテストに持ち込むエイリアスやインポートのすべてを見ることができます。`DataCase` の `setup` チャンクは `ConnCase` のものとよく似ています。見ての通り、`setup` ブロックの大部分はSQLサンドボックスの設定を中心にしています。
 
-The SQL Sandbox is precisely what allows our tests to write to the database without affecting any of the other tests. In a nutshell, at the beginning of every test, we start a transaction in the database. When the test is over, we automatically rollback the transaction, effectively erasing all of the data created in the test.
+SQLサンドボックスはまさに、他のテストに影響を与えることなく、テストがデータベースに書き込むことを可能にするものです。一言で言えば、すべてのテストの最初に、データベース内のトランザクションを開始します。テストが終了すると、自動的にトランザクションをロールバックし、テストで作成されたデータを効果的にすべて消去します。
 
-Furthermore, the SQL Sandbox allows multiple tests to run concurrently, even if they talk to the database. This feature is provided for PostgreSQL databases and it can be used to further speed up your contexts and controllers tests by adding a `async: true` flag when using them:
+さらに、SQLサンドボックスでは、複数のテストがデータベースと通信している場合でも、複数のテストを同時に実行できます。この機能はPostgreSQLデータベース用に提供されており、それらを使用する際に `async: true` フラグを追加することで、コンテキストやコントローラーのテストをさらに高速化するために使用できます。
 
 ```elixir
 use Hello.DataCase, async: true
 ```
 
-There are some considerations you need to have in mind when running asynchronous tests with the sandbox, so please refer to the [`Ecto.Adapters.SQL.Sandbox`](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html) for more information.
+サンドボックスで非同期テストを実行する際には、いくつかの考慮すべき点がありますので、詳細は [`Ecto.Adapters.SQL.Sandbox`](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html) を参照してください。
 
-Finally at the end of the of the `DataCase` module we can find a function named `errors_on` with some examples of how to use it. This function is used for testing any validation we may want to add to our schemas. Let's give it a try by adding our own validations and then testing them.
+最後に `DataCase` モジュールの最後に `errors_on` という名前の関数があります。この関数はスキーマに追加したい検証をテストするために使われます。独自のバリデーションを追加してテストしてみましょう。
 
-## Testing schemas
+## スキーマのテスト
 
-When we generate our HTML Post resource, Phoenix generated a Blog context and a Post schema. It generated a test file for the context but no test file for the schema. However, this doesn't mean we don't need to test the schema, it just means we did not have to test the schema so far.
+HTML Postリソースを生成すると、PhoenixはBlogコンテキストとPostスキーマを生成しました。コンテキスト用のテストファイルは生成されましたが、スキーマ用のテストファイルは生成されませんでした。しかし、これはスキーマをテストする必要がないという意味ではなく、これまでのところスキーマをテストする必要がなかったということです。
 
-You may be wondering then: when do we test the context directly and when do we test the schema directly? The answer to this question is the same answer to the question of when do we add code to a context and when do we add it to the schema?
+では、いつコンテキストを直接テストするのか、いつスキーマを直接テストするのか、疑問に思うかもしれません。この質問に対する答えは、いつコンテキストにコードを追加し、いつスキーマにコードを追加するかという質問に対する答えと同じです。
 
-The general guideline is to keep all side-effect free code in the schema. In other words, if you are simply working with data structures, schemas and changesets, put it in the schema. The context will typically have the code that creates and updates schemas and then write them to a database or an API.
+一般的なガイドラインは、副作用のないコードはすべてスキーマに入れておくことです。言い換えれば、単にデータ構造やスキーマ、チェンジセットを扱うだけならば、スキーマの中に入れておきましょう。コンテキストでは、スキーマを作成したり更新したりしてデータベースやAPIに書き込むコードが一般的でしょう。
 
-We'll be adding additional validations to the schema module, so that's a great opportunity to write some schema specific tests. Open up `lib/hello/blog/post.ex` and add the following validation to `def changeset`:
+スキーマモジュールにバリデーションを追加する予定なので、スキーマに特化したテストを書く絶好の機会です。`lib/hello/blog/post.ex` を開き、以下のバリデーションを `def changeset` に追加します。
 
 ```elixir
 def changeset(post, attrs) do
@@ -162,7 +162,7 @@ def changeset(post, attrs) do
 end
 ```
 
-The new validation says the title needs to have at least 2 characters. Let's write a test for this. Create a new file at `test/hello/blog/post_test.exs` with this:
+新しいバリデーションでは、タイトルには最低2文字以上の文字数が必要となっています。このためのテストを書いてみましょう。`test/hello/blog/post_test.exs` に新しいファイルを作成します。
 
 ```elixir
 defmodule Hello.Blog.PostTest do
@@ -176,4 +176,4 @@ defmodule Hello.Blog.PostTest do
 end
 ```
 
-And that's it. As our business domain grows, we have well defined places to test our contexts and schemas.
+これで終わりです。ビジネスドメインが成長するにつれ、コンテキストとスキーマをテストするための場所が明確に定義されています。
