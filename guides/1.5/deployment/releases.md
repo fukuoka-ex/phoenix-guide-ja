@@ -4,7 +4,7 @@ version: 1.5
 group: deployment
 title: Deploying with Releases
 nav_order: 2
-hash: 126b2f16
+hash: 8ab5fa52
 ---
 # Deploying with Releases
 
@@ -53,6 +53,8 @@ $ npm run deploy --prefix ./assets
 $ mix phx.digest
 ```
 
+*Note:* the `--prefix` flag on `npm` may not work on Windows. If so, replace the first command by `cd assets && npm run deploy && cd ..`.
+
 And now run `mix release`:
 
 ```console
@@ -91,7 +93,7 @@ Release created at _build/prod/rel/my_app!
     _build/prod/rel/my_app/bin/my_app start
 ```
 
-And starting the release now should also successfully start the web server! Now you can get all of the files under the `_build/prod/rel/my_app` directory, package it, and run it in any production machine with the same OS and archictecture as the one that assembled the release. For more details, check the [docs for `mix release`](https://hexdocs.pm/mix/Mix.Tasks.Release.html).
+And starting the release now should also successfully start the web server! Now you can get all of the files under the `_build/prod/rel/my_app` directory, package it, and run it in any production machine with the same OS and architecture as the one that assembled the release. For more details, check the [docs for `mix release`](https://hexdocs.pm/mix/Mix.Tasks.Release.html).
 
 But before we finish this guide, there are two features from releases most Phoenix applications will use, so let's talk about those.
 
@@ -183,10 +185,9 @@ Here is an example Docker file to run at the root of your application covering a
 FROM elixir:1.9.0-alpine AS build
 
 # install build dependencies
-RUN apk add --update build-base npm git
+RUN apk add --no-cache build-base npm git python
 
 # prepare build dir
-RUN mkdir /app
 WORKDIR /app
 
 # install hex + rebar
@@ -199,35 +200,38 @@ ENV MIX_ENV=prod
 # install mix dependencies
 COPY mix.exs mix.lock ./
 COPY config config
-RUN mix deps.get
-RUN mix deps.compile
+RUN mix do deps.get, deps.compile
 
 # build assets
-COPY assets assets
+COPY assets/package.json assets/package-lock.json ./assets/
+RUN npm --prefix ./assets ci --progress=false --no-audit --loglevel=error
+
 COPY priv priv
-RUN cd assets && npm install && npm run deploy
+COPY assets assets
+RUN npm run --prefix ./assets deploy
 RUN mix phx.digest
 
-# build project
+# compile and build release
 COPY lib lib
-RUN mix compile
-
-# build release (uncomment COPY if rel/ exists)
+# uncomment COPY if rel/ exists
 # COPY rel rel
-RUN mix release
+RUN mix do compile, release
 
 # prepare release image
 FROM alpine:3.9 AS app
-RUN apk add --update bash openssl
+RUN apk add --no-cache openssl ncurses-libs
 
-RUN mkdir /app
 WORKDIR /app
 
-COPY --from=build /app/_build/prod/rel/my_app ./
-RUN chown -R nobody: /app
-USER nobody
+RUN chown nobody:nobody /app
+
+USER nobody:nobody
+
+COPY --from=build --chown=nobody:nobody /app/_build/prod/rel/my_app ./
 
 ENV HOME=/app
+
+CMD ["bin/my_app", "start"]
 ```
 
 At the end, you will have an application in `/app` ready to run as `bin/my_app start`.
