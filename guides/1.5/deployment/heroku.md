@@ -4,7 +4,7 @@ version: 1.5
 group: deployment
 title: Deploying on Heroku
 nav_order: 4
-hash: fc821d71
+hash: d8f2f90f
 ---
 # Deploying on Heroku
 
@@ -34,7 +34,7 @@ Heroku is a great platform and Elixir performs well on it. However, you may run 
 
 If you are just getting started or you don't expect to use the features above, Heroku should be enough for your needs. For instance, if you are migrating an existing application running on Heroku to Phoenix, keeping a similar set of features, Elixir will perform just as well or even better than your current stack.
 
-If you want a platform-as-a-service without these limitations, try [Gigalixir](http://gigalixir.readthedocs.io/). If you would rather deploy to a cloud platform, such as EC2, Google Cloud, etc, consider [Distillery](https://github.com/bitwalker/distillery).
+If you want a platform-as-a-service without these limitations, try [Gigalixir](gigalixir.html). If you would rather deploy to a cloud platform, such as EC2, Google Cloud, etc, consider using `mix release`.
 
 ## Steps
 
@@ -43,7 +43,7 @@ Let's separate this process into a few steps so we can keep track of where we ar
 - Initialize Git repository
 - Sign up for Heroku
 - Install the Heroku Toolbelt
-- Create and setup Heroku application
+- Create and set up Heroku application
 - Make our project ready for Heroku
 - Deploy time!
 - Useful Heroku commands
@@ -76,9 +76,9 @@ Once we have signed up, we can download the correct version of the Heroku Toolbe
 
 The Heroku CLI, part of the Toolbelt, is useful to create Heroku applications, list currently running dynos for an existing application, tail logs or run one-off commands (mix tasks for instance).
 
-## Create and Setup Heroku Application
+## Create and Set Up Heroku Application
 
-There are two different ways to deploy a Phoenix app on Heroku. We could use Heroku buildpacks or their container stack. The difference between these two approaches is in how we tell Heroku to treat our build. In buildpack case, we need to update our apps configuration on Heroku to use Phoenix/Elixir specific buildpacks. On container approach, we have more control on how we want to setup our app and we can define our container image using `Dockerfile` and `heroku.yml`. This section will explore the buildpack approach. In order to use Dockerfile, it is often recommended to convert our app to use releases, which we will describe later on.
+There are two different ways to deploy a Phoenix app on Heroku. We could use Heroku buildpacks or their container stack. The difference between these two approaches is in how we tell Heroku to treat our build. In buildpack case, we need to update our apps configuration on Heroku to use Phoenix/Elixir specific buildpacks. On container approach, we have more control on how we want to set up our app and we can define our container image using `Dockerfile` and `heroku.yml`. This section will explore the buildpack approach. In order to use Dockerfile, it is often recommended to convert our app to use releases, which we will describe later on.
 
 ### Create Application
 
@@ -123,11 +123,11 @@ Buildpack added. Next release on mysterious-meadow-6277 will use:
   2. https://github.com/gjaldon/heroku-buildpack-phoenix-static.git
 ```
 
-The Phoenix Static buildpack uses a predefined Node version but to avoid surprises when deploying, it is best to explicitly list the Node version we want in production to be the same we are using during development or in your continuous integration servers. This is done by creating a config file named `phoenix_static_buildpack.config` in the root directory of your project with your target version of Node:
+The Phoenix Static buildpack uses a predefined Node.js version but to avoid surprises when deploying, it is best to explicitly list the Node.js version we want in production to be the same we are using during development or in your continuous integration servers. This is done by creating a config file named `phoenix_static_buildpack.config` in the root directory of your project with your target version of Node.js:
 
 ```
-# Node version
-node_version=10.19.0
+# Node.js version
+node_version=10.20.1
 ```
 
 Please refer to the [configuration section](https://github.com/gjaldon/heroku-buildpack-phoenix-static#configuration) for full details. You can make your own custom build script, but for now we will use the [default one provided](https://github.com/gjaldon/heroku-buildpack-phoenix-static/blob/master/compile).
@@ -358,11 +358,11 @@ build:
     DATABASE_URL: $DATABASE_URL
 ```
 
-### Setup releases and Dockerfile
+### Set up releases and Dockerfile
 
 Now we need to define a `Dockerfile` at the root folder of your project that contains your application. We recommend to use releases when doing so, as the release will allow us to build a container with only the parts of Erlang and Elixir we actually use. Follow [the releases docs](releases.html). At the end of the guide, there is a sample Dockerfile file you can use.
 
-Once you have the image definition setup, you can push your app to heroku and you can see it starts building the image and deploy it.
+Once you have the image definition set up, you can push your app to heroku and you can see it starts building the image and deploy it.
 
 ## Useful Heroku Commands
 
