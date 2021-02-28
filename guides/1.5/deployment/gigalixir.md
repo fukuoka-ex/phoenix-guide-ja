@@ -31,7 +31,7 @@ hash: d8f2f90f
 
 ## Gitリポジトリの初期化
 
-Gitリポジトリの初期化がまだなら、ファイルをgitにコミットする必要がある。プロジェクトディレクトリにて下記のコマンドを実行するとGitリポジトリの初期化ができます:
+Gitリポジトリの初期化がまだなら、ファイルをgitにコミットする必要があります。プロジェクトディレクトリにて下記のコマンドを実行するとGitリポジトリの初期化ができます:
 
 ```console
 $ git init
@@ -41,7 +41,7 @@ $ git commit -m "Initial commit"
 
 ## Gigalixir CLIのインストール
 
-[ここ](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html#install-the-command-line-interface)の説明にしたがって、お使いの環境にあうCLI(コマンドラインインターフェース)をインストールしてください。
+[こちら](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html#install-the-command-line-interface)の説明にしたがって、お使いの環境にあうCLI(コマンドラインインターフェース)をインストールしてください。
 
 ## Gigalixirのサインアップ
 
@@ -107,9 +107,9 @@ $ git commit -m "set elixir, erlang, and node version"
 ```
 ## プロジェクトをGigalixirに対応させる
 
-Giglaixirでアプリを稼働させるために必要な作業はもうないが、おそらくSSLを強制したいかもしれない。そのためには[SSL強制](../howto/using_ssl.html#force-ssl)を参照してくだい。
+Giglaixirでアプリを稼働させるために必要な作業はこれですべてですが、本番環境ではSSLを強制したいかもしれません。そのためには[強制SSL化](../howto/using_ssl.html#force-ssl)を参照してくだい。
 
-またデータベース接続でSSLを使いたいかもしれない。このためには、`Repo`コンフィグの中で`ssl: true`のコメントアウトを外してください。
+またデータベース接続でSSLを使いたいかもしれません。その場合は、`Repo`コンフィグの中で`ssl: true`のコメントアウトを外してください。
 
 ## データベースの用意
 
@@ -166,7 +166,7 @@ $ gigalixir open
 
 ## 便利なGigalixirコマンド
 
-リモートコンソールを開く。
+リモートコンソールを開きます。
 
 ```console
 $ gigalixir account:ssh_keys:add "$(cat ~/.ssh/id_rsa.pub)"
