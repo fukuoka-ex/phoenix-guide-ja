@@ -2,36 +2,36 @@
 layout: 1.5/layout
 version: 1.5
 group: deployment
-title: Deploying on Gigalixir
+title: Gigalixirへのデプロイ
 nav_order: 3
 hash: d8f2f90f
 ---
-# Deploying on Gigalixir
+# Gigalixirへのデプロイ
 
-## What we'll need
+## 必要なもの
 
-The only thing we'll need for this guide is a working Phoenix application. For those of us who need a simple application to deploy, please follow the [Up and Running guide](https://hexdocs.pm/phoenix/up_and_running.html).
+このガイドに必要なのは、動作するPhoenixアプリケーションだけです。デプロイ用の簡単なアプリケーションが必要な方は、[起動ガイド](../introduction/up_and_running.html)にしたがってください。
 
-## Goals
+## ゴール
 
-Our main goal for this guide is to get a Phoenix application running on Gigalixir.
+このガイドの主な目的は、Gigalixir上でPhoenixアプリケーションを実行することです。
 
-## Steps
+## 手順
 
-Let's separate this process into a few steps so we can keep track of where we are.
+現在地を確認できるように、手順をいくつかのステップに分けておきます。
 
-- Initialize Git repository
-- Install the Gigalixir CLI
-- Sign up for Gigalixir
-- Create and set up Gigalixir application
-- Provision a database
-- Make our project ready for Gigalixir
-- Deploy time!
-- Useful Gigalixir commands
+- Gitリポジトリの初期化
+- Gigalixir CLIのインストール
+- Gigalixirのサインアップ
+- Gigalixirアプリの作成とセットアップ
+- データベースの用意
+- プロジェクトをGigalixirに対応させる
+- デプロイ!
+- 便利なGigalixirコマンド
 
-## Initializing Git repository
+## Gitリポジトリの初期化
 
-If you haven't already, we'll need to commit our files git. We can do so by running the following commands in our project directory:
+Gitリポジトリの初期化がまだなら、ファイルをgitにコミットする必要があります。プロジェクトディレクトリにて下記のコマンドを実行するとGitリポジトリの初期化ができます:
 
 ```console
 $ git init
@@ -39,59 +39,59 @@ $ git add .
 $ git commit -m "Initial commit"
 ```
 
-## Installing the Gigalixir CLI
+## Gigalixir CLIのインストール
 
-Follow the instructions [here](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html#install-the-command-line-interface) to install the command-line interface for your platform.
+[こちら](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html#install-the-command-line-interface)の説明にしたがって、お使いの環境にあうCLI(コマンドラインインターフェース)をインストールしてください。
 
-## Signing up for Gigalixir
+## Gigalixirのサインアップ
 
-We can sign up for an account at [gigalixir.com](https://www.gigalixir.com) or with the CLI. Let's use the CLI.
+[gigalixir.com](https://www.gigalixir.com)もしくはCLIでアカウントのサインアップができます。CLIを使って進めましょう。
 
 ```console
 $ gigalixir signup
 ```
 
-Gigalixir’s free tier does not require a credit card and comes with 1 app instance and 1 postgresql database for free, but please consider upgrading to a paid plan if you are running a production application.
+Gigalixirのフリープランはクレジットカードは必要ではなく、無料で1つのアプリインスタンスと1つのpostgresqlデータベースを使うことができます。しかし、本番運用するつもりなら有料プランにアップグレードすることを検討してください。
 
-Next, let's login
+次にログインしてみましょう。
 
 ```console
 $ gigalixir login
 ```
 
-And verify
+そして確かめてみましょう。
 
 ```console
 $ gigalixir account
 ```
 
-## Creating and setting up our Gigalixir application
+## Gigalixirアプリの作成とセットアップ
 
-There are three different ways to deploy a Phoenix app on Gigalixir: with mix, with Elixir's releases, or with Distillery. In this guide, we'll be using Mix because it is the easiest to get up and running, but you won't be able to connect a remote observer or hot upgrade. For more information, see [Mix vs Distillery vs Elixir Releases](https://gigalixir.readthedocs.io/en/latest/modify-app/index.html#mix-vs-distillery-vs-elixir-releases). If you want to deploy with another method, follow the [Getting Started Guide](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html).
+GigalixirでPhoenixアプリをデプロイする方法は3つあります: ひとつはmix、もう一つはElixir releases、3つ目はDistilleryです。このガイドでは、mixを使うことにします。なぜなら一番簡単に起動できて稼働できるからです。しかしリモートオブザーバーを接続したりホットアップグレードはできません。もっと詳しい情報は[Mix、Distillery、Elixir Releasesの比較](https://gigalixir.readthedocs.io/en/latest/modify-app/index.html#mix-vs-distillery-vs-elixir-releases)を参照してください。他の方法でデプロイしたいなら、[スタートガイド](https://gigalixir.readthedocs.io/en/latest/getting-started-guide.html)に従ってください。
 
-### Creating a Gigalixir application
+### Gigalixirアプリの作成
 
-Let's create a Gigalixir application
+Gigalixirアプリを作ってみましょう。
 
 ```console
 $ gigalixir create
 ```
 
-Verify it was created
+作られたことを確かめてみましょう。
 
 ```console
 $ gigalixir apps
 ```
 
-Verify that a git remote was created 
+git remoteが作られたことを確かめてみましょう。
 
 ```console
 $ git remote -v
 ```
 
-### Specifying versions
+### バージョン指定
 
-The buildpacks we use default to Elixir, Erlang, and Node.js versions that are quite old and it's generally a good idea to run the same version in production as you do in development, so let's do that.
+Elixir、Erlang、Node.jsのバージョンがデフォルトで使えるビルドパックではかなり古いので、開発に使ったバージョンと本番のバージョンをそろえておくことはよい考えです。それではこれをやっておきましょう。
 
 ```console
 $ echo "elixir_version=1.10.3" > elixir_buildpack.config
@@ -99,89 +99,90 @@ $ echo "erlang_version=22.3" >> elixir_buildpack.config
 $ echo "node_version=12.16.3" > phoenix_static_buildpack.config
 ```
 
-Don't forget to commit
+コミットすることを忘れないでください。
 
 ```console
 $ git add elixir_buildpack.config phoenix_static_buildpack.config
 $ git commit -m "set elixir, erlang, and node version"
 ```
-## Making our Project ready for Gigalixir
+## プロジェクトをGigalixirに対応させる
 
-There's nothing we need to do to get our app running on Giglaixir, but for a production app, you probably want to enforce SSL. To do that, see [Force SSL](https://hexdocs.pm/phoenix/using_ssl.html#force-ssl)
+Giglaixirでアプリを稼働させるために必要な作業はこれですべてですが、本番環境ではSSLを強制したいかもしれません。そのためには[強制SSL化](../howto/using_ssl.html#force-ssl)を参照してくだい。
 
-You may also want to use SSL for your database connection. For that, uncomment the line `ssl: true` in your `Repo` config.
+またデータベース接続でSSLを使いたいかもしれません。その場合は、`Repo`コンフィグの中で`ssl: true`のコメントアウトを外してください。
 
-## Provisioning a database
+## データベースの用意
 
-Let's provision a database for our app
+アプリのためにデータベースを用意しましょう。
 
 ```console
 $ gigalixir pg:create --free
 ```
 
-Verify the database was created
+データベースが作られたことを確かめておきましょう。
 
 ```console
 $ gigalixir pg
 ```
 
-Verify that a `DATABASE_URL` and `POOL_SIZE` were created
+`DATABASE_URL` と `POOL_SIZE`が作られたことを確かめておきましょう。
 
 ```console
 $ gigalixir config
 ```
 
-## Deploy Time!
+## デプロイ!
 
-Our project is now ready to be deployed on Gigalixir.
+プロジェクトをGigalixirへデプロイする準備は整いました。
+お待ちかねのデプロイをやってみましょう!
 
 ```console
 $ git push gigalixir master
 ```
 
-Check the status of your deploy and wait until the app is `Healthy`
+デプロイのステータスをチェックして、アプリが`Healthy`になるまで待ちましょう。
 
 ```console
 $ gigalixir ps
 ```
 
-Run migrations
+マイグレーションを実行しましょう。
 
 ```console
 $ gigalixir run mix ecto.migrate
 ```
 
-Check your app logs
+アプリのログをチェックしてみましょう。
 
 ```console
 $ gigalixir logs
 ```
 
-If everything looks good, let's take a look at your app running on Gigalixir
+すべてが正しそうであれば、Gigalixirで稼働しているアプリをみてみましょう。
 
 ```console
 $ gigalixir open
 ```
 
-## Useful Gigalixir Commands
+## 便利なGigalixirコマンド
 
-Open a remote console
+リモートコンソールを開きます。
 
 ```console
 $ gigalixir account:ssh_keys:add "$(cat ~/.ssh/id_rsa.pub)"
 $ gigalixir ps:remote_console
 ```
 
-To open a remote observer, see [Remote Observer](https://gigalixir.readthedocs.io/en/latest/runtime.html#how-to-launch-a-remote-observer)
+リモートオブザーバーを開くには、[リモートオブザーバー](https://gigalixir.readthedocs.io/en/latest/runtime.html#how-to-launch-a-remote-observer)を参照してください。
 
-To set up clustering, see [Clustering Nodes](https://gigalixir.readthedocs.io/en/latest/cluster.html)
+クラスタリングをセットアップしたいなら、[クラスタリングノード](https://gigalixir.readthedocs.io/en/latest/cluster.html)を参照してください。
 
-To hot upgrade, see [Hot Upgrades](https://gigalixir.readthedocs.io/en/latest/deploy.html#how-to-hot-upgrade-an-app)
+ホットアップグレードのためには、[ホットアップグレード](https://gigalixir.readthedocs.io/en/latest/deploy.html#how-to-hot-upgrade-an-app)を参照してください。
 
-For custom domains, scaling, jobs and other features, see the [Gigalixir Documentation](https://gigalixir.readthedocs.io/)
+カスタムドメインをつけたいですとか、スケーリング、ジョブ、その他の機能については、[Gigalixirドキュメント](https://gigalixir.readthedocs.io/)を参照してください。
 
-## Troubleshooting
+## トラブルシューティング
 
-See [Troubleshooting](https://gigalixir.readthedocs.io/en/latest/troubleshooting.html)
+[トラブルシューティング](https://gigalixir.readthedocs.io/en/latest/troubleshooting.html)を参照してください。
 
-Also, don't hesitate to email [help@gigalixir.com](mailto:help@gigalixir.com) or [request an invitation](https://elixir-slackin.herokuapp.com/) and join the #gigalixir channel on [Slack](https://elixir-lang.slack.com).
+また、[help@gigalixir.com](mailto:help@gigalixir.com)へEメールを送ることや、[Slack](https://elixir-lang.slack.com)の[招待リンク](https://elixir-slackin.herokuapp.com/)から#gigalixirチャネルに参加することをためらわないでください。
