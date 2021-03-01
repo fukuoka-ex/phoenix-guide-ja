@@ -8,51 +8,31 @@ hash: bb88c55c
 ---
 # Telemetry
 
-In this guide, we will show you how to instrument and report
-on `:telemetry` events in your Phoenix application.
+このガイドでは、Phoenixアプリケーションで `:telemetry` イベントを計測してレポートする方法を紹介します。
 
-> `te·lem·e·try` - the process of recording and transmitting
-the readings of an instrument.
+> `te·lem·e·try` - 機器の測定値を記録および送信するプロセス
 
-As you follow along with this guide, we will introduce you to
-the core concepts of Telemetry, you will initialize a
-reporter to capture your application's events as they occur,
-and we will guide you through the steps to properly
-instrument your own functions using `:telemetry`. Let's take
-a closer look at how Telemetry works in your application.
+このガイドに沿って進んでいくうちに、Telemetryのコアコンセプトを紹介し、アプリケーションのイベントをキャプチャするためのレポーターを初期化し、`:telemetry` を使って自分の関数を適切に計測するためのステップを紹介していきます。Telemetryがアプリケーションでどのように機能するかを詳しく見てみましょう。
 
-## Overview
+## 概要
 
-The `[:telemetry]` library allows you to emit events at various stages of an application's lifecycle. You can then respond to these events by, among other things, aggregating them as metrics and sending the metrics data to a reporting destination.
+ライブラリ `[:telemetry]` は、アプリケーションのライフサイクルのさまざまな段階でイベントを放出することを可能にします。これらのイベントに応答するには、とくに、それらをメトリクスとして集約し、メトリクスデータをレポート先に送信できます。
 
-Telemetry stores events by their name in an ETS table, along with the handler for each event. Then, when a given event is executed, Telemetry looks up its handler and invokes it.
+Telemetryは、各イベントのハンドラーと一緒に、その名前でイベントをETSテーブルに保存します。そして、与えられたイベントが実行されると、Telemetryはそのハンドラーを探し出し、それを呼び出します。
 
-Phoenix's Telemetry tooling provides you with a supervisor that uses `Telemetry.Metrics` to define the list of Telemetry events to handle and how to handle those events, i.e. how to structure them as a certain type of metric. This supervisor works together with Telemetry reporters to respond to the specified Telemetry events by aggregating them as the appropriate metric and sending them to the correct reporting destination.
+PhoenixのTelemetryツールは、`Telemetry.Metrics` を使用して、扱うTelemetryイベントのリストと、それらのイベントをどのように扱うか、つまり、特定のタイプのメトリックとしてどのように構成するかを定義するスーパーバイザーを提供します。このスーパーバイザーはTelemetryレポーターと協力して、指定されたTelemetryイベントを適切なメトリックとして集約し、正しい報告先に送信することで応答します。
 
-## The Telemetry supervisor
+## Telemetryスーパーバイザー
 
-Since v1.5, new Phoenix applications are generated with a
-Telemetry supervisor. This module is responsible for
-managing the lifecycle of your Telemetry processes. It also
-defines a `metrics/0` function, which returns a list of
-[`Telemetry.Metrics`](https://hexdocs.pm/telemetry_metrics)
-that you define for your application.
+v1.5以降、新しいPhoenixアプリケーションは、Telemetryスーパーバイザーとともに生成されます。このモジュールは、Telemetryプロセスのライフサイクルを管理します。また、`metrics/0` 関数を定義しており、アプリケーション用に定義した [`Telemetry.Metrics`](https://hexdocs.pm/telemetry_metrics) のリストを返します。 デフォルトでは、スーパーバイザーは [`:telemetry_poller`](http://hexdocs.pm/telemetry_poller) も起動します。依存関係として `:telemetry_poller` を追加するだけで、指定した間隔でVM関連のイベントを受け取ることができます。 古いバージョンのPhoenixを使っている場合は、`:telemetry_metrics` と `:telemetry_poller` パッケージをインストールしてください。
 
-By default, the supervisor also starts
-[`:telemetry_poller`](http://hexdocs.pm/telemetry_poller).
-By simply adding `:telemetry_poller` as a dependency, you
-can receive VM-related events on a specified interval.
-
-If you are coming from an older version of Phoenix, install
-the `:telemetry_metrics` and `:telemetry_poller` packages:
 
 ```elixir
 {:telemetry_metrics, "~> 0.4"},
 {:telemetry_poller, "~> 0.4"}
 ```
 
-and create your Telemetry supervisor at
-`lib/my_app_web/telemetry.ex`:
+そして `lib/my_app_web/telemetry.ex` でTelemetryスーパーバイザーを作成します。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -102,10 +82,10 @@ defmodule MyAppWeb.Telemetry do
 end
 ```
 
-Make sure to replace MyApp by your actual application name.
+MyAppは必ず実際のアプリケーション名に置き換えてください。
 
-Then add to your main application's supervision tree
-(usually in `lib/my_app/application.ex`):
+その後、メインアプリケーションのスーパーバイザーツリーに追加します。
+(通常は `lib/my_app/application.ex`) にあります。
 
 ```elixir
 children = [
@@ -116,120 +96,86 @@ children = [
 ]
 ```
 
-## Telemetry Events
+## Telemetryイベント
 
-Many Elixir libraries (including Phoenix) are already using
-the [`:telemetry`](http://hexdocs.pm/telemetry) package as a
-way to give users more insight into the behavior of their
-applications, by emitting events at key moments in the
-application lifecycle.
+多くのElixirライブラリ（Phoenixを含む）は、アプリケーションのライフサイクルの重要な瞬間にイベントを発行することで、ユーザーがアプリケーションの動作をより深く理解できるようにする方法として、[`:telemetry`](http://hexdocs.pm/telemetry)パッケージをすでに使用しています。
 
-A Telemetry event is made up of the following:
+Telemetryイベントは以下のもので構成されています。
 
-  * `name` - A string (e.g. `"my_app.worker.stop"`) or a
-    list of atoms that uniquely identifies the event.
+  * `name` - 文字列 (例: `"my_app.worker.stop"`) または、イベントを一意に識別するアトムのリスト
 
-  * `measurements` - A map of atom keys (e.g. `:duration`)
-    and numeric values.
+  * `measurements` - アトムキー(例: `:duration`)と数値のマップ
 
-  * `metadata` - A map of key/value pairs that can be used
-    for tagging metrics.
+  * `metadata` - メトリクスのタグ付けに使用できるキーと値のペアのマップ
 
-### A Phoenix Example
 
-Here is an example of an event from your endpoint:
 
-* `[:phoenix, :endpoint, :stop]` - dispatched by
-  `Plug.Telemetry`, one of the default plugs in your endpoint, whenever the response is
-  sent
+### Phoenixの例
+
+エンドポイントからのイベントの例を示します。
+
+* `[:phoenix, :endpoint, :stop]` - エンドポイントのデフォルトプラグの1つである `Plug.Telemetry` によって、レスポンスが送信されるたびにディスパッチされます
 
   * Measurement: `%{duration: native_time}`
 
   * Metadata: `%{conn: Plug.Conn.t}`
 
-This means that after each request, `Plug`, via `:telemetry`,
-will emit a "stop" event, with a measurement of how long it
-took to get the response:
+
+これは、各リクエストの後に `Plug` が `:telemetry` 経由で "stop" イベントを発生させ、レスポンスを得るまでにかかった時間を計測することを意味します。
 
 ```elixir
 :telemetry.execute([:phoenix, :endpoint, :stop], %{duration: duration}, %{conn: conn})
 ```
 
-### Phoenix Telemetry Events
+### Phoenix Telemetryイベント
 
-A full list of all Phoenix telemetry events can be found in `Phoenix.Logger`
+PhoenixのすべてのTelemetryイベントの完全なリストは `Phoenix.Logger` にあります。
 
-## Metrics
+## メトリクス
 
-> Metrics are aggregations of Telemetry events with a
-> specific name, providing a view of the system's behaviour
-> over time.
->
+> メトリクスは、Telemetryイベントの集合体です。メトリクスは、特定の名前を持つTelemetryイベントの集合体であり、システムの動作のビューを提供します。
 > &#x2015; `Telemetry.Metrics`
 
-The Telemetry.Metrics package provides a common interface
-for defining metrics. It exposes a set of [five metric type functions](https://hexdocs.pm/telemetry_metrics/Telemetry.Metrics.html#module-metrics) that are responsible for structuring a given Telemetry event as a particular measurement.
+Telemetry.Metricsパッケージは、メトリクスを定義するための共通のインターフェイスを提供します。これは、与えられたTelemetryイベントを特定の測定として構造化する役割を担う [5つのメトリック型関数](https://hexdocs.pm/telemetry_metrics/Telemetry.Metrics.html#module-metrics) のセットを公開しています。
 
-The package does not perform any aggregation of the measurements itself. Instead, it provides a reporter with the Telemetry event-as-measurement definition and the reporter uses that definition to perform aggregations and report them.
+このパッケージは、測定値自体の集計を行いません。代わりに、レポーターにTelemetry event-as-measurementsの定義を提供し、レポーターはその定義を使用して集計を実行し、それらをレポートします。
 
-We will discuss
-reporters in the next section.
-
-Let's take a look at some examples.
-
-Using `Telemetry.Metrics`, you can define a counter metric,
-which counts how many HTTP requests were completed:
+レポーターについては、次のセクションで説明します。 いくつかの例を見てみましょう。`Telemetry.Metrics` を使って、HTTPリクエストが何回完了したかをカウントするカウンタメトリックを定義できます。
 
 ```elixir
 Telemetry.Metrics.counter("phoenix.endpoint.stop.duration")
 ```
 
-or you could use a distribution metric to see how many
-requests were completed in particular time buckets:
+また、特定の時間帯のバケットでどれだけのリクエストが完了したかを見るために、distributionメトリックを使うこともできます。
 
 ```elixir
 Telemetry.Metrics.distribution("phoenix.endpoint.stop.duration", buckets: [100, 200, 300])
 ```
 
-This ability to introspect HTTP requests is really powerful --
-and this is but one of _many_ telemetry events emitted by
-the Phoenix framework! We'll discuss more of these events,
-as well as specific patterns for extracting valuable data
-from Phoenix/Plug events in the
-[Phoenix Metrics](#phoenix-metrics) section later in this
-guide.
+HTTPリクエストをイントロスペクトするこの機能は本当に強力です -- これはPhoenixフレームワークが発する _多くの_ telemetryイベントの1つに過ぎません！これらのイベントの詳細と、Phoenix/Plugイベントから貴重なデータを抽出するための特定のパターンについては、このガイドの後の [Phoenix Metrics](#phoenix-metrics) のセクションで説明します。
 
-> The full list of `:telemetry` events emitted from Phoenix,
-along with their measurements and metadata, is available in
-the "Instrumentation" section of the `Phoenix.Logger` module
-documentation.
+ > Phoenixから放出される `:telemetry` イベントの完全なリストと、その測定値とメタデータは、`Phoenix.Logger` モジュールのドキュメントの "Instrumentation" セクションにあります。
 
-### An Ecto Example
 
-Like Phoenix, Ecto ships with built-in Telemetry events.
-This means that you can gain introspection into your web
-and database layers using the same tools.
 
-Here is an example of a Telemetry event executed by Ecto when an Ecto repository starts:
+### Ectoの例
 
-* `[:ecto, :repo, :init]` - dispatched by
-  `Ecto.Repo.Supervisor`
+Phoenixと同様に、EctoにはTelemetryイベントが組み込まれています。これは、同じツールを使ってWebやデータベース層の内観を得ることができることを意味します。 ここでは、Ectoリポジトリの起動時にEctoによって実行されるTelemetryイベントの例を示します。
 
+* `[:ecto, :repo, :init]` - `Ecto.Repo.Supervisor` によってディスパッチされます
   * Measurement: `%{system_time: native_time}`
+  * Metadata: `%{repo: Ecto.Repo, opts: Keyword.t()}`  
 
-  * Metadata: `%{repo: Ecto.Repo, opts: Keyword.t()}`
-
-This means that whenever the `Ecto.Repo.Supervisor` starts, it will emit an event, via `:telemetry`,
-with a measurement of the time at start-up.
+これは、`Ecto.Repo.Supervisor` が起動するたびに、`:telemetry` を介して起動時の時間を計測したイベントを発することを意味します。
 
 ```elixir
 :telemetry.execute([:ecto, :repo, :init], %{system_time: System.system_time()}, %{repo: repo, opts: opts})
 ```
 
-Additional Telemetry events are executed by Ecto adapters.
+追加のTelemetryイベントは、Ectoアダプターによって実行されます。
 
-One such adapter-specific event is the `[:my_app, :repo, :query]` event.
-For instance, if you want to graph query execution time, you can use the `Telemetry.Metrics.summary/2` function to instruct your reporter to calculate statistics of the `[:my_app, :repo, :query]` event, like maximum, mean, percentiles etc.:
+このようなアダプター固有のイベントのひとつに `[:my_app, :repo, :query]` イベントがあります。
+たとえば、クエリの実行時間をグラフ化したい場合は、`Telemetry.Metrics.summary/2` 関数を使って `[:my_app, :repo, :query]` イベントの最大値、平均値、パーセンタイルなどの統計情報を計算するようにレポーターに指示できます。
 
 ```elixir
 Telemetry.Metrics.summary("my_app.repo.query.query_time",
@@ -237,7 +183,7 @@ Telemetry.Metrics.summary("my_app.repo.query.query_time",
 )
 ```
 
-Or you could use the `Telemetry.Metrics.distribution/2` function to define a histogram for another adapter-specific event: `[:my_app, :repo, :query, :queue_time]`, thus visualizing how long queries spend queued:
+あるいは、`Telemetry.Metrics.distribution/2` 関数を使用して、別のアダプター固有のイベントのヒストグラムを定義することもできます。このようにして、クエリがキューに入れられている時間を可視化できます。
 
 ```elixir
 Telemetry.Metrics.distribution("my_app.repo.query.queue_time",
@@ -245,25 +191,14 @@ Telemetry.Metrics.distribution("my_app.repo.query.queue_time",
   buckets: [10, 50, 100]
 )
 ```
+> [`Ecto.Repo`](https://hexdocs.pm/ecto/Ecto.Repo.html)モジュールのドキュメントの「Telemetry Events」のセクションで、Ecto Telemetryについての詳細を知ることができます。
+ 
+ここまでで、Phoenixアプリケーションに共通するTelemetryイベントのいくつかを、さまざまな測定値やメタデータの例とともに見てきました。これらのデータが消費されるのを待っている間に、レポーターについて話をしましょう。
 
-> You can learn more about Ecto Telemetry in the "Telemetry
-Events" section of the
-[`Ecto.Repo`](https://hexdocs.pm/ecto/Ecto.Repo.html) module
-documentation.
 
-So far we have seen some of the Telemetry events common to
-Phoenix applications, along with some examples of their
-various measurements and metadata. With all of this data
-just waiting to be consumed, let's talk about reporters.
+## レポーター
 
-## Reporters
-
-Reporters subscribe to Telemetry events using the common
-interface provided by `Telemetry.Metrics`. They then
-aggregate the measurements (data) into metrics to provide
-meaningful information about your application.
-
-For example, if the following `Telemetry.Metrics.summary/2` call is added to the `metrics/0` function of your Telemetry supervisor:
+レポーターは、`Telemetry.Metrics` で提供される共通のインターフェイスを使ってTelemetryイベントをsubscribeします。そして、測定値（データ）をメトリクスに集約し、アプリケーションに関する意味のある情報を提供します。 たとえば、次の `Telemetry.Metrics.summary/2` 呼び出しがTelemetryスーパーバイザーの `metrics/0` 関数に追加されたとします。
 
 ```elixir
 summary("phoenix.endpoint.stop.duration",
@@ -271,59 +206,37 @@ summary("phoenix.endpoint.stop.duration",
 )
 ```
 
-Then the reporter will attach a listener for the `"phoenix.endpoint.stop.duration"` event and will respond to this event by calculating a summary metric with the given event metadata and reporting on that metric to the appropriate source.
+その後、レポーターは `"phoenix.endpoint.stop.duration"` イベントのリスナーをアタッチし、与えられたイベントメタデータでサマリーメトリックを計算して適切なソースにそのメトリックをレポートすることでこのイベントに応答します。
+
+
+
 
 ### Phoenix.LiveDashboard
 
-For developers interested in real-time visualizations for
-their Telemetry metrics, you may be interested in installing
-[`LiveDashboard`](https://hexdocs.pm/phoenix_live_dashboard).
-LiveDashboard acts as a Telemetry.Metrics reporter to render
-your data as beautiful, real-time charts on the dashboard.
+Telemetryメトリクスのリアルタイムビジュアライゼーションに興味がある開発者は、 [`LiveDashboard`](https://hexdocs.pm/phoenix_live_dashboard) をインストールすることに興味があるかもしれません。LiveDashboardはTelemetry.Metricsのレポーターとして機能し、ダッシュボード上にリアルタイムで美しいチャートとしてデータを表示します。 
 
 ### Telemetry.Metrics.ConsoleReporter
 
-`Telemetry.Metrics` ships with a `ConsoleReporter` that can
-be used to print events and metrics to the terminal. You can
-use this reporter to experiment with the metrics discussed in
-this guide.
+`Telemetry.Metrics` には `ConsoleReporter` が同梱されています。このレポーターを使って、このガイドで説明されているメトリクスを試すことができます。 Telemetryのスーパーバイザーツリー（通常は `lib/my_app_web/telemetry.ex` にあります）の子リストに、以下の項目をアンコメントするか、追加してください。
 
-Uncomment or add the following to this list of children in
-your Telemetry supervision tree (usually in
-`lib/my_app_web/telemetry.ex`):
 
 ```elixir
 {Telemetry.Metrics.ConsoleReporter, metrics: metrics()}
 ```
 
-> There are numerous reporters available, for services like
-> StatsD, Prometheus, and more. You can find them by
-> searching for "telemetry_metrics" on [hex.pm](https://hex.pm/packages?search=telemetry_metrics).
+> StatsDやPrometheusなどのサービスでは、多数のレポーターが利用可能です。[hex.pm](https://hex.pm/packages?search=telemetry_metrics)で "telemetry_metrics" と検索すると出てきます。
 
-## Phoenix Metrics
+## Phoenixメトリクス
 
-Earlier we looked at the "stop" event emitted by
-`Plug.Telemetry`, and used it to count the number of HTTP
-requests. In reality, it's only somewhat helpful to be
-able to see just the total number of requests. What if you
-wanted to see the number of requests per route, or per route
-_and_ method?
+先ほど、`Plug.Telemetry` が発する "stop" イベントを見て、HTTPリクエストの数をカウントするのに使いました。実際には、リクエストの総数だけを見ることができるのはある程度便利なだけです。ルートごと、あるいはルート _と_ メソッドごとのリクエスト数を見たい場合はどうでしょうか？
 
-Let's take a look at another event emitted during the HTTP
-request lifecycle, this time from `Phoenix.Router`:
+HTTPリクエストのライフサイクル中に発生する別のイベントを見てみましょう。今回は `Phoenix.Router` です。
 
-* `[:phoenix, :router_dispatch, :stop]` - dispatched by
-  Phoenix.Router after successfully dispatching to a matched
-  route
+* `[:phoenix, :router_dispatch, :stop]` - 一致したルートへのディスパッチに成功した後、Phoenix.Router によってディスパッチされます
+* Measurement: `%{duration: native_time}`
+* Metadata: `%{conn: Plug.Conn.t, route: binary, plug: module, plug_opts: term, path_params: map, pipe_through: [atom]}` 
 
-  * Measurement: `%{duration: native_time}`
-
-  * Metadata: `%{conn: Plug.Conn.t, route: binary, plug: module, plug_opts: term, path_params: map, pipe_through: [atom]}`
-
-Let's start by grouping these events by route. Add the
-following (if it does not already exist) to the `metrics/0`
-function of your Telemetry supervisor (usually in
-`lib/my_app_web/telemetry.ex`):
+これらのイベントをルートごとにグループ化することから始めましょう。Telemetryスーパーバイザーの `metrics/0` 関数（通常は `lib/my_app_web/telemetry.ex` にあります）に以下を追加します（まだ存在していなければ）。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -338,44 +251,22 @@ def metrics do
 end
 ```
 
-Restart your server, and then make requests to a page or two.
-In your terminal, you should see the ConsoleReporter print
-logs for the Telemetry events it received as a result of
-the metrics definitions you provided.
+サーバーを再起動してから、1～2ページにリクエストを出してください。ターミナルでは、提供したメトリクス定義の結果として受け取ったTelemetryイベントのログをConsoleReporterがprintしているのを見ることができるはずです。
 
-The log line for each request contains the specific route
-for that request. This is due to specifying the `:tags`
-option for the summary metric, which takes care of our first
-requirement; we can use `:tags` to group metrics by route.
-Note that reporters will necessarily handle tags differently
-depending on the underlying service in use.
+各リクエストのログ行には、そのリクエストの特定のルートが含まれています。これは、サマリーメトリックに `:tags` オプションを指定したことによるもので、`tags` によってルートごとにメトリクスをグループ化でき、最初の要件を満たしています。レポーターは、使用している基礎となるサービスに応じて、必然的にタグの扱いが異なることに注意してください。
 
-Looking more closely at the Router "stop" event, you can see
-that the `Plug.Conn` struct representing the request is
-present in the metadata, but how do you access the
-properties in `conn`?
+ルータの "stop" イベントをよく見ると、リクエストを表す `Plug.Conn` 構造体がメタデータに存在することがわかりますが、`conn` のプロパティにはどうやってアクセスするのでしょうか？幸いなことに、`Telemetry.Metrics` は、イベントを分類するのに役立つ次のオプションを提供しています。 
 
-Fortunately, `Telemetry.Metrics` provides the following
-options to help you classify your events:
+* `:tag` - グループ化するためのメタデータキーのリスト
+* `:tag_values` - メタデータを目的のフォーマットに変換する関数です。この関数はイベントごとに呼び出されるので、イベントの発生率が高い場合は高速に処理することが重要です。
 
-* `:tags` - A list of metadata keys for grouping;
+> すべての利用可能なメトリクスオプションについて `Telemetry.Metrics` モジュールのドキュメントを参照ください。
 
-* `:tag_values` - A function which transforms the metadata
-  into the desired shape; Note that this function is called
-  for each event, so it's important to keep it fast if the
-  rate of events is high.
+メタデータに `conn` を含むイベントから、より多くのタグを抽出する方法を見てみましょう。
 
-> Learn about all the available metrics options in the
-`Telemetry.Metrics` module documentation.
+### Plug.Connからtag valueを抽出する
 
-Let's find out how to extract more tags from events that
-include a `conn` in their metadata.
-
-### Extracting tag values from Plug.Conn
-
-Let's add another metric for the route event, this time to
-group by route and method:
-
+ルートイベントに別のメトリックを追加し、今回はルートとメソッドでグループ化してみましょう。
 ```elixir
 summary("phoenix.router_dispatch.stop.duration",
   tags: [:method, :route],
@@ -384,12 +275,7 @@ summary("phoenix.router_dispatch.stop.duration",
 )
 ```
 
-We've introduced the `:tag_values` option here, because we
-need to perform a transformation on the event metadata in
-order to get to the values we need.
-
-Add the following private function to your Telemetry module
-to lift the `:method` value from the `Plug.Conn` struct:
+必要な値を得るためにはイベントのメタデータに変換を行う必要があるため、ここでは `:tag_values` オプションを導入しました。次のプライベート関数をTelemetryモジュールに追加して、`Plug.Conn` 構造体から `:method` の値を持ち出すようにします。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -398,18 +284,13 @@ defp get_and_put_http_method(%{conn: %{method: method}} = metadata) do
 end
 ```
 
-Restart your server and make some more requests. You should
-begin to see logs with tags for both the HTTP method and the
-route.
+サーバーを再起動して、さらにリクエストを行います。HTTPメソッドとルートの両方にタグが付いたログが表示されるようになるはずです。オプション `:tags` と `:tag_values` は、すべての `Telemetry.Metrics` タイプに適用できることに注意してください。
 
-Note the `:tags` and `:tag_values` options can be applied to
-all `Telemetry.Metrics` types.
+### tag valueを使ってラベルを変更する
 
-### Renaming value labels using tag values
+メトリックを表示する際に、読みやすさを向上させるために値のラベルを変換する必要がある場合があります。たとえば、次のメトリックは、各LiveViewの `mount/3` コールバックの持続時間を `connected?` ステータスを利用して表示します。
 
-Sometimes when displaying a metric, the value label may need to be transformed
-to improve readability. Take for example the following metric that displays the
-duration of the each LiveView's `mount/3` callback by `connected?` status.
+
 
 ```elixir
 summary("phoenix.live_view.mount.stop.duration",
@@ -419,9 +300,7 @@ summary("phoenix.live_view.mount.stop.duration",
 )
 ```
 
-The following function lifts `metadata.socket.view` and
-`metadata.socket.connected?` to be top-level keys on `metadata`, as we did in
-the previous example.
+次の関数は、前の例と同様に `metadata.socket.view` と `metadata.socket.connected?` を `metadata` のtop-levelキーにします。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -432,13 +311,9 @@ defp live_view_metric_tag_values(metadata) do
 end
 ```
 
-However, when rendering these metrics in LiveDashboard, the value label is
-output as `"Elixir.Phoenix.LiveDashboard.MetricsLive true"`.
+しかし、これらのメトリクスをLiveDashboardでレンダリングすると、値のラベルは `"Elixir.Phoenix.LiveDashboard.MetricsLive true"` として出力されます。
 
-To make the value label easier to read, we can update our private function to
-generate more user friendly names. We'll run the value of the `:view` through
-`inspect/1` to remove the `Elixir.` prefix and call another private function to
-convert the `connected?` boolean into human readable text.
+値のラベルを読みやすくするために、プライベート関数を更新して、よりユーザーフレンドリーな名前を生成できます。ここでは、`:view` の値を `inspect/1` で実行して `Elixir.` 接頭辞を削除し、別のプライベート関数を呼び出して `connected?` ブール値を人間が読めるテキストに変換します。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -452,27 +327,13 @@ defp get_connection_status(%{connected?: true}), do: "Connected"
 defp get_connection_status(%{connected?: false}), do: "Disconnected"
 ```
 
-Now the value label will be rendered like `"Phoenix.LiveDashboard.MetricsLive
-Connected"`.
+これで `:tag_values` オプションの使い方のヒントが得られたと思います。この関数はイベントごとに呼び出されるので、高速にしておくことを覚えておいてください。
 
-Hopefully, this gives you some inspiration on how to use the `:tag_values`
-option. Just remember to keep this function fast since it is called on every
-event.
+## 定期的な測定
 
+アプリケーション内のキー値を定期的に測定したいと思うかもしれません。幸いなことに、[`:telemetry_poller`](http://hexdocs.pm/telemetry_poller) パッケージはカスタム測定のためのメカニズムを提供しており、プロセス情報を取得したり、カスタム測定を定期的に実行したりするのに便利です。
 
-## Periodic measurements
-
-You might want to periodically measure key values within
-your application. Fortunately the
-[`:telemetry_poller`](http://hexdocs.pm/telemetry_poller)
-package provides a mechanism for custom measurements,
-which is useful for retrieving process information or for
-performing custom measurements periodically.
-
-Add the following to the list in your Telemetry supervisor's
-`periodic_measurements/0` function, which is a private
-function that returns a list of measurements to take on a
-specified interval.
+Telemetryスーパーバイザーの `periodic_measurements/0` 関数のリストに以下を追加してください。これは、指定した間隔で測定する測定値のリストを返すプライベート関数です。
 
 ```elixir
 # lib/my_app_web/telemetry.ex
@@ -487,7 +348,7 @@ defp periodic_measurements do
 end
 ```
 
-where `MyApp.measure_users/0` could be written like this:
+ここで、`MyApp.measure_users/0` は次のように書くことができます。
 
 ```elixir
 # lib/my_app.ex
@@ -498,9 +359,7 @@ defmodule MyApp do
 end
 ```
 
-Now with measurements in place, you can define the metrics for the
-events above:
-
+これで、測定値が配置された状態で、上記のイベントのメトリクスを定義することができるようになりました。
 ```elixir
 # lib/my_app_web/telemetry.ex
 def metrics do
@@ -516,17 +375,14 @@ def metrics do
 end
 ```
 
-> You will implement MyApp.MyServer in the
-[Custom Events](#custom-events) section.
+> [カスタムイベント](#custom-events)セクションでMyApp.MyServerを実装します。
 
-## Libraries using Telemetry
+## Telemetryを使用したライブラリ
 
-Telemetry is quickly becoming the de-facto standard for
-package instrumentation in Elixir. Here is a list of
-libraries currently emitting `:telemetry` events.
+Telemetryは、Elixirのパッケージ計測のデファクトスタンダードになりつつあります。現在 `:telemetry` イベントを発行しているライブラリのリストを以下に示します。
 
-Library authors are actively encouraged to send a PR adding
-their own (in alphabetical order, please):
+ライブラリの作者は、自分のライブラリを追加してPRを送ることを積極的に奨励しています（アルファベット順でお願いします）
+
 
 * [Absinthe](https://hexdocs.pm/absinthe) - Coming Soon!
 * [Broadway](https://hexdocs.pm/broadway) - [Events](https://hexdocs.pm/broadway/Broadway.html#module-telemetry)
@@ -536,16 +392,11 @@ their own (in alphabetical order, please):
 * [Plug](https://hexdocs.pm/plug) - [Events](https://hexdocs.pm/plug/Plug.Telemetry.html)
 * [Tesla](https://hexdocs.pm/tesla) - [Events](https://hexdocs.pm/tesla/Tesla.Middleware.Telemetry.html)
 
-## Custom Events
+## カスタムイベント
 
-If you need custom metrics and instrumentation in your
-application, you can utilize the `:telemetry` package
-(https://hexdocs.pm/telemetry) just like your favorite
-frameworks and libraries.
+アプリケーションにカスタムメトリクスや計測器が必要な場合は、お気に入りのフレームワークやライブラリと同じように `:telemetry` パッケージ（https://hexdocs.pm/telemetry）を利用できます。
 
-Here is an example of a simple GenServer that emits telemetry
-events. Create this file in your app at
-`lib/my_app/my_server.ex`:
+ここでは、Telemetryイベントを発するシンプルなGenServerの例を示します。このファイルをアプリ内の `lib/my_app/my_server.ex` に作成します。
 
 ```elixir
 # lib/my_app/my_server.ex
@@ -659,9 +510,7 @@ defmodule MyApp.MyServer do
 end
 ```
 
-and add it to your application's supervisor tree (usually in
-`lib/my_app/application.ex`), giving it a function to invoke
-when called:
+これをアプリケーションのスーパーバイザーツリー（通常は `lib/my_app/application.ex`）に追加し、呼び出されたときに呼び出される関数を与えます。
 
 ```elixir
 # lib/my_app/application.ex
@@ -671,13 +520,13 @@ children = [
 ]
 ```
 
-Now start an IEx session and call the server:
+ここでIExセッションを開始し、サーバーを呼び出します。
 
 ```elixir
 iex(1)> MyApp.MyServer.call!
 ```
 
-and you should see something like the following output:
+すると、次のような出力が表示されるはずです。
 
 ```elixir
 [Telemetry.Metrics.ConsoleReporter] Got new event!
