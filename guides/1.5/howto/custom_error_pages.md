@@ -2,17 +2,17 @@
 layout: 1.5/layout
 version: 1.5
 group: howto
-title: Custom Error Pages
+title: カスタムエラーページ
 nav_order: 1
-hash: e2de6e66
+hash: 42dbbfaf
 ---
-# Custom Error Pages
+# カスタムエラーページ
 
-Phoenix has a view called the `ErrorView` which lives in `lib/hello_web/views/error_view.ex`. The purpose of the `ErrorView` is to handle errors in a general way, from one centralized location.
+Phoenixには `ErrorView` というビューがあり、 `lib/hello_web/views/error_view.ex` にあります。この `ErrorView` の目的は、一般的な方法で一元的にエラーを処理することです。
 
-## The ErrorView
+## ErrorView
 
-For new applications, the ErrorView looks like this:
+新しいアプリケーションの場合、ErrorViewは次のようになります。
 
 ```elixir
 defmodule HelloWeb.ErrorView do
@@ -33,7 +33,7 @@ defmodule HelloWeb.ErrorView do
 end
 ```
 
-Before we dive into this, let's see what the rendered `404 not found` message looks like in a browser. In the development environment, Phoenix will debug errors by default, showing us a very informative debugging page. What we want here, however, is to see what page the application would serve in production. In order to do that we need to set `debug_errors: false` in `config/dev.exs`.
+これに飛び込む前に、レンダリングされた `404 not found` メッセージがブラウザ上でどのように見えるか見てみましょう。開発環境では、Phoenixはデフォルトでエラーをデバッグし、非常に有益なデバッグページを表示します。しかし、ここで私たちが知りたいのは、アプリケーションが本番環境でどのようなページを表示するのかを見ることです。そのためには、`config/dev.exs` で `debug_errors: false` を設定する必要があります。
 
 ```elixir
 use Mix.Config
@@ -45,11 +45,11 @@ config :hello, HelloWeb.Endpoint,
   . . .
 ```
 
-After modifying our config file, we need to restart our server in order for this change to take effect. After restarting the server, let's go to [http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path) for a running local application and see what we get.
+設定ファイルを変更した後、この変更を有効にするにはサーバーを再起動する必要があります。サーバーを再起動した後、ローカルアプリケーションの [http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path) にアクセスして、何が得られるか見てみましょう。
 
-Ok, that's not very exciting. We get the bare string "Not Found", displayed without any markup or styling.
+さて、これはあまりエキサイティングではありません。マークアップもスタイリングもせずに、"Not Found" という文字列が表示されます。
 
-The first question is, where does that error string come from? The answer is right in the `ErrorView`.
+最初の質問は、そのエラー文字列はどこから来ているのかということです。答えは `ErrorView` の中にあります。
 
 ```elixir
 def template_not_found(template, _assigns) do
@@ -57,9 +57,9 @@ def template_not_found(template, _assigns) do
 end
 ```
 
-Great, so we have this `template_not_found/2` function that takes a template and an `assigns` map, which we ignore. The `template_not_found/2` is invoked whenever a Phoenix.View attempts to render a template bu tno template is found.
+良いですね。`template_not_found/2` 関数はテンプレートと `assigns` マップを受け取りますが、`assigns` は無視します。`template_not_found/2` は、Phoenix.Viewがテンプレートをレンダリングしようとしてもテンプレートが見つからない場合に呼び出されます。
 
-In order words, to provide custom error pages, we could simply define a the proper `render/2` function clause in `HelloWeb.ErrorView`.
+つまり、カスタムエラーページを提供するために、`HelloWeb.ErrorView` の中に適切な `render/2` 関数節を定義できます。
 
 ```elixir
 def render("404.html", _assigns) do
@@ -67,9 +67,9 @@ def render("404.html", _assigns) do
 end
 ```
 
-But we can do even better.
+しかし、私たちはもっと良いことができます。
 
-Phoenix generates an `ErrorView` for us, but it doesn't give us a `lib/hello_web/templates/error` directory. Let's create one now. Inside our new directory, let's add a template, `404.html.eex` and give it some markup - a mixture of our application layout and a new `div` with our message to the user.
+Phoenixは `ErrorView` を生成してくれますが、`lib/hello_web/templates/error` ディレクトリを与えてくれません。それでは、ディレクトリを作成してみましょう。新しいディレクトリの中に `404.html.eex` というテンプレートを追加して、アプリケーションのレイアウトとユーザーへのメッセージを含む新しい `div` をマークアップしてみましょう。
 
 ```html
 <!DOCTYPE html>
@@ -108,13 +108,13 @@ Phoenix generates an `ErrorView` for us, but it doesn't give us a `lib/hello_web
 </html>
 ```
 
-Now when we go back to [http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path), we should see a much nicer error page. It is worth noting that we did not render our `404.html.eex` template through our application layout, even though we want our error page to have the look and feel of the rest of our site. This is to avoid circular errors. For example, what happens if our application failed due to an error in the layout? Attempting to render the layout again will just trigger another error. So ideally we want to minimize the amount of dependencies and logic in our error templates, sharing only what is necessary.
+さて、[http://localhost:4000/such/a/wrong/path](http://localhost:4000/such/a/wrong/path)に戻ると、より良いエラーページが表示されるはずです。エラーページをサイトの残りの部分と同じような見た目にしたいのに、アプリケーションのレイアウトで `404.html.eex` テンプレートをレンダリングしなかったことは注目に値します。これは循環エラーを避けるためです。たとえば、アプリケーションがレイアウトのエラーで失敗した場合はどうなるでしょうか？レイアウトを再度レンダリングしようとすると、別のエラーが発生します。そのため、理想的には、エラーテンプレートの依存関係やロジックの量を最小限に抑え、必要なものだけを共有したいと考えています。
 
-## Custom Exceptions
+## カスタムの例外
 
-Elixir provides a macro called `defexception` for defining custom exceptions. Exceptions are represented as structs, and structs need to be defined inside of modules.
+Elixirには、カスタム例外を定義するための `defexception` というマクロがあります。例外は構造体として表現され、構造体はモジュール内で定義する必要があります。
 
-In order to create a custom exception, we need to define a new module. Conventionally this will have "Error" in the name. Inside of that module, we need to define a new exception with `defexception`.
+カスタム例外を作成するためには、新しいモジュールを定義する必要があります。通常、このモジュールの名前には "Error" が含まれています。このモジュールの中に、`defexception` で新しい例外を定義する必要があります。
 
 ```elixir
 defmodule MyApp.SomethingNotFoundError do
@@ -122,15 +122,15 @@ defmodule MyApp.SomethingNotFoundError do
 end
 ```
 
-You can raise your new exception like this:
+このように新しい例外を上げることができます。
 
 ```elixir
 raise MyApp.SomethingNotFoundError, "oops"
 ```
 
-By default, Plug and Phoenix will treat all exceptions as 500 errors. However, Plug provides a protocol called `Plug.Exception` where we are able to customize the status and add actions that exception structs can returns on the debug error page.
+デフォルトでは、PlugとPhoenixはすべての例外を500のエラーとして扱います。しかし、プラグは `Plug.Exception` というプロトコルを提供しています。このプロトコルでは、ステータスをカスタマイズしたり、例外構造体がデバッグエラーページに返すアクションを追加したりできます。
 
-If we wanted to supply a status of 404 for an `MyApp.SomethingNotFoundError`, we could do it by defining an implementation for the `Plug.Exception` protocol like this:
+`MyApp.SomethingNotFoundError` に対して404のステータスを提供したい場合は、次のように `Plug.Exception` プロトコルの実装を定義することで行うことができます。
 
 ```elixir
 defimpl Plug.Exception, for: MyApp.SomethingNotFoundError do
@@ -139,7 +139,7 @@ defimpl Plug.Exception, for: MyApp.SomethingNotFoundError do
 end
 ```
 
-Alternatively, you could define a `plug_status` field directly in the exception struct:
+あるいは、例外構造体の中で `plug_status` フィールドを直接定義することもできます。
 
 ```elixir
 defmodule MyApp.SomethingNotFoundError do
@@ -147,15 +147,15 @@ defmodule MyApp.SomethingNotFoundError do
 end
 ```
 
-However, implementing the `Plug.Exception` protocol by hand can be convenient in certain occasions, such as when providing Actionable ERrors.
+しかし、アクション可能なエラーを提供する場合など、`Plug.Exception` プロトコルを手作業で実装しておくと便利な場合があります。
 
-## Actionable Errors
+## アクション可能なエラー
 
-Exception actions are functions that can be triggered by the error page, it is basically a list of maps defining a `label` and a `handler` to be executed.
+例外アクションはエラーページからトリガーされる関数で、基本的には `label` と `handler` を定義したマップのリストです。
 
-It is rendered in the error page as a collection of buttons and follows the format of: `[%{label: String.t(), handler: {module(), function :: atom(), args :: []}}]`.
+エラーページではボタンの集合として表示され、以下の形式で表示されます。の形式に従います: `[%{label: String.t(), handler: {module(), function :: atom(), args :: []}}]`.
 
-If we wanted to return some actions for an `MyApp.SomethingNotFoundError` we would implement `Plug.Exception` like this:
+`MyApp.SomethingNotFoundError` に対して何らかのアクションを返したい場合は、次のように `Plug.Exception` を実装します。
 
 ```elixir
 defimpl Plug.Exception, for: MyApp.SomethingNotFoundError do
