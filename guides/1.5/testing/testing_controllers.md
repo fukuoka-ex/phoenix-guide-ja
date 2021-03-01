@@ -2,27 +2,27 @@
 layout: 1.5/layout
 version: 1.5
 group: testing
-title: Testing Controllers
+title: コントローラーのテスト
 nav_order: 3
-hash: f08d6839
+hash: 4ee3484f
 ---
-# Testing Controllers
+# コントローラーのテスト
 
-> **Requirement**: This guide expects that you have gone through the introductory guides and got a Phoenix application up and running.
+> **前提**: このガイドでは、入門ガイドの内容を理解し、Phoenixアプリケーションを実行していることを前提としています
 
-> **Requirement**: This guide expects that you have gone through [the Introduction to Testing guide](testing.html).
+> **前提**: このガイドでは[テストの導入ガイド](testing.html)を前提としています
 
-At the end of the Introduction to Testing guide, we generated an HTML resource for posts using the following command:
+テスト入門ガイドの最後に、以下のコマンドを使って投稿用のHTMLリソースを生成しました。
 
 ```console
 $ mix phx.gen.html Blog Post posts title body:text
 ```
 
-This gave us a number of modules for free, including a PostController and the associated tests. We are going to explore those tests to learn more about testing controllers in general. At the end of the guide, we will generate a JSON resource, and explore how our API tests look like.
+これにより、PostControllerとそれに関連するテストを含む多くのモジュールが無料で提供されました。ここでは、一般的なコントローラーのテストについて学ぶために、これらのテストを探索していきます。ガイドの最後に、JSONリソースを生成し、APIテストがどのように見えるかを探っていきます。
 
-## HTML controller tests
+## HTMLコントローラーのテスト
 
-If you open up "test/hello_web/controllers/post_controller.exs", you will find the following:
+`test/hello_web/controllers/post_controller_test.exs` を開くと次のようになっています。
 
 ```elixir
 defmodule HelloWeb.PostControllerTest do
@@ -42,11 +42,11 @@ defmodule HelloWeb.PostControllerTest do
   ...
 ```
 
-Similar to the `PageControllerTest` that shops with our application, this controller tests uses `use HelloWeb.ConnCase` to setup the testing structure. Then, as usual, it defines some aliases, some module attributes to use throughout testing, and then it starts a series of `describe` blocks, each of them to test a different controller action.
+アプリケーションに同梱されている `PageControllerTest` と同様に、このコントローラーテストでは `use HelloWeb.ConnCase` を使用してテスト構造を設定します。そして、いつものようにエイリアスを定義し、テスト中に使用するモジュールの属性を定義し、一連の `describe` ブロックを開始します。
 
-### The index action
+### indexアクション
 
-The first describe block is for the `index` action. The action itself is implemented like this in `lib/hello_web/controllers/post_controller.ex`:
+最初の記述ブロックは `index` アクションのためのものです。アクション自体は `lib/hello_web/controllers/post_controller.ex` のように実装されています。
 
 ```elixir
 def index(conn, _params) do
@@ -55,11 +55,11 @@ def index(conn, _params) do
 end
 ```
 
-It gets all posts and renders the "index.html" template. The template can be found in "lib/hello_web/templates/page/index.html.eex".
+すべての投稿を取得し、"index.html" テンプレートをレンダリングします。テンプレートは "lib/hello_web/templates/page/index.html.eex" にあります。
 
-The test looks like this:
+テストは次の通りです。
 
-```elixi
+```elixir
 describe "index" do
   test "lists all posts", %{conn: conn} do
     conn = get(conn, Routes.post_path(conn, :index))
@@ -68,11 +68,11 @@ describe "index" do
 end
 ```
 
-The test for the `index` page is quite straight-forward. It uses the `get/2` helper to make a request to the "/posts" page, returned by `Routes.post_path(conn, :index)`, then we assert we got a successful HTML response and match on its contents.
+`index` ページのテストは非常に簡単です。これは `Routes.post_path(conn, :index)` が返す "/posts" ページへのリクエストを行うために `get/2` ヘルパーを使います。
 
-### The create action
+### createアクション
 
-The next test we will look at is the one for the `create` action. The `create` action implementation is this:
+次に見るのは `create` アクションのテストである。`create` アクションの実装は次の通りです。
 
 ```elixir
 def create(conn, %{"post" => post_params}) do
@@ -88,7 +88,7 @@ def create(conn, %{"post" => post_params}) do
 end
 ```
 
-Since there are two possible outcomes for the `create`, we will have at least two tests:
+`create` には2つの結果が考えられるので、少なくとも2つのテストが必要です。
 
 ```elixir
 describe "create post" do
@@ -109,13 +109,13 @@ describe "create post" do
 end
 ```
 
-The first test starts with a `post/2` request. That's because once the form in the "/posts/new" page is submitted, it becomes a POST request to the create action. Because we have supplied valid attributes, the post should have been successfully created and we should have redirected to the show action of the new post. This new page will have an address like "/posts/ID", where ID is the identifier of the post in the database.
+最初のテストは `post/2` リクエストから始まります。これは "/posts/new" ページのフォームがsubmitされると、createアクションへのPOSTリクエストになるからです。有効なattributeを渡したので、投稿は正常に作成され、新しい投稿のshowアクションにリダイレクトされているはずです。この新しいページは "/posts/ID" のようなアドレスを持つことになります。IDはデータベース内での投稿のidentifierです。
 
-We then use `redirected_params(conn)` to get the ID of the post and then match that we indeed redirected to the show action. Finally, we do request a `get` request to the page we redirected to, allowing us to verify that the post was indeed created.
+次に `redirected_params(conn)` を使って投稿のIDを取得し、実際にshowアクションにリダイレクトされたことを確認します。最後に、リダイレクト先のページへの `get` リクエストを行い、投稿が本当に作成されたかどうかを確認します。
 
-For the second test, we simply test the failure scenario. If any invalid attribute is given, it should re-render the "New Post" page.
+2つめのテストでは、単純に失敗のシナリオをテストします。無効なattributeが与えられた場合、"New Post" ページを再レンダリングする必要があります。
 
-One common question is: how many failure scenarios do you test at the controller level? For example, in the [Testing Contexts](testing_contexts.html) guide, we introduced a validation to the `title` field of the post:
+よくある質問としては、コントローラーレベルでどれだけの失敗シナリオをテストしているのかということです。たとえば、[コンテキストのテスト](testing_contexts.html)ガイドでは、投稿の `title` フィールドにバリデーションを導入しています。
 
 ```elixir
 def changeset(post, attrs) do
@@ -126,21 +126,21 @@ def changeset(post, attrs) do
 end
 ```
 
-In other words, creating a post can fail for the following reasons:
+つまり、投稿を作成すると以下のような理由で失敗することがあります。
 
-  * the title is missing
-  * the body is missing
-  * the title is present but is less than 2 characters
+  * titleがない
+  * bodyがない
+  * titleは存在するが、2文字未満
 
-Should we test all of these possible outcomes in our controller tests?
+コントローラーのテストでは、これらの可能性のある結果をすべてテストする必要があるのでしょうか？
 
-The answer is no. All of the different rules and outcomes should be verified in your context and schema tests. The controller works as the integration layer. In the controller tests we simply want to verify, in broad strokes, that we handle both success and failure scenarios.
+答えはノーです。異なるルールと結果のすべてを、コンテキストテストとスキーマテストで検証する必要があります。コントローラーは統合レイヤーとして機能します。コントローラーテストでは、成功と失敗の両方のシナリオを処理できるかどうかを大まかに検証したいだけです。
 
-The test for `update` follows a similar structure to the test on `create`, so we let's skip to the `delete` test.
+`update` のテストは `create` のテストと似たような構造をしているので、`delete` のテストに飛びます。
 
-### The delete action
+### deleteアクション
 
-The `delete` action looks like this:
+`delete` アクションは次のようになります。
 
 ```elixir
 def delete(conn, %{"id" => id}) do
@@ -153,7 +153,7 @@ def delete(conn, %{"id" => id}) do
 end
 ```
 
-The test is written like this:
+テストは次の通りです。
 
 ```elixir
   describe "delete post" do
@@ -174,13 +174,13 @@ The test is written like this:
   end
 ```
 
-First of all, `setup` is used to declare that the `create_post` function should run before every test in this `describe` block. The `create_post` function simply creates a post and stores it in the test metadata. This allows us to, in the first line of the test, match on both the post and the connection:
+まず、`describe` ブロック内のすべてのテストの前に `create_post` 関数を実行することを `setup` で宣言します。`create_post` 関数は単に投稿を作成し、それをテストのメタデータに格納します。これにより、テストの最初の行でポストとコネクションの両方をマッチさせることができます。
 
 ```elixir
 test "deletes chosen post", %{conn: conn, post: post} do
 ```
 
-The test uses `delete/2` to delete the post and then asserts that we redirected to the index page. Finally, we check that it is no longer possible to access the show page of the deleted post:
+テストでは `delete/2` を使って投稿を削除し、indexページにリダイレクトしたことをアサートしています。最後に、削除された投稿のshowページにアクセスできなくなったことを確認します。
 
 ```elixir
 assert_error_sent 404, fn ->
@@ -188,12 +188,12 @@ assert_error_sent 404, fn ->
 end
 ```
 
-`assert_error_sent` is a testing helper provided by `Phoenix.ConnTest`. In this case, it verifies that:
+`assert_error_sent` は `Phoenix.ConnTest` が提供するテストヘルパーです。この場合、次のことを検証します。
 
-  1. An exception was raised
-  2. The exception has a status code equivalent to 404 (which stands for Not Found)
+  1. 例外が発生したこと
+  2. この例外は404（Not Foundの略）と同等のステータス・コードであること
 
-This pretty much mimics how Phoenix handles exceptions. For example, when we access "/posts/12345" where 12345 is an ID that does not exist, we will invoke our `show` action:
+これはPhoenixが例外を処理する方法をほぼ真似ています。たとえば、12345が存在しないIDである "/posts/12345" にアクセスした場合、`show` アクションを呼び出します。
 
 ```elixir
 def show(conn, %{"id" => id}) do
@@ -202,9 +202,9 @@ def show(conn, %{"id" => id}) do
 end
 ```
 
-When an unknown post ID is given to `Blog.get_post!/1`, it raises an `Ecto.NotFoundError`. If your application raises any exception during a web request, Phoenix translates those requests into proper HTTP response codes. In this case, 404.
+不明な投稿IDが `Blog.get_post!/1` に与えられると `Ecto.NotFoundError` が発生します。アプリケーションがウェブリクエスト中に例外を発生させた場合、Phoenixはそれらのリクエストを適切なHTTPレスポンスコードに変換します。この場合は404です。
 
-We could, for example, have written this test as:
+たとえば、このテストを次のように書くことができました。
 
 ```elixir
 assert_raise Ecto.NotFoundError, fn ->
@@ -212,23 +212,23 @@ assert_raise Ecto.NotFoundError, fn ->
 end
 ```
 
-However, you may prefer the implementation Phoenix generates by default as it ignores the specific details of the failure, and instead verifies what the browser would actually receive.
+しかし、ブラウザが実際に受け取るであろうものを検証したいため、Phoenixがデフォルトで生成する実装の方が失敗の詳細を無視するため好ましいかもしれません。
 
-The tests for `new`, `edit`, and `show` actions are simpler variations of the tests we have seen so far. You can check the action implementation and their respective tests yourself. Now we are ready to move to JSON controller tests.
+`new`, `edit`, および `show` アクションのテストは、これまでに見てきたテストのよりシンプルなバリエーションです。アクションの実装とそれぞれのテストを自分でチェックできます。これでJSONコントローラーのテストに移る準備ができました。
 
-## JSON controller tests
+## JSONコントローラーのテスト
 
-So far we have been working with a generated HTML resource. However, let's take a look at how our tests look like when we generate a JSON resource.
+これまでは、生成されたHTMLリソースを使って作業してきました。一方で、JSONリソースを生成したときのテストの様子を見てみましょう。
 
-First of all, run this command:
+まず、このコマンドを実行します。
 
 ```console
 $ mix phx.gen.json News Article articles title body
 ```
 
-We choose a very similar concept to the Blog context <-> Post schema, except we are using a different name so we can study these concepts in isolation.
+Blogコンテキスト <-> Postスキーマと非常に似た概念を選択していますが、これらの概念を分離して学習できるように別の名前を使用しています。
 
-After you run the command above, do not forgot to follow the final steps output by the generator. Once all is done, we should run `mix test` and now have 33 passing tests:
+上記のコマンドを実行した後は、ジェネレーターが出力する最後のステップを忘れずに実行してください。すべてが完了したら、`mix test` を実行して、33のテストに合格するようにしましょう。
 
 ```console
 $ mix test
@@ -240,21 +240,21 @@ Finished in 0.6 seconds
 Randomized with seed 618478
 ```
 
-You may have noticed that this time the scaffold controller has generated fewer tests. Previously it generated 16 (we went from 3 to 19) and now it generated 14 (we went from 19 to 33). That's because JSON APIs do not need to expose the `new` and `edit` actions. We can see this is the case in the resource we have added to the router at the end of the `phx.gen.json` command:
+今回、スキャフォールドのコントローラーが生成するテストの数が減ったことにお気づきの方もいらっしゃるかもしれません。以前は16個のテストを生成していましたが（3個から19個）、今回は14個になりました（19個から33個）。これはJSON APIが `new` と `edit` アクションを公開する必要がないからです。これは `mix phx.gen.json` コマンドの最後にルーターに追加したリソースを見ればわかります。
 
 ```elixir
 resources "/articles", ArticleController, except: [:new, :edit]
 ```
 
-`new` and `edit` are only necessary for HTML because they basically exist to assist users in creating and updating resources. Besides having less actions, we will the controller and view tests and implementations for JSON are drastically different from the HTML ones.
+`new` と `edit` は基本的にユーザーがリソースを作成したり更新したりするのを支援するために存在するので、HTMLでは必要なだけです。アクションが少ないことに加えて、コントローラーやビューのテストやJSONの実装はHTMLのものとは大きく異なります。
 
-The only thing that is pretty much the same between HTML and JSON is the contexts and the schema, which, once you think about it, it makes total sense. After all, your business logic should remain the same, regardless if you are exposing it as HTML or JSON.
+HTMLとJSONの間でほとんど同じなのは、コンテキストとスキーマだけです。結局のところ、ビジネスロジックは、HTMLやJSONで公開しているかどうかにかかわらず、同じままであるべきです。
 
-With the differences in hand, let's take a look at the controller tests.
+その違いを把握したうえで、コントローラーのテストを見てみましょう。
 
-### The index action
+### indexアクション
 
-Open up "test/hello_web/controllers/article_controller_test.exs". The initial structure is quite similar to "post_controller_test.exs". So let's take a look at the tests for the `index` action. The `index` action itself is implemented in "lib/hello_web/controllers/article_controller.ex" like this:
+`test/hello_web/controllers/article_controller_test.exs` を開きます。初期構造は `post_controller_test.exs` とよく似ています。それでは、`index` アクションのテストを見てみましょう。`index` アクション自体は `lib/hello_web/controllers/article_controller.ex` に次のように実装されています。
 
 ```elixir
 def index(conn, _params) do
@@ -263,7 +263,7 @@ def index(conn, _params) do
 end
 ```
 
-The action gets all articles and renders "index.json". Since we are talking about JSON, we don't have a "index.json.eex" template. Instead, the code that converts "articles" into JSON can be found directly in the ArticleView module, defined at "lib/hello_web/views/article_view.ex" like this:
+アクションはすべての記事を取得して "index.json" をレンダリングします。JSONについて話しているので、"index.json.eex" テンプレートはありません。代わりに、"article" をJSONに変換するコードはArticleViewモジュールで直接見つけることができ、`lib/hello_web/views/article_view.ex` で定義されています。
 
 ```elixir
 defmodule HelloWeb.ArticleView do
@@ -286,9 +286,9 @@ defmodule HelloWeb.ArticleView do
 end
 ```
 
-We talked about `render_many` [in the Views and Templates guide](views.html). All we need to know for now is that all JSON replies have a "data" key with either a list of posts (for index) or a single post inside of it.
+以前、`render_many` は[ビューとテンプレートガイド](views.html)で説明しました。今のところ知っておく必要があるのは、すべてのJSONリプライは "data" キーを持ち、その中に投稿のリスト（index用）か単一の投稿が含まれているということです。
 
-Let's take a look at the test for the `index` action then:
+それでは、`index` アクションのテストを見てみよう。
 
 ```elixir
 describe "index" do
@@ -299,13 +299,13 @@ describe "index" do
 end
 ```
 
-It simples access the `index` path, asserts we got a JSON response with status 200 and that it contains a "data" key with an empty list, as we have no articles to return.
+これは単に `index` パスにアクセスし、ステータス200のJSONレスポンスを取得し、返す記事がないので空のリストの "data" キーが含まれていることをアサートします。
 
-That was quite boring. Let's look at something more interesting.
+これだと少し退屈ですね。もっとおもしろいものをみてみましょう。
 
-### The `create` action
+### createアクション
 
-The `create` action is defined like this:
+`create` アクションはこのように定義されています。
 
 ```elixir
 def create(conn, %{"article" => article_params}) do
@@ -318,9 +318,9 @@ def create(conn, %{"article" => article_params}) do
 end
 ```
 
-As we can see, it checks if an article could be created. If so, it sets the status code to `:created` (which translates to 201), it sets a "location" header with the location of the article, and then renders "show.json" with the article.
+見ての通り、記事が作成されたかどうかをチェックします。もしそうなら、ステータスコードを `:created`（201に変換されます）に設定し、記事の場所を含む "location" ヘッダーを設定し、記事を含む "show.json" をレンダリングします。
 
-This is precisely what the first test for the `create` action verifies:
+これはまさに `create` アクションの最初のテストで検証されていることです。
 
 ```elixir
 describe "create" do
@@ -338,24 +338,24 @@ describe "create" do
   end
 ```
 
-The test uses `post/2` to create a new article and then we verify that the article returned a JSON response, with status 201, and that it had a "data" key in it. We pattern match the "data" on `%{"id" => id}`, which allows us to extract the ID of the new article. Then we perform a `get/2` request on the `show` route and verify that the article was successfully created.
+テストでは `post/2` を使って新しい記事を作成し、記事がステータス201のJSONレスポンスを返し、その中に "data" キーが含まれていることを確認します。"data" を `%{"id" => id}` でパターンマッチし、これにより、新しい記事のIDを抽出できます。次に、`show` ルート上で `get/2` リクエストを実行し、記事が正常に作成されたことを確認します。
 
-Inside `describe "create"`, we will find another test, which handles the failure scenario. Can you spot the failure scenario in the `create` action? Let's recap it:
+`describe "create"` の中には、失敗のシナリオを扱う別のテストがあります。`create` アクションの中にある失敗シナリオを見つけることができますか？振り返ってみましょう。
 
 ```elixir
 def create(conn, %{"article" => article_params}) do
   with {:ok, %Article{} = article} <- News.create_article(article_params) do
 ```
 
-The `with` special form that ships as part of Elixir allows us to check explicitly for the happy paths. In this case, we are interested only in the scenarios where `News.create_article(article_params)` return `{:ok, article}`, if it returns anything else, the other value will simply be returned directly and none of the contents inside the `do/end` block will be executed. In other words, if `News.create_article/1` returns `{:error, changeset}`, we will simply return `{:error, changeset}` from the action.
+Elixirの一部として提供されている `with` を使うと、ハッピーパスを明示的にチェックできます。この場合、私たちは `News.create_article(article_params)` が `{:ok, article}` を返すシナリオにのみ興味があります。もしそれが他の何かを返すならば、他の値は単に直接返され、`do/end` ブロック内のコンテンツは何も実行されません。つまり、`News.create_article/1` が `{:error, changeset}` を返した場合は、単に `{:error, changeset}` をアクションから返すことになります。
 
-However, this introduces an issue. Our actions do not know how to handle the `{:error, changeset}` result by default. Luckily, we can teach Phoenix Controllers to handle it with the Action Fallback controller. At the top of the `ArticleController`, you will find:
+しかし、これには問題があります。アクションはデフォルトで `{:error, changeset}` の結果を処理する方法を知りません。幸いなことに、Phoenix Controllersにアクションフォールバックコントローラーで処理する方法を教えることができます。`ArticleController` の冒頭には以下のようなものがあります。
 
 ```elixir
   action_fallback HelloWeb.FallbackController
 ```
 
-This line says: if any action does not return a `%Plug.Conn{}`, we want to invoke the `FallbackController` with the result. You will find `HelloWeb.FallbackController` at `lib/hello_web/controllers/fallback_controller.ex` and it looks like this:
+この行は、`%Plug.Conn{}` が返ってこない場合は、その結果を使って `FallbackController` を呼び出すという意味です。`HelloWeb.FallbackController` は `lib/hello_web/controllers/fallback_controller.ex` にあり、次のようになっています。
 
 ```elixir
 defmodule HelloWeb.FallbackController do
@@ -377,9 +377,9 @@ defmodule HelloWeb.FallbackController do
 end
 ```
 
-You can see how the first clause of the `call/2` function handles the `{:error, changeset}` case, setting the status code to unprocessable entity (422), and then rendering "error.json" from the changeset view with the failed changeset.
+`call/2` 関数の最初の節が `{:error, changeset}` の場合をどのように処理し、ステータスコードを処理不可能なエンティティ（422）に設定し、失敗したチェンジセットでチェンジセットビューから "error.json" をレンダリングするかを見ることができます。
 
-With this in mind, let's look at our second test for `create`:
+このことを念頭に置いて、`create` の2回目のテストを見てみよう。
 
 ```elixir
 test "renders errors when data is invalid", %{conn: conn} do
@@ -388,13 +388,13 @@ test "renders errors when data is invalid", %{conn: conn} do
 end
 ```
 
-It simply posts to the `create` path with invalid parameters. This makes it return a JSON response, with status code 422, and a response with a non-empty "errors" key.
+これは単に無効なパラメーターを指定して `create` パスにpostするだけです。これにより、ステータスコード422のJSONレスポンスと、空ではない "errors" キーを持つレスポンスを返すようになります。
 
-The `action_fallback` can be extremely useful to reduce boilerplate when designing APIs. You can learn more about the "Action Fallback" [in the Controllers guide](controllers.html).
+`action_fallback` は、APIを設計する際にボイラプレートを減らすのに非常に便利です。アクションフォールバックについては、[コントローラーガイド](controllers.html)を参照してください。
 
-### The `delete` action
+### deleteアクション
 
-Finally, the last action we will stidy is the `delete` action for JSON. Its implementation looks like this:
+最後に、最後のアクションはJSONのための `delete` アクションです。その実装は次のようになります。
 
 ```elixir
 def delete(conn, %{"id" => id}) do
@@ -406,9 +406,9 @@ def delete(conn, %{"id" => id}) do
 end
 ```
 
-The new action simply attempts to delete the article and, if it succeeds, it returns an empty response with status code `:no_content` (204).
+新しいアクションは単に記事の削除を試み、成功した場合、ステータスコード `:no_content`（204）を持つ空のレスポンスを返します。
 
-The test looks like this:
+テストは次の通りです。
 
 ```elixir
 describe "delete article" do
@@ -430,8 +430,8 @@ defp create_article(_) do
 end
 ```
 
-It setups a new article, then in the test it invokes the `delete` path to delete it, asserting on a 204 response, which is neither JSON nor HTML. Then it verifies that we can no longer access said article.
+これは新しい記事をセットアップし、テストでは `delete` パスを呼び出してそれを削除し、204のレスポンスでJSONでもHTMLでもないことをアサートします。そして、その記事にアクセスできなくなったことを確認します。
 
-That's all!
+以上です！
 
-Now that we understand how the scaffolded code and their tests work for both HTML and JSON APIs, we are prepared to move forward in building and maintaining our web applications!
+これで、HTMLとJSON APIの両方でスキャフォールドのコードとそのテストがどのように機能するかを理解したので、Webアプリケーションの構築と保守を進める準備が整いました。
