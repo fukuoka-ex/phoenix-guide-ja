@@ -1,6 +1,6 @@
 # Phoenix Guide 日本語訳
 
-**Note: こちらのリポジトリで作業したものをzennにて書籍として公開しました。こちらのリポジトリはアーカイブします。
+**Note: こちらのリポジトリで作業したものをzennにて書籍として公開しました。こちらのリポジトリはアーカイブします。**
 
 **要望や不備の報告は[issue](https://github.com/koga1020/phoenix-guide-ja-issues/issues/new/choose)または[スクラップ](https://zenn.dev/koga1020/scraps/9c1c0c322fc5cf)のいずれかよりご連絡ください。**
 
